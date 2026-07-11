@@ -66,34 +66,36 @@ npm run build-inventory
 | Measure | Count |
 |---|---|
 | Operations (platform / agile) | 631 (570 / 61) |
-| Envelope: single object | 345 |
-| Envelope: no response body | 102 |
-| Envelope: `values` wrapper | 71 |
+| Envelope: single object | 337 |
+| Envelope: no JSON response body | 78 |
+| Envelope: `values` wrapper | 76 |
+| Envelope: other keyed object | 70 |
 | Envelope: bare array | 49 |
-| Envelope: other keyed object | 48 |
-| Envelope: `issues` wrapper | 16 |
+| Envelope: `issues` wrapper | 21 |
 | Pagination: none | 515 |
 | Pagination: `isLast` hybrid | 68 |
 | Pagination: `startAt`/`maxResults` offset | 30 |
 | Pagination: `nextPageToken` cursor | 18 |
-| Mapped | 620 |
-| Skipped: superseded agile issue reads (current `/rest/software/1.0` twin mapped) | 8 |
+| Mapped | 610 |
+| Skipped: deprecated reads superseded by a mapped replacement (8 agile issue reads with `/rest/software/1.0` twins, get-all-projects vs `/project/search`) | 9 |
+| Skipped: non-JSON request bodies (multipart attachment upload, avatar image upload, form-encoded column settings) | 6 |
 | Skipped: deprecated legacy issue search (`/rest/api/3/search`; `/rest/api/3/search/jql` is mapped) | 2 |
-| Skipped: multipart attachment upload | 1 |
+| Skipped: binary redirect reads (attachment content/thumbnail) | 2 |
+| Skipped: unpaginated duplicates of paginated component/version lists | 2 |
 
 The platform spec's 87 surviving fine-grained tags are consolidated into 17 services, and the agile spec maps to a single `agile` service - 18 services in total, recorded in `provider-dev/config/service_names.json`:
 
 | Service | Consolidates (platform tags / agile) | Mapped ops |
 |---|---|---|
-| `issues` | Issues, attachments, comments (+properties), links, link types, properties, remote links, votes, watchers, worklogs (+properties), search, bulk operations, redaction, navigator settings, panels, labels | 103 |
-| `projects` | Projects, components, versions, categories, avatars, classification levels, email, features, key/name validation, properties, roles, role actors, templates, types | 84 |
+| `issues` | Issues, attachments, comments (+properties), links, link types, properties, remote links, votes, watchers, worklogs (+properties), search, bulk operations, redaction, navigator settings, panels, labels | 100 |
+| `projects` | Projects, components, versions, categories, avatars, classification levels, email, features, key/name validation, properties, roles, role actors, templates, types | 80 |
 | `fields` | Issue fields, custom field contexts, custom field options, custom field associations, field configurations, field schemes | 64 |
 | `workflows` | Workflows, workflow schemes (+drafts, +project associations), statuses, status categories, transition rules, status | 64 |
 | `agile` | Boards, sprints, epics, backlog, agile issue ranking (both `/rest/agile/1.0` and `/rest/software/1.0`) | 53 |
-| `system` | Myself, server info, announcement banner, application roles, avatars, classification levels, Jira settings, license metrics, time tracking, tasks, data policies | 35 |
+| `system` | Myself, server info, announcement banner, application roles, avatars, classification levels, Jira settings, license metrics, time tracking, tasks, data policies | 34 |
 | `permissions` | Permissions, permission schemes, project permission schemes, issue security schemes, issue security levels | 35 |
-| `issue_types` | Issue types, issue type schemes, issue type screen schemes, issue type properties | 33 |
-| `users` | Users, user search, user properties, group and user picker | 26 |
+| `issue_types` | Issue types, issue type schemes, issue type screen schemes, issue type properties | 32 |
+| `users` | Users, user search, user properties, group and user picker | 25 |
 | `priorities_resolutions` | Issue priorities, priority schemes, issue resolutions | 24 |
 | `screens` | Screens, screen schemes, screen tabs, screen tab fields | 21 |
 | `filters` | Filters, filter sharing | 19 |
@@ -111,6 +113,41 @@ Deviations from the candidate split in [CLAUDE.md](CLAUDE.md), decided from the 
 - `webhooks` is dropped entirely - the platform webhook registration API is app-context-only (see cleaning fix class 6)
 - `notifications` (notification schemes) and `plans` (Advanced Roadmaps) are added - both present in the spec but absent from the candidate list
 - agile builds/deployments are excluded - the dev-tools ingestion APIs are Connect-app integration surfaces (see cleaning fix class 5)
+
+## 2. Split into Service Specs
+
+```bash
+npm run split -- --provider-name jira --overwrite
+```
+
+`bin/split.mjs` splits both cleaned specs into one self-contained spec per service (`provider-dev/source/<service>.yaml`), consolidating the platform tags per `provider-dev/config/service_names.json` ("`*`" maps every agile tag to the `agile` service). An unmapped tag or a service produced by both specs fails the run. During phase 1 the split is limited to the pilot services with `--services issues,projects,agile`.
+
+## 3. Generate Mappings
+
+```bash
+npm run generate-mappings -- --provider-name jira --input-dir provider-dev/source --output-dir provider-dev/config
+npm run map-operations
+```
+
+`generate-mappings` (provider-utils `analyze`) writes the operation manifest to `provider-dev/config/all_services.csv`; `provider-dev/scripts/map_operations.mjs` then populates `stackql_resource_name`, `stackql_method_name`, `stackql_verb`, and `stackql_object_key` mechanically:
+
+| Operation pattern | StackQL verb | Resource / method |
+|---|---|---|
+| GET collection (any wrapper or bare array) | `SELECT` | `<resource>.list`, `stackql_object_key` per envelope (`$.issues`, `$.values`, `$.<key>`, none for bare arrays) |
+| GET `/search` endpoints | `SELECT` | `<resource>.search` |
+| GET single | `SELECT` | `<resource>.get`; static-ending config/meta reads use the operationId |
+| POST create | `INSERT` | `<resource>.create` |
+| PUT/PATCH edit | `UPDATE` | `<resource>.update` - Jira PUT carries partial field-update semantics on most resources, a documented deviation from the k8s PUT -> REPLACE convention |
+| DELETE entity | `DELETE` | `<resource>.delete` |
+| POST/PUT/DELETE actions (transitions, assign, notify, archive, rank, swap, move) | `EXEC` | `<resource>.<snake(operationId)>` (`issues.do_transition`, `issues.assign_issue`, `sprints.swap_sprint`) |
+| POST reads (body-parameterized queries, bulk fetches) | `EXEC` | StackQL cannot route `SELECT` WHERE parameters into request bodies (any-sdk gap, same as the k8s review kinds), so `POST /search/jql` maps as `issues.search_post` etc |
+| bulk operations | `EXEC` | `issues.submit_bulk_delete`, `issues.submit_bulk_transition`, `issue_properties.bulk_set_issue_property`, ... |
+
+Resource names are the full static path chain, snake_cased and pluralized on the last token (`issue_comments`, `project_roles`, `board_sprints`) - stable across spec refreshes and collision-free by construction. Explicit rules in `map_operations.mjs` (`RESOURCE_RULES`, `METHOD_RULES`) handle the cases the mechanical derivation gets wrong; the cursor-based `GET /rest/api/3/search/jql` maps as the primary `issues.search` with the legacy `/rest/api/3/search` endpoints skipped.
+
+The script validates before writing: every operation in the split specs has a CSV row, every row is mapped or skipped with a reason, `(resource, method)` is unique per service, and no two non-exec methods on the same `(resource, SQL verb)` share a required-parameter signature (path parameters plus required query parameters). Violations fail the run without writing.
+
+Pilot results (`issues`, `projects`, `agile` - all envelope styles, all pagination schemes, both specs, both path prefixes): 233 operations mapped (109 `SELECT`, 14 `INSERT`, 26 `UPDATE`, 23 `DELETE`, 61 `EXEC`), 18 skipped, 100 resources (issues 36, projects 37, agile 27).
 
 ## Status
 

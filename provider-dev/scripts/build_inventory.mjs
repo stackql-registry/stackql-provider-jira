@@ -35,8 +35,10 @@ const cleanedDir = path.join(repoRoot, 'provider-dev', 'downloaded', 'cleaned');
 const serviceNamesPath = path.join(repoRoot, 'provider-dev', 'config', 'service_names.json');
 const outPath = path.join(repoRoot, 'provider-dev', 'config', 'endpoint_inventory.csv');
 
-const HTTP_VERBS = ['get', 'post', 'put', 'delete', 'patch'];
-const PAGINATION_MARKERS = ['startAt', 'maxResults', 'total', 'isLast', 'nextPage', 'nextPageToken', 'self', 'first', 'last', 'size'];
+import {
+  HTTP_VERBS, camelToSnake, stripPathPrefix, makeResolver,
+  classifyEnvelope, classifyPagination, skipReason
+} from './lib/spec_helpers.mjs';
 
 // POST paths whose last segment is a read (query) rather than a mutation
 const POST_READ_SEGMENTS = new Set(['search', 'jql', 'list', 'map', 'match', 'parse', 'picker', 'query', 'id']);
@@ -51,84 +53,11 @@ const ACTION_SEGMENTS = new Set([
 const serviceNames = JSON.parse(fs.readFileSync(serviceNamesPath, 'utf8'));
 
 // ---------------------------------------------------------------------------
-// Schema helpers
-// ---------------------------------------------------------------------------
-
-function makeResolver(spec) {
-  return function resolve(schema, depth = 0) {
-    if (!schema || depth > 10) return schema;
-    if (schema.$ref) {
-      const parts = schema.$ref.replace(/^#\//, '').split('/');
-      let node = spec;
-      for (const p of parts) node = node?.[p];
-      return resolve(node, depth + 1);
-    }
-    return schema;
-  };
-}
-
-function success2xx(op) {
-  const codes = Object.keys(op.responses || {}).filter((c) => /^2/.test(c)).sort();
-  for (const code of codes) {
-    const content = op.responses[code].content;
-    const json = content?.['application/json'];
-    if (json?.schema) return { code, schema: json.schema };
-  }
-  return { code: codes[0] || null, schema: null };
-}
-
-function classifyEnvelope(op, resolve) {
-  const { schema } = success2xx(op);
-  if (!schema) return { envelope: 'none', key: '' };
-  const s = resolve(schema);
-  if (!s) return { envelope: 'none', key: '' };
-  if (s.type === 'array' || (s.items && !s.properties)) return { envelope: 'bare-array', key: '' };
-  const props = s.properties || {};
-  const arrayProps = Object.entries(props)
-    .filter(([, v]) => { const r = resolve(v); return r && (r.type === 'array' || (r.items && !r.properties)); })
-    .map(([k]) => k);
-  if (arrayProps.includes('issues')) return { envelope: 'issues-wrapper', key: '$.issues' };
-  if (arrayProps.includes('values')) return { envelope: 'values-wrapper', key: '$.values' };
-  const hasPageMarkers = Object.keys(props).some((k) => ['startAt', 'maxResults', 'total', 'isLast', 'nextPage'].includes(k));
-  if (hasPageMarkers && arrayProps.length > 0) {
-    const key = arrayProps.find((k) => !PAGINATION_MARKERS.includes(k));
-    if (key) return { envelope: 'keyed-object', key: `$.${key}` };
-  }
-  // collection wrapped under a single key with no pagination markers
-  if (arrayProps.length === 1 && Object.keys(props).length === 1) {
-    return { envelope: 'keyed-object', key: `$.${arrayProps[0]}` };
-  }
-  return { envelope: 'single', key: '' };
-}
-
-function classifyPagination(op, pathItem, resolve) {
-  const params = [...(pathItem.parameters || []), ...(op.parameters || [])]
-    .map((p) => resolve(p))
-    .filter((p) => p && p.in === 'query')
-    .map((p) => p.name);
-  const { schema } = success2xx(op);
-  const props = schema ? (resolve(schema)?.properties || {}) : {};
-  if (params.includes('nextPageToken') || 'nextPageToken' in props) return 'nextPageToken';
-  if ('isLast' in props || 'nextPage' in props) return 'isLast-hybrid';
-  if (params.includes('startAt') && params.includes('maxResults')) return 'offset';
-  if (params.includes('maxResults') && ('total' in props || 'startAt' in props)) return 'offset';
-  return 'none';
-}
-
-// ---------------------------------------------------------------------------
 // Draft resource / verb proposals (authoritative mapping is map_operations.mjs)
 // ---------------------------------------------------------------------------
 
-function camelToSnake(s) {
-  return s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/[-. ]/g, '_').toLowerCase();
-}
-
 function pathSegments(pathKey) {
-  const stripped = pathKey
-    .replace(/^\/rest\/api\/3\//, '')
-    .replace(/^\/rest\/agile\/1\.0\//, '')
-    .replace(/^\/rest\/software\/1\.0\//, '');
-  return stripped.split('/').filter(Boolean);
+  return stripPathPrefix(pathKey).split('/').filter(Boolean);
 }
 
 function proposeResource(pathKey) {
@@ -151,18 +80,6 @@ function proposeVerb(verb, pathKey, op) {
   const codes = Object.keys(op.responses || {}).filter((c) => /^2/.test(c));
   if (codes.length > 0 && codes.every((c) => c === '204')) return 'exec';
   return 'insert';
-}
-
-function skipReason(specName, verb, pathKey, op) {
-  if (specName === 'jira-platform-v3' && pathKey === '/rest/api/3/search') return 'deprecated_legacy_search';
-  if (specName === 'jira-software-agile' && op.deprecated && pathKey.startsWith('/rest/agile/1.0/')) {
-    return 'deprecated_superseded';
-  }
-  const mediaTypes = Object.keys(op.requestBody?.content || {});
-  if (mediaTypes.length > 0 && mediaTypes.every((m) => m.includes('multipart') || m.includes('octet-stream'))) {
-    return 'multipart_upload';
-  }
-  return '';
 }
 
 // ---------------------------------------------------------------------------
@@ -204,7 +121,7 @@ for (const specFile of specFiles) {
       }
       const { envelope, key } = classifyEnvelope(op, resolve);
       const pagination = classifyPagination(op, pathItem, resolve);
-      const skip = skipReason(specName, verb, pathKey, op);
+      const skip = skipReason(pathKey, op);
       const pathParams = (pathKey.match(/\{[^}]+\}/g) || []).map((s) => s.slice(1, -1)).join(';');
 
       rows.push({

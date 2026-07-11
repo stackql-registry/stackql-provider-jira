@@ -1,0 +1,252 @@
+filename,path,operationId,formatted_op_id,verb,response_object,tags,formatted_tags,stackql_resource_name,stackql_method_name,stackql_verb,stackql_object_key,op_description
+agile.yaml,/rest/agile/1.0/backlog/issue,moveIssuesToBacklog,move_issues_to_backlog,post,,Backlog,backlog,backlog_issues,move_issues_to_backlog,exec,,Move issues to backlog
+agile.yaml,/rest/agile/1.0/backlog/{boardId}/issue,moveIssuesToBacklogForBoard,move_issues_to_backlog_for_board,post,,Backlog,backlog,backlog_issues,move_issues_to_backlog_for_board,exec,,Move issues to backlog for board
+agile.yaml,/rest/agile/1.0/board,getAllBoards,get_all_boards,get,,Board,board,boards,list,select,$.values,Get all boards
+agile.yaml,/rest/agile/1.0/board,createBoard,create_board,post,,Board,board,boards,create,insert,,Create board
+agile.yaml,/rest/agile/1.0/board/filter/{filterId},getBoardByFilterId,get_board_by_filter_id,get,,Board,board,boards,get_board_by_filter_id,select,$.values,Get board by filter id
+agile.yaml,/rest/agile/1.0/board/{boardId},deleteBoard,delete_board,delete,,Board,board,boards,delete,delete,,Delete board
+agile.yaml,/rest/agile/1.0/board/{boardId},getBoard,get_board,get,,Board,board,boards,get,select,,Get board
+agile.yaml,/rest/agile/1.0/board/{boardId}/backlog,getIssuesForBacklog,get_issues_for_backlog,get,SearchResults,Board,board,skip_this_resource,,,,Get issues for backlog
+agile.yaml,/rest/software/1.0/board/{boardId}/backlog,getIssuesForBacklogJSIS,get_issues_for_backlog_jsis,get,SoftwareIssueResults,Board,board,board_backlogs,list,select,$.issues,Get issues for backlog (enhanced)
+agile.yaml,/rest/software/1.0/board/{boardId}/backlog/approximate-count,getApproximateIssueCountForBacklog,get_approximate_issue_count_for_backlog,get,IssueCountBean,Board,board,board_backlog_approximate_counts,get_approximate_issue_count_for_backlog,select,,Get approximate issue count for backlog
+agile.yaml,/rest/agile/1.0/board/{boardId}/configuration,getConfiguration,get_configuration,get,,Board,board,board_configurations,get_configuration,select,,Get configuration
+agile.yaml,/rest/agile/1.0/board/{boardId}/epic,getEpics,get_epics,get,,Board,board,board_epics,list,select,$.values,Get epics
+agile.yaml,/rest/agile/1.0/board/{boardId}/epic/none/issue,getIssuesWithoutEpicForBoard,get_issues_without_epic_for_board,get,,Board,board,skip_this_resource,,,,Get issues without epic for board
+agile.yaml,/rest/software/1.0/board/{boardId}/epic/none/issue,getIssuesWithoutEpicForBoardJSIS,get_issues_without_epic_for_board_jsis,get,SoftwareIssueResults,Board,board,board_epic_none_issues,list,select,$.issues,Get issues without epic for board (enhanced)
+agile.yaml,/rest/agile/1.0/board/{boardId}/epic/{epicId}/issue,getBoardIssuesForEpic,get_board_issues_for_epic,get,,Board,board,skip_this_resource,,,,Get board issues for epic
+agile.yaml,/rest/software/1.0/board/{boardId}/epic/{epicId}/issue,getBoardIssuesForEpicJSIS,get_board_issues_for_epic_jsis,get,SoftwareIssueResults,Board,board,board_epic_issues,list,select,$.issues,Get board issues for epic (enhanced)
+agile.yaml,/rest/agile/1.0/board/{boardId}/features,getFeaturesForBoard,get_features_for_board,get,,Board,board,board_features,list,select,$.features,Get features for board
+agile.yaml,/rest/agile/1.0/board/{boardId}/features,toggleFeatures,toggle_features,put,,Board,board,board_features,update,update,,Toggle features
+agile.yaml,/rest/agile/1.0/board/{boardId}/issue,getIssuesForBoard,get_issues_for_board,get,SearchResults,Board,board,skip_this_resource,,,,Get issues for board
+agile.yaml,/rest/agile/1.0/board/{boardId}/issue,moveIssuesToBoard,move_issues_to_board,post,,Board,board,board_issues,move_issues_to_board,exec,,Move issues to board
+agile.yaml,/rest/software/1.0/board/{boardId}/issue,getIssuesForBoardJSIS,get_issues_for_board_jsis,get,SoftwareIssueResults,Board,board,board_issues,list,select,$.issues,Get issues for board (enhanced)
+agile.yaml,/rest/software/1.0/board/{boardId}/issue/approximate-count,getApproximateIssueCountForBoard,get_approximate_issue_count_for_board,get,IssueCountBean,Board,board,board_issue_approximate_counts,get_approximate_issue_count_for_board,select,,Get approximate issue count for board
+agile.yaml,/rest/agile/1.0/board/{boardId}/project,getProjects,get_projects,get,,Board,board,board_projects,list,select,$.values,Get projects
+agile.yaml,/rest/agile/1.0/board/{boardId}/project/full,getProjectsFull,get_projects_full,get,,Board,board,board_project_fulls,get_projects_full,select,,Get projects full
+agile.yaml,/rest/agile/1.0/board/{boardId}/properties,getBoardPropertyKeys,get_board_property_keys,get,,Board,board,board_properties,get_board_property_keys,select,,Get board property keys
+agile.yaml,/rest/agile/1.0/board/{boardId}/properties/{propertyKey},deleteBoardProperty,delete_board_property,delete,,Board,board,board_properties,delete,delete,,Delete board property
+agile.yaml,/rest/agile/1.0/board/{boardId}/properties/{propertyKey},getBoardProperty,get_board_property,get,,Board,board,board_properties,get,select,,Get board property
+agile.yaml,/rest/agile/1.0/board/{boardId}/properties/{propertyKey},setBoardProperty,set_board_property,put,,Board,board,board_properties,update,update,,Set board property
+agile.yaml,/rest/agile/1.0/board/{boardId}/quickfilter,getAllQuickFilters,get_all_quick_filters,get,,Board,board,board_quickfilters,list,select,$.values,Get all quick filters
+agile.yaml,/rest/agile/1.0/board/{boardId}/quickfilter/{quickFilterId},getQuickFilter,get_quick_filter,get,,Board,board,board_quickfilters,get,select,,Get quick filter
+agile.yaml,/rest/agile/1.0/board/{boardId}/reports,getReportsForBoard,get_reports_for_board,get,,Board,board,board_reports,list,select,$.reports,Get reports for board
+agile.yaml,/rest/agile/1.0/board/{boardId}/sprint,getAllSprints,get_all_sprints,get,,Board,board,board_sprints,list,select,$.values,Get all sprints
+agile.yaml,/rest/agile/1.0/board/{boardId}/sprint/{sprintId}/issue,getBoardIssuesForSprint,get_board_issues_for_sprint,get,,Board,board,skip_this_resource,,,,Get board issues for sprint
+agile.yaml,/rest/software/1.0/board/{boardId}/sprint/{sprintId}/issue,getBoardIssuesForSprintJSIS,get_board_issues_for_sprint_jsis,get,SoftwareIssueResults,Board,board,board_sprint_issues,list,select,$.issues,Get board issues for sprint (enhanced)
+agile.yaml,/rest/agile/1.0/board/{boardId}/version,getAllVersions,get_all_versions,get,,Board,board,board_versions,list,select,$.values,Get all versions
+agile.yaml,/rest/agile/1.0/epic/none/issue,getIssuesWithoutEpic,get_issues_without_epic,get,,Epic,epic,skip_this_resource,,,,Get issues without epic
+agile.yaml,/rest/agile/1.0/epic/none/issue,removeIssuesFromEpic,remove_issues_from_epic,post,,Epic,epic,epic_none_issues,remove_issues_from_epic,exec,,Remove issues from epic
+agile.yaml,/rest/software/1.0/epic/none/issue,getIssuesWithoutEpicJSIS,get_issues_without_epic_jsis,get,SoftwareIssueResults,Epic,epic,epic_none_issues,list,select,$.issues,Get issues without epic (enhanced)
+agile.yaml,/rest/agile/1.0/epic/{epicIdOrKey},getEpic,get_epic,get,,Epic,epic,epics,get,select,,Get epic
+agile.yaml,/rest/agile/1.0/epic/{epicIdOrKey},partiallyUpdateEpic,partially_update_epic,post,,Epic,epic,epics,partially_update_epic,exec,,Partially update epic
+agile.yaml,/rest/agile/1.0/epic/{epicIdOrKey}/issue,getIssuesForEpic,get_issues_for_epic,get,,Epic,epic,skip_this_resource,,,,Get issues for epic
+agile.yaml,/rest/agile/1.0/epic/{epicIdOrKey}/issue,moveIssuesToEpic,move_issues_to_epic,post,,Epic,epic,epic_issues,move_issues_to_epic,exec,,Move issues to epic
+agile.yaml,/rest/software/1.0/epic/{epicIdOrKey}/issue,getIssuesForEpicJSIS,get_issues_for_epic_jsis,get,SoftwareIssueResults,Epic,epic,epic_issues,list,select,$.issues,Get issues for epic (enhanced)
+agile.yaml,/rest/agile/1.0/epic/{epicIdOrKey}/rank,rankEpics,rank_epics,put,,Epic,epic,epics,rank_epics,exec,,Rank epics
+agile.yaml,/rest/agile/1.0/issue/rank,rankIssues,rank_issues,put,,Issue,issue,issues,rank_issues,exec,,Rank issues
+agile.yaml,/rest/agile/1.0/issue/{issueIdOrKey},getIssue,get_issue,get,,Issue,issue,issues,get,select,,Get issue
+agile.yaml,/rest/agile/1.0/issue/{issueIdOrKey}/estimation,getIssueEstimationForBoard,get_issue_estimation_for_board,get,,Issue,issue,issue_estimations,get_issue_estimation_for_board,select,,Get issue estimation for board
+agile.yaml,/rest/agile/1.0/issue/{issueIdOrKey}/estimation,estimateIssueForBoard,estimate_issue_for_board,put,,Issue,issue,issue_estimations,update,update,,Estimate issue for board
+agile.yaml,/rest/agile/1.0/sprint,createSprint,create_sprint,post,,Sprint,sprint,sprints,create,insert,,Create sprint
+agile.yaml,/rest/agile/1.0/sprint/{sprintId},deleteSprint,delete_sprint,delete,,Sprint,sprint,sprints,delete,delete,,Delete sprint
+agile.yaml,/rest/agile/1.0/sprint/{sprintId},getSprint,get_sprint,get,,Sprint,sprint,sprints,get,select,,Get sprint
+agile.yaml,/rest/agile/1.0/sprint/{sprintId},partiallyUpdateSprint,partially_update_sprint,post,,Sprint,sprint,sprints,partially_update_sprint,exec,,Partially update sprint
+agile.yaml,/rest/agile/1.0/sprint/{sprintId},updateSprint,update_sprint,put,,Sprint,sprint,sprints,update,update,,Update sprint
+agile.yaml,/rest/agile/1.0/sprint/{sprintId}/issue,getIssuesForSprint,get_issues_for_sprint,get,,Sprint,sprint,skip_this_resource,,,,Get issues for sprint
+agile.yaml,/rest/agile/1.0/sprint/{sprintId}/issue,moveIssuesToSprintAndRank,move_issues_to_sprint_and_rank,post,,Sprint,sprint,sprint_issues,move_issues_to_sprint_and_rank,exec,,Move issues to sprint and rank
+agile.yaml,/rest/software/1.0/sprint/{sprintId}/issue,getIssuesForSprintJSIS,get_issues_for_sprint_jsis,get,SoftwareIssueResults,Sprint,sprint,sprint_issues,list,select,$.issues,Get issues for sprint (enhanced)
+agile.yaml,/rest/agile/1.0/sprint/{sprintId}/properties,getPropertiesKeys,get_properties_keys,get,,Sprint,sprint,sprint_properties,list,select,$.keys,Get properties keys
+agile.yaml,/rest/agile/1.0/sprint/{sprintId}/properties/{propertyKey},deleteProperty,delete_property,delete,,Sprint,sprint,sprint_properties,delete,delete,,Delete property
+agile.yaml,/rest/agile/1.0/sprint/{sprintId}/properties/{propertyKey},getProperty,get_property,get,,Sprint,sprint,sprint_properties,get,select,,Get property
+agile.yaml,/rest/agile/1.0/sprint/{sprintId}/properties/{propertyKey},setProperty,set_property,put,,Sprint,sprint,sprint_properties,update,update,,Set property
+agile.yaml,/rest/agile/1.0/sprint/{sprintId}/swap,swapSprint,swap_sprint,post,,Sprint,sprint,sprints,swap_sprint,exec,,Swap sprint
+issues.yaml,/rest/api/3/attachment/content/{id},getAttachmentContent,get_attachment_content,get,,Issue attachments,issue attachments,skip_this_resource,,,,Get attachment content
+issues.yaml,/rest/api/3/attachment/meta,getAttachmentMeta,get_attachment_meta,get,AttachmentSettings,Issue attachments,issue attachments,attachment_metas,get_attachment_meta,select,,Get Jira attachment settings
+issues.yaml,/rest/api/3/attachment/thumbnail/{id},getAttachmentThumbnail,get_attachment_thumbnail,get,,Issue attachments,issue attachments,skip_this_resource,,,,Get attachment thumbnail
+issues.yaml,/rest/api/3/attachment/{id},removeAttachment,remove_attachment,delete,,Issue attachments,issue attachments,attachments,delete,delete,,Delete attachment
+issues.yaml,/rest/api/3/attachment/{id},getAttachment,get_attachment,get,AttachmentMetadata,Issue attachments,issue attachments,attachments,get,select,,Get attachment metadata
+issues.yaml,/rest/api/3/attachment/{id}/expand/human,expandAttachmentForHumans,expand_attachment_for_humans,get,AttachmentArchiveMetadataReadable,Issue attachments,issue attachments,attachment_expand_humans,list,select,$.entries,Get all metadata for an expanded attachment
+issues.yaml,/rest/api/3/attachment/{id}/expand/raw,expandAttachmentForMachines,expand_attachment_for_machines,get,AttachmentArchiveImpl,Issue attachments,issue attachments,attachment_expand_raws,list,select,$.entries,Get contents metadata for an expanded attachment
+issues.yaml,/rest/api/3/bulk/issues/delete,submitBulkDelete,submit_bulk_delete,post,SubmittedBulkOperation,Issue bulk operations,issue bulk operations,issues,submit_bulk_delete,exec,,Bulk delete issues
+issues.yaml,/rest/api/3/bulk/issues/fields,getBulkEditableFields,get_bulk_editable_fields,get,BulkEditGetFields,Issue bulk operations,issue bulk operations,bulk_editable_fields,list,select,$.fields,Get bulk editable fields
+issues.yaml,/rest/api/3/bulk/issues/fields,submitBulkEdit,submit_bulk_edit,post,SubmittedBulkOperation,Issue bulk operations,issue bulk operations,issues,submit_bulk_edit,exec,,Bulk edit issues
+issues.yaml,/rest/api/3/bulk/issues/move,submitBulkMove,submit_bulk_move,post,SubmittedBulkOperation,Issue bulk operations,issue bulk operations,issues,submit_bulk_move,exec,,Bulk move issues
+issues.yaml,/rest/api/3/bulk/issues/transition,getAvailableTransitions,get_available_transitions,get,BulkTransitionGetAvailableTransitions,Issue bulk operations,issue bulk operations,bulk_available_transitions,list,select,$.availableTransitions,Get available transitions
+issues.yaml,/rest/api/3/bulk/issues/transition,submitBulkTransition,submit_bulk_transition,post,SubmittedBulkOperation,Issue bulk operations,issue bulk operations,issues,submit_bulk_transition,exec,,Bulk transition issue statuses
+issues.yaml,/rest/api/3/bulk/issues/unwatch,submitBulkUnwatch,submit_bulk_unwatch,post,SubmittedBulkOperation,Issue bulk operations,issue bulk operations,issues,submit_bulk_unwatch,exec,,Bulk unwatch issues
+issues.yaml,/rest/api/3/bulk/issues/watch,submitBulkWatch,submit_bulk_watch,post,SubmittedBulkOperation,Issue bulk operations,issue bulk operations,issues,submit_bulk_watch,exec,,Bulk watch issues
+issues.yaml,/rest/api/3/bulk/queue/{taskId},getBulkOperationProgress,get_bulk_operation_progress,get,BulkOperationProgress,Issue bulk operations,issue bulk operations,bulk_operation_progress,get,select,,Get bulk issue operation progress
+issues.yaml,/rest/api/3/changelog/bulkfetch,getBulkChangelogs,get_bulk_changelogs,post,BulkChangelogResponseBean,Issues,issues,issue_changelogs,get_bulk_changelogs,exec,,Bulk fetch changelogs
+issues.yaml,/rest/api/3/comment/list,getCommentsByIds,get_comments_by_ids,post,PageBeanComment,Issue comments,issue comments,issue_comments,get_comments_by_ids,exec,,Get comments by IDs
+issues.yaml,/rest/api/3/comment/{commentId}/properties,getCommentPropertyKeys,get_comment_property_keys,get,PropertyKeys,Issue comment properties,issue comment properties,comment_properties,list,select,$.keys,Get comment property keys
+issues.yaml,/rest/api/3/comment/{commentId}/properties/{propertyKey},deleteCommentProperty,delete_comment_property,delete,,Issue comment properties,issue comment properties,comment_properties,delete,delete,,Delete comment property
+issues.yaml,/rest/api/3/comment/{commentId}/properties/{propertyKey},getCommentProperty,get_comment_property,get,EntityProperty,Issue comment properties,issue comment properties,comment_properties,get,select,,Get comment property
+issues.yaml,/rest/api/3/comment/{commentId}/properties/{propertyKey},setCommentProperty,set_comment_property,put,,Issue comment properties,issue comment properties,comment_properties,update,update,,Set comment property
+issues.yaml,/rest/api/3/events,getEvents,get_events,get,IssueEvent,Issues,issues,events,list,select,,Get events
+issues.yaml,/rest/api/3/forge/panel/action/bulk/async,bulkPinUnpinProjectsAsync,bulk_pin_unpin_projects_async,post,ForgePanelProjectPinAsyncResponse,Issue panels,issue panels,forge_panel_action_bulk_asyncs,bulk_pin_unpin_projects_async,exec,,Bulk pin or unpin issue panel to projects
+issues.yaml,/rest/api/3/issue,createIssue,create_issue,post,CreatedIssue,Issues,issues,issues,create,insert,,Create issue
+issues.yaml,/rest/api/3/issue/archive,archiveIssuesAsync,archive_issues_async,post,,Issues,issues,issues,archive_issues_async,exec,,Archive issue(s) by JQL
+issues.yaml,/rest/api/3/issue/archive,archiveIssues,archive_issues,put,IssueArchivalSyncResponse,Issues,issues,issues,archive_issues,exec,,Archive issue(s) by issue ID/key
+issues.yaml,/rest/api/3/issue/bulk,createIssues,create_issues,post,CreatedIssues,Issues,issues,issues,create_issues,exec,,Bulk create issue
+issues.yaml,/rest/api/3/issue/bulkfetch,bulkFetchIssues,bulk_fetch_issues,post,BulkIssueResults,Issues,issues,issues,bulk_fetch_issues,exec,,Bulk fetch issues
+issues.yaml,/rest/api/3/issue/createmeta,getCreateIssueMeta,get_create_issue_meta,get,IssueCreateMetadata,Issues,issues,issue_createmetas,list,select,$.projects,Get create issue metadata
+issues.yaml,/rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes,getCreateIssueMetaIssueTypes,get_create_issue_meta_issue_types,get,PageOfCreateMetaIssueTypes,Issues,issues,issue_createmeta_issuetypes,list,select,$.createMetaIssueType,Get create metadata issue types for a project
+issues.yaml,/rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes/{issueTypeId},getCreateIssueMetaIssueTypeId,get_create_issue_meta_issue_type_id,get,PageOfCreateMetaIssueTypeWithField,Issues,issues,issue_createmeta_fields,list,select,$.fields,Get create field metadata for a project and issue type id
+issues.yaml,/rest/api/3/issue/limit/report,getIssueLimitReport,get_issue_limit_report,get,IssueLimitReportResponseBean,Issues,issues,issue_limit_reports,get_issue_limit_report,select,,Get issue limit report
+issues.yaml,/rest/api/3/issue/picker,getIssuePickerResource,get_issue_picker_resource,get,IssuePickerSuggestions,Issue search,issue search,issue_pickers,list,select,$.sections,Get issue picker suggestions
+issues.yaml,/rest/api/3/issue/properties,bulkSetIssuesPropertiesList,bulk_set_issues_properties_list,post,,Issue properties,issue properties,issue_properties,bulk_set_issues_properties_list,exec,,Bulk set issues properties by list
+issues.yaml,/rest/api/3/issue/properties/multi,bulkSetIssuePropertiesByIssue,bulk_set_issue_properties_by_issue,post,,Issue properties,issue properties,issue_properties,bulk_set_issue_properties_by_issue,exec,,Bulk set issue properties by issue
+issues.yaml,/rest/api/3/issue/properties/{propertyKey},bulkDeleteIssueProperty,bulk_delete_issue_property,delete,,Issue properties,issue properties,issue_properties,bulk_delete_issue_property,exec,,Bulk delete issue property
+issues.yaml,/rest/api/3/issue/properties/{propertyKey},bulkSetIssueProperty,bulk_set_issue_property,put,,Issue properties,issue properties,issue_properties,bulk_set_issue_property,exec,,Bulk set issue property
+issues.yaml,/rest/api/3/issue/unarchive,unarchiveIssues,unarchive_issues,put,IssueArchivalSyncResponse,Issues,issues,issues,unarchive_issues,exec,,Unarchive issue(s) by issue keys/ID
+issues.yaml,/rest/api/3/issue/watching,getIsWatchingIssueBulk,get_is_watching_issue_bulk,post,BulkIssueIsWatching,Issue watchers,issue watchers,issue_watchings,get_is_watching_issue_bulk,exec,,Get is watching issue bulk
+issues.yaml,/rest/api/3/issue/{issueIdOrKey},deleteIssue,delete_issue,delete,,Issues,issues,issues,delete,delete,,Delete issue
+issues.yaml,/rest/api/3/issue/{issueIdOrKey},getIssue,get_issue,get,IssueBean,Issues,issues,issues,get,select,,Get issue
+issues.yaml,/rest/api/3/issue/{issueIdOrKey},editIssue,edit_issue,put,,Issues,issues,issues,update,update,,Edit issue
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/assignee,assignIssue,assign_issue,put,,Issues,issues,issues,assign_issue,exec,,Assign issue
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/attachments,addAttachment,add_attachment,post,Attachment,Issue attachments,issue attachments,skip_this_resource,,,,Add attachment
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/changelog,getChangeLogs,get_change_logs,get,PageBeanChangelog,Issues,issues,issue_changelogs,list,select,$.values,Get changelogs
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/changelog/list,getChangeLogsByIds,get_change_logs_by_ids,post,PageOfChangelogs,Issues,issues,issue_changelogs,get_change_logs_by_ids,exec,,Get changelogs by IDs
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/comment,getComments,get_comments,get,PageOfComments,Issue comments,issue comments,issue_comments,list,select,$.comments,Get comments
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/comment,addComment,add_comment,post,Comment,Issue comments,issue comments,issue_comments,create,insert,,Add comment
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/comment/{id},deleteComment,delete_comment,delete,,Issue comments,issue comments,issue_comments,delete,delete,,Delete comment
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/comment/{id},getComment,get_comment,get,Comment,Issue comments,issue comments,issue_comments,get,select,,Get comment
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/comment/{id},updateComment,update_comment,put,Comment,Issue comments,issue comments,issue_comments,update,update,,Update comment
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/editmeta,getEditIssueMeta,get_edit_issue_meta,get,IssueUpdateMetadata,Issues,issues,issue_editmetas,get_edit_issue_meta,select,,Get edit issue metadata
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/notify,notify,notify,post,,Issues,issues,issues,notify,exec,,Send notification for issue
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/properties,getIssuePropertyKeys,get_issue_property_keys,get,PropertyKeys,Issue properties,issue properties,issue_properties,list,select,$.keys,Get issue property keys
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey},deleteIssueProperty,delete_issue_property,delete,,Issue properties,issue properties,issue_properties,delete,delete,,Delete issue property
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey},getIssueProperty,get_issue_property,get,EntityProperty,Issue properties,issue properties,issue_properties,get,select,,Get issue property
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey},setIssueProperty,set_issue_property,put,,Issue properties,issue properties,issue_properties,update,update,,Set issue property
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/remotelink,deleteRemoteIssueLinkByGlobalId,delete_remote_issue_link_by_global_id,delete,,Issue remote links,issue remote links,issue_remotelinks,delete_remote_issue_link_by_global_id,exec,,Delete remote issue link by global ID
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/remotelink,getRemoteIssueLinks,get_remote_issue_links,get,,Issue remote links,issue remote links,issue_remotelinks,get_remote_issue_links,select,,Get remote issue links
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/remotelink,createOrUpdateRemoteIssueLink,create_or_update_remote_issue_link,post,RemoteIssueLinkIdentifies,Issue remote links,issue remote links,issue_remotelinks,create,insert,,Create or update remote issue link
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/remotelink/{linkId},deleteRemoteIssueLinkById,delete_remote_issue_link_by_id,delete,,Issue remote links,issue remote links,issue_remotelinks,delete,delete,,Delete remote issue link by ID
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/remotelink/{linkId},getRemoteIssueLinkById,get_remote_issue_link_by_id,get,RemoteIssueLink,Issue remote links,issue remote links,issue_remotelinks,get,select,,Get remote issue link by ID
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/remotelink/{linkId},updateRemoteIssueLink,update_remote_issue_link,put,,Issue remote links,issue remote links,issue_remotelinks,update,update,,Update remote issue link by ID
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/transitions,getTransitions,get_transitions,get,Transitions,Issues,issues,issue_transitions,list,select,$.transitions,Get transitions
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/transitions,doTransition,do_transition,post,,Issues,issues,issues,do_transition,exec,,Transition issue
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/votes,removeVote,remove_vote,delete,,Issue votes,issue votes,issue_votes,remove_vote,exec,,Delete vote
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/votes,getVotes,get_votes,get,Votes,Issue votes,issue votes,issue_votes,list,select,$.voters,Get votes
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/votes,addVote,add_vote,post,,Issue votes,issue votes,issue_votes,add_vote,exec,,Add vote
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/watchers,removeWatcher,remove_watcher,delete,,Issue watchers,issue watchers,issue_watchers,remove_watcher,exec,,Delete watcher
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/watchers,getIssueWatchers,get_issue_watchers,get,Watchers,Issue watchers,issue watchers,issue_watchers,list,select,$.watchers,Get issue watchers
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/watchers,addWatcher,add_watcher,post,,Issue watchers,issue watchers,issue_watchers,add_watcher,exec,,Add watcher
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/worklog,bulkDeleteWorklogs,bulk_delete_worklogs,delete,,Issue worklogs,issue worklogs,issue_worklogs,bulk_delete_worklogs,exec,,Bulk delete worklogs
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/worklog,getIssueWorklog,get_issue_worklog,get,PageOfWorklogs,Issue worklogs,issue worklogs,issue_worklogs,list,select,$.worklogs,Get issue worklogs
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/worklog,addWorklog,add_worklog,post,Worklog,Issue worklogs,issue worklogs,issue_worklogs,create,insert,,Add worklog
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/worklog/move,bulkMoveWorklogs,bulk_move_worklogs,post,,Issue worklogs,issue worklogs,issue_worklogs,bulk_move_worklogs,exec,,Bulk move worklogs
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/worklog/{id},deleteWorklog,delete_worklog,delete,,Issue worklogs,issue worklogs,issue_worklogs,delete,delete,,Delete worklog
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/worklog/{id},getWorklog,get_worklog,get,Worklog,Issue worklogs,issue worklogs,issue_worklogs,get,select,,Get worklog
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/worklog/{id},updateWorklog,update_worklog,put,Worklog,Issue worklogs,issue worklogs,issue_worklogs,update,update,,Update worklog
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties,getWorklogPropertyKeys,get_worklog_property_keys,get,PropertyKeys,Issue worklog properties,issue worklog properties,issue_worklog_properties,list,select,$.keys,Get worklog property keys
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey},deleteWorklogProperty,delete_worklog_property,delete,,Issue worklog properties,issue worklog properties,issue_worklog_properties,delete,delete,,Delete worklog property
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey},getWorklogProperty,get_worklog_property,get,EntityProperty,Issue worklog properties,issue worklog properties,issue_worklog_properties,get,select,,Get worklog property
+issues.yaml,/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey},setWorklogProperty,set_worklog_property,put,,Issue worklog properties,issue worklog properties,issue_worklog_properties,update,update,,Set worklog property
+issues.yaml,/rest/api/3/issueLink,linkIssues,link_issues,post,,Issue links,issue links,issue_links,link_issues,exec,,Create issue link
+issues.yaml,/rest/api/3/issueLink/{linkId},deleteIssueLink,delete_issue_link,delete,,Issue links,issue links,issue_links,delete,delete,,Delete issue link
+issues.yaml,/rest/api/3/issueLink/{linkId},getIssueLink,get_issue_link,get,IssueLink,Issue links,issue links,issue_links,get,select,,Get issue link
+issues.yaml,/rest/api/3/issueLinkType,getIssueLinkTypes,get_issue_link_types,get,IssueLinkTypes,Issue link types,issue link types,issue_link_types,list,select,$.issueLinkTypes,Get issue link types
+issues.yaml,/rest/api/3/issueLinkType,createIssueLinkType,create_issue_link_type,post,IssueLinkType,Issue link types,issue link types,issue_link_types,create,insert,,Create issue link type
+issues.yaml,/rest/api/3/issueLinkType/{issueLinkTypeId},deleteIssueLinkType,delete_issue_link_type,delete,,Issue link types,issue link types,issue_link_types,delete,delete,,Delete issue link type
+issues.yaml,/rest/api/3/issueLinkType/{issueLinkTypeId},getIssueLinkType,get_issue_link_type,get,IssueLinkType,Issue link types,issue link types,issue_link_types,get,select,,Get issue link type
+issues.yaml,/rest/api/3/issueLinkType/{issueLinkTypeId},updateIssueLinkType,update_issue_link_type,put,IssueLinkType,Issue link types,issue link types,issue_link_types,update,update,,Update issue link type
+issues.yaml,/rest/api/3/issues/archive/export,exportArchivedIssues,export_archived_issues,put,ExportArchivedIssuesTaskProgressResponse,Issues,issues,issues,export_archived_issues,exec,,Export archived issue(s)
+issues.yaml,/rest/api/3/jql/match,matchIssues,match_issues,post,IssueMatches,Issue search,issue search,jql_matches,match_issues,exec,,Check issues against JQL
+issues.yaml,/rest/api/3/label,getAllLabels,get_all_labels,get,PageBeanString,Labels,labels,labels,list,select,$.values,Get all labels
+issues.yaml,/rest/api/3/redact,redact,redact,post,,Issue redaction,issue redaction,redacts,redact,exec,,Redact
+issues.yaml,/rest/api/3/redact/status/{jobId},getRedactionStatus,get_redaction_status,get,RedactionJobStatusResponse,Issue redaction,issue redaction,redact_statuses,get,select,,Get redaction status
+issues.yaml,/rest/api/3/search,searchForIssuesUsingJql,search_for_issues_using_jql,get,SearchResults,Issue search,issue search,skip_this_resource,,,,Currently being removed. Search for issues using JQL (GET)
+issues.yaml,/rest/api/3/search,searchForIssuesUsingJqlPost,search_for_issues_using_jql_post,post,SearchResults,Issue search,issue search,skip_this_resource,,,,Currently being removed. Search for issues using JQL (POST)
+issues.yaml,/rest/api/3/search/approximate-count,countIssues,count_issues,post,JQLCountResultsBean,Issue search,issue search,issues,count_approximate,exec,,Count issues using JQL
+issues.yaml,/rest/api/3/search/jql,searchAndReconsileIssuesUsingJql,search_and_reconsile_issues_using_jql,get,SearchAndReconcileResults,Issue search,issue search,issues,search,select,$.issues,Search for issues using JQL enhanced search (GET)
+issues.yaml,/rest/api/3/search/jql,searchAndReconsileIssuesUsingJqlPost,search_and_reconsile_issues_using_jql_post,post,SearchAndReconcileResults,Issue search,issue search,issues,search_post,exec,,Search for issues using JQL enhanced search (POST)
+issues.yaml,/rest/api/3/settings/columns,getIssueNavigatorDefaultColumns,get_issue_navigator_default_columns,get,ColumnItem,Issue navigator settings,issue navigator settings,settings_columns,list,select,,Get issue navigator default columns
+issues.yaml,/rest/api/3/settings/columns,setIssueNavigatorDefaultColumns,set_issue_navigator_default_columns,put,,Issue navigator settings,issue navigator settings,skip_this_resource,,,,Set issue navigator default columns
+issues.yaml,/rest/api/3/worklog/deleted,getIdsOfWorklogsDeletedSince,get_ids_of_worklogs_deleted_since,get,ChangedWorklogs,Issue worklogs,issue worklogs,worklogs_deleted,list,select,$.values,Get IDs of deleted worklogs
+issues.yaml,/rest/api/3/worklog/list,getWorklogsForIds,get_worklogs_for_ids,post,Worklog,Issue worklogs,issue worklogs,issue_worklogs,get_worklogs_for_ids,exec,,Get worklogs
+issues.yaml,/rest/api/3/worklog/updated,getIdsOfWorklogsModifiedSince,get_ids_of_worklogs_modified_since,get,ChangedWorklogs,Issue worklogs,issue worklogs,worklogs_updated,list,select,$.values,Get IDs of updated worklogs
+projects.yaml,/rest/api/3/component,findComponentsForProjects,find_components_for_projects,get,PageBean2ComponentJsonBean,Project components,project components,components,list,select,$.values,Find components for projects
+projects.yaml,/rest/api/3/component,createComponent,create_component,post,ProjectComponent,Project components,project components,components,create,insert,,Create component
+projects.yaml,/rest/api/3/component/{id},deleteComponent,delete_component,delete,,Project components,project components,components,delete,delete,,Delete component
+projects.yaml,/rest/api/3/component/{id},getComponent,get_component,get,ProjectComponent,Project components,project components,components,get,select,,Get component
+projects.yaml,/rest/api/3/component/{id},updateComponent,update_component,put,ProjectComponent,Project components,project components,components,update,update,,Update component
+projects.yaml,/rest/api/3/component/{id}/relatedIssueCounts,getComponentRelatedIssues,get_component_related_issues,get,ComponentIssuesCount,Project components,project components,component_related_issue_counts,get_component_related_issues,select,,Get component issues count
+projects.yaml,/rest/api/3/project,getAllProjects,get_all_projects,get,Project,Projects,projects,skip_this_resource,,,,Get all projects
+projects.yaml,/rest/api/3/project,createProject,create_project,post,ProjectIdentifiers,Projects,projects,projects,create,insert,,Create project
+projects.yaml,/rest/api/3/project-template,createProjectWithCustomTemplate,create_project_with_custom_template,post,,Project templates,project templates,project_templates,create_project_with_custom_template,exec,,Create custom project
+projects.yaml,/rest/api/3/project-template/edit-template,editTemplate,edit_template,put,,Project templates,project templates,project_template_edit_templates,update,update,,Edit a custom project template
+projects.yaml,/rest/api/3/project-template/live-template,liveTemplate,live_template,get,ProjectTemplateModel,Project templates,project templates,project_template_live_templates,live_template,select,,Gets a custom project template
+projects.yaml,/rest/api/3/project-template/remove-template,removeTemplate,remove_template,delete,,Project templates,project templates,project_template_remove_templates,remove_template,exec,,Deletes a custom project template
+projects.yaml,/rest/api/3/project-template/save-template,saveTemplate,save_template,post,SaveTemplateResponse,Project templates,project templates,project_template_save_templates,save_template,exec,,Save a custom project template
+projects.yaml,/rest/api/3/project/recent,getRecent,get_recent,get,Project,Projects,projects,project_recents,list,select,,Get recent projects
+projects.yaml,/rest/api/3/project/search,searchProjects,search_projects,get,PageBeanProject,Projects,projects,projects,search,select,$.values,Get projects paginated
+projects.yaml,/rest/api/3/project/type,getAllProjectTypes,get_all_project_types,get,ProjectType,Project types,project types,project_types,list,select,,Get all project types
+projects.yaml,/rest/api/3/project/type/accessible,getAllAccessibleProjectTypes,get_all_accessible_project_types,get,ProjectType,Project types,project types,project_type_accessibles,list,select,,Get licensed project types
+projects.yaml,/rest/api/3/project/type/{projectTypeKey},getProjectTypeByKey,get_project_type_by_key,get,ProjectType,Project types,project types,project_types,get,select,,Get project type by key
+projects.yaml,/rest/api/3/project/type/{projectTypeKey}/accessible,getAccessibleProjectTypeByKey,get_accessible_project_type_by_key,get,ProjectType,Project types,project types,project_type_accessibles,get_accessible_project_type_by_key,select,,Get accessible project type by key
+projects.yaml,/rest/api/3/project/{projectIdOrKey},deleteProject,delete_project,delete,,Projects,projects,projects,delete,delete,,Delete project
+projects.yaml,/rest/api/3/project/{projectIdOrKey},getProject,get_project,get,Project,Projects,projects,projects,get,select,,Get project
+projects.yaml,/rest/api/3/project/{projectIdOrKey},updateProject,update_project,put,Project,Projects,projects,projects,update,update,,Update project
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/archive,archiveProject,archive_project,post,,Projects,projects,projects,archive_project,exec,,Archive project
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/avatar,updateProjectAvatar,update_project_avatar,put,,Project avatars,project avatars,project_avatars,update,update,,Set project avatar
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/avatar/{id},deleteProjectAvatar,delete_project_avatar,delete,,Project avatars,project avatars,project_avatars,delete,delete,,Delete project avatar
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/avatar2,createProjectAvatar,create_project_avatar,post,Avatar,Project avatars,project avatars,skip_this_resource,,,,Load project avatar
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/avatars,getAllProjectAvatars,get_all_project_avatars,get,ProjectAvatars,Project avatars,project avatars,project_avatars,get_all_project_avatars,select,,Get all project avatars
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/classification-config,getProjectClassificationConfig,get_project_classification_config,get,,Project classification levels,project classification levels,project_classification_configs,get_project_classification_config,select,,Get the classification configuration for a project
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/classification-level/default,removeDefaultProjectClassification,remove_default_project_classification,delete,,Project classification levels,project classification levels,project_classification_levels,remove_default_project_classification,exec,,Remove the default data classification level from a project
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/classification-level/default,getDefaultProjectClassification,get_default_project_classification,get,,Project classification levels,project classification levels,project_classification_level_defaults,get_default_project_classification,select,,Get the default data classification level of a project
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/classification-level/default,updateDefaultProjectClassification,update_default_project_classification,put,,Project classification levels,project classification levels,project_classification_levels,update_default_project_classification,exec,,Update the default data classification level of a project
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/component,getProjectComponentsPaginated,get_project_components_paginated,get,PageBeanComponentWithIssueCount,Project components,project components,project_components,list,select,$.values,Get project components paginated
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/components,getProjectComponents,get_project_components,get,ProjectComponent,Project components,project components,skip_this_resource,,,,Get project components
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/delete,deleteProjectAsynchronously,delete_project_asynchronously,post,,Projects,projects,projects,delete_project_asynchronously,exec,,Delete project asynchronously
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/features,getFeaturesForProject,get_features_for_project,get,ContainerForProjectFeatures,Project features,project features,project_features,list,select,$.features,Get project features
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/features/{featureKey},toggleFeatureForProject,toggle_feature_for_project,put,ContainerForProjectFeatures,Project features,project features,project_features,update,update,,Set project feature state
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/properties,getProjectPropertyKeys,get_project_property_keys,get,PropertyKeys,Project properties,project properties,project_properties,list,select,$.keys,Get project property keys
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/properties/{propertyKey},deleteProjectProperty,delete_project_property,delete,,Project properties,project properties,project_properties,delete,delete,,Delete project property
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/properties/{propertyKey},getProjectProperty,get_project_property,get,EntityProperty,Project properties,project properties,project_properties,get,select,,Get project property
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/properties/{propertyKey},setProjectProperty,set_project_property,put,,Project properties,project properties,project_properties,update,update,,Set project property
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/restore,restore,restore,post,Project,Projects,projects,projects,restore,exec,,Restore deleted or archived project
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/role,getProjectRoles,get_project_roles,get,,Project roles,project roles,project_roles,get_project_roles,select,,Get project roles for project
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/role/{id},deleteActor,delete_actor,delete,,Project role actors,project role actors,project_roles,delete,delete,,Delete actors from project role
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/role/{id},getProjectRole,get_project_role,get,ProjectRole,Project roles,project roles,project_roles,get,select,,Get project role for project
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/role/{id},addActorUsers,add_actor_users,post,ProjectRole,Project role actors,project role actors,project_roles,add_actor_users,exec,,Add actors to project role
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/role/{id},setActors,set_actors,put,ProjectRole,Project role actors,project role actors,project_roles,update,update,,Set actors for project role
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/roledetails,getProjectRoleDetails,get_project_role_details,get,ProjectRoleDetails,Project roles,project roles,project_roledetails,list,select,,Get project role details
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/statuses,getAllStatuses,get_all_statuses,get,IssueTypeWithStatus,Projects,projects,project_statuses,list,select,,Get all statuses for project
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/version,getProjectVersionsPaginated,get_project_versions_paginated,get,PageBeanVersion,Project versions,project versions,project_versions,list,select,$.values,Get project versions paginated
+projects.yaml,/rest/api/3/project/{projectIdOrKey}/versions,getProjectVersions,get_project_versions,get,Version,Project versions,project versions,skip_this_resource,,,,Get project versions
+projects.yaml,/rest/api/3/project/{projectId}/email,getProjectEmail,get_project_email,get,ProjectEmailAddress,Project email,project email,project_emails,list,select,$.emailAddressStatus,Get project's sender email
+projects.yaml,/rest/api/3/project/{projectId}/email,updateProjectEmail,update_project_email,put,,Project email,project email,project_emails,update,update,,Set project's sender email
+projects.yaml,/rest/api/3/project/{projectId}/hierarchy,getHierarchy,get_hierarchy,get,ProjectIssueTypeHierarchy,Projects,projects,project_hierarchies,list,select,$.hierarchy,Get project issue type hierarchy
+projects.yaml,/rest/api/3/project/{projectKeyOrId}/notificationscheme,getNotificationSchemeForProject,get_notification_scheme_for_project,get,NotificationScheme,Projects,projects,project_notificationschemes,get_notification_scheme_for_project,select,,Get project notification scheme
+projects.yaml,/rest/api/3/projectCategory,getAllProjectCategories,get_all_project_categories,get,ProjectCategory,Project categories,project categories,project_categories,list,select,,Get all project categories
+projects.yaml,/rest/api/3/projectCategory,createProjectCategory,create_project_category,post,ProjectCategory,Project categories,project categories,project_categories,create,insert,,Create project category
+projects.yaml,/rest/api/3/projectCategory/{id},removeProjectCategory,remove_project_category,delete,,Project categories,project categories,project_categories,delete,delete,,Delete project category
+projects.yaml,/rest/api/3/projectCategory/{id},getProjectCategoryById,get_project_category_by_id,get,ProjectCategory,Project categories,project categories,project_categories,get,select,,Get project category by ID
+projects.yaml,/rest/api/3/projectCategory/{id},updateProjectCategory,update_project_category,put,UpdatedProjectCategory,Project categories,project categories,project_categories,update,update,,Update project category
+projects.yaml,/rest/api/3/projectvalidate/key,validateProjectKey,validate_project_key,get,ErrorCollection,Project key and name validation,project key and name validation,projectvalidate_keys,validate_project_key,select,,Validate project key
+projects.yaml,/rest/api/3/projectvalidate/validProjectKey,getValidProjectKey,get_valid_project_key,get,,Project key and name validation,project key and name validation,projectvalidate_valid_project_keys,get_valid_project_key,select,,Get valid project key
+projects.yaml,/rest/api/3/projectvalidate/validProjectName,getValidProjectName,get_valid_project_name,get,,Project key and name validation,project key and name validation,projectvalidate_valid_project_names,get_valid_project_name,select,,Get valid project name
+projects.yaml,/rest/api/3/role,getAllProjectRoles,get_all_project_roles,get,ProjectRole,Project roles,project roles,roles,list,select,,Get all project roles
+projects.yaml,/rest/api/3/role,createProjectRole,create_project_role,post,ProjectRole,Project roles,project roles,roles,create,insert,,Create project role
+projects.yaml,/rest/api/3/role/{id},deleteProjectRole,delete_project_role,delete,,Project roles,project roles,roles,delete,delete,,Delete project role
+projects.yaml,/rest/api/3/role/{id},getProjectRoleById,get_project_role_by_id,get,ProjectRole,Project roles,project roles,roles,get,select,,Get project role by ID
+projects.yaml,/rest/api/3/role/{id},partialUpdateProjectRole,partial_update_project_role,post,ProjectRole,Project roles,project roles,roles,partial_update_project_role,exec,,Partial update project role
+projects.yaml,/rest/api/3/role/{id},fullyUpdateProjectRole,fully_update_project_role,put,ProjectRole,Project roles,project roles,roles,update,update,,Fully update project role
+projects.yaml,/rest/api/3/role/{id}/actors,deleteProjectRoleActorsFromRole,delete_project_role_actors_from_role,delete,ProjectRole,Project role actors,project role actors,role_actors,delete_project_role_actors_from_role,exec,,Delete default actors from project role
+projects.yaml,/rest/api/3/role/{id}/actors,getProjectRoleActorsForRole,get_project_role_actors_for_role,get,ProjectRole,Project role actors,project role actors,role_actors,get_project_role_actors_for_role,select,,Get default actors for project role
+projects.yaml,/rest/api/3/role/{id}/actors,addProjectRoleActorsToRole,add_project_role_actors_to_role,post,ProjectRole,Project role actors,project role actors,role_actors,create,insert,,Add default actors to project role
+projects.yaml,/rest/api/3/version,createVersion,create_version,post,Version,Project versions,project versions,versions,create,insert,,Create version
+projects.yaml,/rest/api/3/version/{id},deleteVersion,delete_version,delete,,Project versions,project versions,versions,delete,delete,,Delete version
+projects.yaml,/rest/api/3/version/{id},getVersion,get_version,get,Version,Project versions,project versions,versions,get,select,,Get version
+projects.yaml,/rest/api/3/version/{id},updateVersion,update_version,put,Version,Project versions,project versions,versions,update,update,,Update version
+projects.yaml,/rest/api/3/version/{id}/mergeto/{moveIssuesTo},mergeVersions,merge_versions,put,,Project versions,project versions,version_mergetos,update,update,,Merge versions
+projects.yaml,/rest/api/3/version/{id}/move,moveVersion,move_version,post,Version,Project versions,project versions,versions,move_version,exec,,Move version
+projects.yaml,/rest/api/3/version/{id}/relatedIssueCounts,getVersionRelatedIssues,get_version_related_issues,get,VersionIssueCounts,Project versions,project versions,version_related_issue_counts,list,select,$.customFieldUsage,Get version's related issues count
+projects.yaml,/rest/api/3/version/{id}/relatedwork,getRelatedWork,get_related_work,get,VersionRelatedWork,Project versions,project versions,version_relatedworks,list,select,,Get related work
+projects.yaml,/rest/api/3/version/{id}/relatedwork,createRelatedWork,create_related_work,post,VersionRelatedWork,Project versions,project versions,version_relatedworks,create,insert,,Create related work
+projects.yaml,/rest/api/3/version/{id}/relatedwork,updateRelatedWork,update_related_work,put,VersionRelatedWork,Project versions,project versions,version_relatedworks,update,update,,Update related work
+projects.yaml,/rest/api/3/version/{id}/removeAndSwap,deleteAndReplaceVersion,delete_and_replace_version,post,,Project versions,project versions,version_remove_and_swaps,delete_and_replace_version,exec,,Delete and replace version
+projects.yaml,/rest/api/3/version/{id}/unresolvedIssueCount,getVersionUnresolvedIssues,get_version_unresolved_issues,get,VersionUnresolvedIssuesCount,Project versions,project versions,version_unresolved_issue_counts,get_version_unresolved_issues,select,,Get version's unresolved issues count
+projects.yaml,/rest/api/3/version/{versionId}/relatedwork/{relatedWorkId},deleteRelatedWork,delete_related_work,delete,,Project versions,project versions,version_relatedworks,delete,delete,,Delete related work
