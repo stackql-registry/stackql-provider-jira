@@ -44,7 +44,15 @@ Then apply the deterministic spec fixes and validate:
 npm run clean-specs
 ```
 
-`provider-dev/scripts/clean_specs.mjs` parses both specs with `@apidevtools/swagger-parser`, applies the known fixes (duplicate operation definitions, generator-breaking schema constructs), writes cleaned specs to `provider-dev/downloaded/cleaned/`, and emits a fix report listing every change applied. Unfixable violations fail the run without writing anything.
+`provider-dev/scripts/clean_specs.mjs` parses both specs with `@apidevtools/swagger-parser`, applies the known fix classes, writes cleaned specs to `provider-dev/downloaded/cleaned/`, and records every change in `provider-dev/config/clean_report.json`. Unfixable violations fail the run without writing anything. The fix classes, each detected on every run whether or not the current snapshot exhibits them:
+
+1. **Duplicate JSON keys** (duplicated method or path definitions) - detected by scanning the raw text, since `JSON.parse` collapses them silently. Byte-identical duplicates are deduped; conflicting duplicates are unfixable.
+2. **Duplicate operationIds** - renamed deterministically with a numeric suffix.
+3. **Untagged operations** - unfixable (the tag drives the service split).
+4. **Arrays of enums** (`type: array` with `items.enum`) - historically rejected by generators; the items enum is dropped, keeping the item type.
+5. **Out-of-scope path prefixes** - each spec carries surfaces beyond the site-level REST APIs the provider targets. The platform spec's `/rest/atlassian-connect` and `/rest/forge` paths (app-context APIs) and `/rest/internal` (not a public API) are dropped. The agile spec's dev-tools ingestion APIs (`/rest/devinfo`, `/rest/builds`, `/rest/deployments`, `/rest/featureflags`, `/rest/remotelinks`, `/rest/security`, `/rest/operations`, `/rest/devopscomponents`) are Connect-app integration surfaces for CI/CD tools, not site-level basic-auth APIs, and are dropped; `/rest/software/1.0` (board, epic, and sprint issue reads, basic-auth callable) is kept alongside `/rest/agile/1.0`.
+
+Against the 2026-07-11 snapshots both specs validate before and after cleaning; 59 fixes were applied (44 out-of-scope paths dropped, 15 array-of-enum items lowered) and the historical duplicate-operation defect is not present in the current snapshots.
 
 ## Status
 
