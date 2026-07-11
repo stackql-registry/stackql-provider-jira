@@ -1,11 +1,6 @@
 spec,tags,method,path,operation_id,path_params,envelope,envelope_key,pagination,deprecated,experimental,proposed_service,proposed_resource,proposed_verb,skip_reason
 jira-platform-v3,Announcement banner,get,/rest/api/3/announcementBanner,getBanner,,single,,none,n,n,system,announcement_banner,select,
 jira-platform-v3,Announcement banner,put,/rest/api/3/announcementBanner,setBanner,,single,,none,n,n,system,announcement_banner,update,
-jira-platform-v3,Issue custom field configuration (apps),post,/rest/api/3/app/field/context/configuration/list,getCustomFieldsConfigurations,,values-wrapper,$.values,isLast-hybrid,n,y,fields,app_field_context_configuration_list,,app_context_api
-jira-platform-v3,Issue custom field values (apps),post,/rest/api/3/app/field/value,updateMultipleCustomFieldValues,,single,,none,n,n,fields,app_field_value,,app_context_api
-jira-platform-v3,Issue custom field configuration (apps),get,/rest/api/3/app/field/{fieldIdOrKey}/context/configuration,getCustomFieldConfiguration,fieldIdOrKey,values-wrapper,$.values,isLast-hybrid,n,n,fields,app_field_context_configuration,,app_context_api
-jira-platform-v3,Issue custom field configuration (apps),put,/rest/api/3/app/field/{fieldIdOrKey}/context/configuration,updateCustomFieldConfiguration,fieldIdOrKey,single,,none,n,n,fields,app_field_context_configuration,,app_context_api
-jira-platform-v3,Issue custom field values (apps),put,/rest/api/3/app/field/{fieldIdOrKey}/value,updateCustomFieldValue,fieldIdOrKey,single,,none,n,n,fields,app_field_value,,app_context_api
 jira-platform-v3,Jira settings,get,/rest/api/3/application-properties,getApplicationProperty,,bare-array,,none,n,n,system,application_properties,select,
 jira-platform-v3,Jira settings,get,/rest/api/3/application-properties/advanced-settings,getAdvancedSettings,,bare-array,,none,n,n,system,application_properties_advanced_settings,select,
 jira-platform-v3,Jira settings,put,/rest/api/3/application-properties/{id},setApplicationProperty,id,single,,none,n,n,system,application_properties,update,
@@ -117,14 +112,6 @@ jira-platform-v3,Issue custom field contexts,put,/rest/api/3/field/{fieldId}/con
 jira-platform-v3,Issue custom field contexts,post,/rest/api/3/field/{fieldId}/context/{contextId}/project/remove,removeCustomFieldContextFromProjects,fieldId;contextId,single,,none,n,n,fields,field_context_project_remove,exec,
 jira-platform-v3,Issue fields,get,/rest/api/3/field/{fieldId}/contexts,getContextsForFieldDeprecated,fieldId,values-wrapper,$.values,isLast-hybrid,y,n,fields,field_contexts,select,
 jira-platform-v3,Screens,get,/rest/api/3/field/{fieldId}/screens,getScreensForField,fieldId,values-wrapper,$.values,isLast-hybrid,n,n,screens,field_screens,select,
-jira-platform-v3,Issue custom field options (apps),get,/rest/api/3/field/{fieldKey}/option,getAllIssueFieldOptions,fieldKey,values-wrapper,$.values,isLast-hybrid,n,n,fields,field_option,,app_context_api
-jira-platform-v3,Issue custom field options (apps),post,/rest/api/3/field/{fieldKey}/option,createIssueFieldOption,fieldKey,single,,none,n,n,fields,field_option,,app_context_api
-jira-platform-v3,Issue custom field options (apps),get,/rest/api/3/field/{fieldKey}/option/suggestions/edit,getSelectableIssueFieldOptions,fieldKey,values-wrapper,$.values,isLast-hybrid,n,n,fields,field_option_suggestions_edit,,app_context_api
-jira-platform-v3,Issue custom field options (apps),get,/rest/api/3/field/{fieldKey}/option/suggestions/search,getVisibleIssueFieldOptions,fieldKey,values-wrapper,$.values,isLast-hybrid,n,n,fields,field_option_suggestions_search,,app_context_api
-jira-platform-v3,Issue custom field options (apps),get,/rest/api/3/field/{fieldKey}/option/{optionId},getIssueFieldOption,fieldKey;optionId,single,,none,n,n,fields,field_option,,app_context_api
-jira-platform-v3,Issue custom field options (apps),put,/rest/api/3/field/{fieldKey}/option/{optionId},updateIssueFieldOption,fieldKey;optionId,single,,none,n,n,fields,field_option,,app_context_api
-jira-platform-v3,Issue custom field options (apps),delete,/rest/api/3/field/{fieldKey}/option/{optionId},deleteIssueFieldOption,fieldKey;optionId,single,,none,n,n,fields,field_option,,app_context_api
-jira-platform-v3,Issue custom field options (apps),delete,/rest/api/3/field/{fieldKey}/option/{optionId}/issue,replaceIssueFieldOption,fieldKey;optionId,none,,none,n,n,fields,field_option_issue,,app_context_api
 jira-platform-v3,Issue fields,delete,/rest/api/3/field/{id},deleteCustomField,id,none,,none,n,n,fields,field,delete,
 jira-platform-v3,Issue fields,post,/rest/api/3/field/{id}/restore,restoreCustomField,id,single,,none,n,n,fields,field_restore,exec,
 jira-platform-v3,Issue fields,post,/rest/api/3/field/{id}/trash,trashCustomField,id,single,,none,n,n,fields,field_trash,exec,
@@ -294,9 +281,6 @@ jira-platform-v3,Issue type screen schemes,get,/rest/api/3/issuetypescreenscheme
 jira-platform-v3,JQL,get,/rest/api/3/jql/autocompletedata,getAutoComplete,,single,,none,n,n,jql,jql_autocompletedata,select,
 jira-platform-v3,JQL,post,/rest/api/3/jql/autocompletedata,getAutoCompletePost,,single,,none,n,n,jql,jql_autocompletedata,insert,
 jira-platform-v3,JQL,get,/rest/api/3/jql/autocompletedata/suggestions,getFieldAutoCompleteForQueryString,,keyed-object,$.results,none,n,n,jql,jql_autocompletedata_suggestions,select,
-jira-platform-v3,JQL functions (apps),get,/rest/api/3/jql/function/computation,getPrecomputations,,values-wrapper,$.values,isLast-hybrid,n,n,jql,jql_function_computation,,app_context_api
-jira-platform-v3,JQL functions (apps),post,/rest/api/3/jql/function/computation,updatePrecomputations,,keyed-object,$.notFoundPrecomputationIDs,none,n,n,jql,jql_function_computation,,app_context_api
-jira-platform-v3,JQL functions (apps),post,/rest/api/3/jql/function/computation/search,getPrecomputationsByID,,single,,none,n,n,jql,jql_function_computation_search,,app_context_api
 jira-platform-v3,Issue search,post,/rest/api/3/jql/match,matchIssues,,keyed-object,$.matches,none,n,n,issues,jql_match,select,
 jira-platform-v3,JQL,post,/rest/api/3/jql/parse,parseJqlQueries,,keyed-object,$.queries,none,n,n,jql,jql_parse,select,
 jira-platform-v3,JQL,post,/rest/api/3/jql/pdcleaner,migrateQueries,,single,,none,n,n,jql,jql_pdcleaner,insert,
@@ -487,10 +471,6 @@ jira-platform-v3,Status,get,/rest/api/3/statuses/{statusId}/projectUsages,getPro
 jira-platform-v3,Status,get,/rest/api/3/statuses/{statusId}/workflowUsages,getWorkflowUsagesForStatus,statusId,single,,nextPageToken,n,n,workflows,statuses_workflow_usages,select,
 jira-platform-v3,Tasks,get,/rest/api/3/task/{taskId},getTask,taskId,single,,none,n,n,system,task,select,
 jira-platform-v3,Tasks,post,/rest/api/3/task/{taskId}/cancel,cancelTask,taskId,single,,none,n,y,system,task_cancel,exec,
-jira-platform-v3,UI modifications (apps),get,/rest/api/3/uiModifications,getUiModifications,,values-wrapper,$.values,isLast-hybrid,n,n,system,ui_modifications,,app_context_api
-jira-platform-v3,UI modifications (apps),post,/rest/api/3/uiModifications,createUiModification,,single,,none,n,n,system,ui_modifications,,app_context_api
-jira-platform-v3,UI modifications (apps),put,/rest/api/3/uiModifications/{uiModificationId},updateUiModification,uiModificationId,single,,none,n,n,system,ui_modifications,,app_context_api
-jira-platform-v3,UI modifications (apps),delete,/rest/api/3/uiModifications/{uiModificationId},deleteUiModification,uiModificationId,single,,none,n,n,system,ui_modifications,,app_context_api
 jira-platform-v3,Avatars,get,/rest/api/3/universal_avatar/type/{type}/owner/{entityId},getAvatars,type;entityId,single,,none,n,n,system,universal_avatar_type_owner,select,
 jira-platform-v3,Avatars,post,/rest/api/3/universal_avatar/type/{type}/owner/{entityId},storeAvatar,type;entityId,single,,none,n,n,system,universal_avatar_type_owner,insert,
 jira-platform-v3,Avatars,delete,/rest/api/3/universal_avatar/type/{type}/owner/{owningObjectId}/avatar/{id},deleteAvatar,type;owningObjectId;id,none,,none,n,n,system,universal_avatar_type_owner_avatar,delete,
@@ -535,16 +515,8 @@ jira-platform-v3,Project versions,put,/rest/api/3/version/{id}/relatedwork,updat
 jira-platform-v3,Project versions,post,/rest/api/3/version/{id}/removeAndSwap,deleteAndReplaceVersion,id,single,,none,n,n,projects,version_remove_and_swap,exec,
 jira-platform-v3,Project versions,get,/rest/api/3/version/{id}/unresolvedIssueCount,getVersionUnresolvedIssues,id,single,,none,n,n,projects,version_unresolved_issue_count,select,
 jira-platform-v3,Project versions,delete,/rest/api/3/version/{versionId}/relatedwork/{relatedWorkId},deleteRelatedWork,versionId;relatedWorkId,none,,none,n,n,projects,version_relatedwork,delete,
-jira-platform-v3,Webhooks,get,/rest/api/3/webhook,getDynamicWebhooksForApp,,values-wrapper,$.values,isLast-hybrid,n,n,webhooks,webhook,select,
-jira-platform-v3,Webhooks,post,/rest/api/3/webhook,registerDynamicWebhooks,,keyed-object,$.webhookRegistrationResult,none,n,n,webhooks,webhook,insert,
-jira-platform-v3,Webhooks,delete,/rest/api/3/webhook,deleteWebhookById,,none,,none,n,n,webhooks,webhook,delete,
-jira-platform-v3,Webhooks,get,/rest/api/3/webhook/failed,getFailedWebhooks,,values-wrapper,$.values,none,n,y,webhooks,webhook_failed,select,
-jira-platform-v3,Webhooks,put,/rest/api/3/webhook/refresh,refreshWebhooks,,single,,none,n,n,webhooks,webhook_refresh,update,
 jira-platform-v3,Workflows,post,/rest/api/3/workflow/history,readWorkflowFromHistory,,single,,none,n,n,workflows,workflow_history,insert,
 jira-platform-v3,Workflows,post,/rest/api/3/workflow/history/list,listWorkflowHistory,,keyed-object,$.entries,none,n,n,workflows,workflow_history_list,select,
-jira-platform-v3,Workflow transition rules,get,/rest/api/3/workflow/rule/config,getWorkflowTransitionRuleConfigurations,,values-wrapper,$.values,isLast-hybrid,n,n,workflows,workflow_rule_config,select,
-jira-platform-v3,Workflow transition rules,put,/rest/api/3/workflow/rule/config,updateWorkflowTransitionRuleConfigurations,,keyed-object,$.updateResults,none,n,n,workflows,workflow_rule_config,update,
-jira-platform-v3,Workflow transition rules,put,/rest/api/3/workflow/rule/config/delete,deleteWorkflowTransitionRuleConfigurations,,keyed-object,$.updateResults,none,n,n,workflows,workflow_rule_config_delete,exec,
 jira-platform-v3,Workflows,get,/rest/api/3/workflow/search,getWorkflowsPaginated,,values-wrapper,$.values,isLast-hybrid,y,n,workflows,workflow_search,select,
 jira-platform-v3,Workflows,delete,/rest/api/3/workflow/{entityId},deleteInactiveWorkflow,entityId,none,,none,n,n,workflows,workflow,delete,
 jira-platform-v3,Workflows,get,/rest/api/3/workflow/{workflowId}/project/{projectId}/issueTypeUsages,getWorkflowProjectIssueTypeUsages,workflowId;projectId,single,,nextPageToken,n,n,workflows,workflow_project_issue_type_usages,select,

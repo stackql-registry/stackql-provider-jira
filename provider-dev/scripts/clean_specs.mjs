@@ -31,6 +31,12 @@
 //          Connect-app integration surfaces for CI/CD tools, not site-level
 //          basic-auth APIs; /rest/software/1.0 (board/epic/sprint issue
 //          reads, basic-auth callable) is kept
+//   6. app-context operations - operations callable only by Connect/Forge
+//      apps, not with site-level basic auth: tags suffixed "(apps)" and
+//      operations whose documented permissions are "Only Connect / OAuth 2.0
+//      apps can use this operation" (the dynamic webhook registration API and
+//      workflow transition rule configuration). Dropped, fix recorded per
+//      operation.
 //
 // Anything unfixable fails the run without writing any output.
 //
@@ -153,6 +159,31 @@ function dropOutOfScopePaths(spec, specName, fixes, unfixable) {
   }
 }
 
+// Operations only Connect/Forge apps can call - unusable with site-level
+// basic auth. Matched on the "(apps)" tag suffix and on Atlassian's
+// documented permission wording for app-only operations.
+const APP_ONLY_PERMISSION_RE = /Only \[?(Connect|OAuth)[^\n]*can use this operation/i;
+
+function dropAppContextOperations(spec, fixes) {
+  for (const [pathKey, pathItem] of Object.entries(spec.paths || {})) {
+    for (const verb of HTTP_VERBS) {
+      const op = pathItem[verb];
+      if (!op) continue;
+      const tag = (op.tags || [])[0] || '';
+      let reason = null;
+      if (/\(apps\)$/.test(tag)) reason = `tag "${tag}" is an app-context API`;
+      else if (APP_ONLY_PERMISSION_RE.test(op.description || '')) reason = 'documented as callable only by Connect/OAuth apps';
+      if (reason) {
+        delete pathItem[verb];
+        fixes.push(`dropped app-context operation ${verb} ${pathKey} (${reason})`);
+      }
+    }
+    if (!HTTP_VERBS.some((v) => pathItem[v])) {
+      delete spec.paths[pathKey];
+    }
+  }
+}
+
 function fixDuplicateOperationIds(spec, fixes, unfixable) {
   const seen = new Map();
   for (const [pathKey, pathItem] of Object.entries(spec.paths || {})) {
@@ -257,8 +288,9 @@ for (const [name, pinned] of Object.entries(pin.specs)) {
   const before = await validateSpec(spec);
   console.log(`  validation before: ${before.valid ? 'VALID' : `INVALID (${before.error})`}`);
 
-  // 2-5. fix passes
+  // 2-6. fix passes
   dropOutOfScopePaths(spec, name, fixes, unfixable);
+  dropAppContextOperations(spec, fixes);
   fixDuplicateOperationIds(spec, fixes, unfixable);
   checkOperationTags(spec, unfixable);
   fixArraysOfEnums(spec, fixes);

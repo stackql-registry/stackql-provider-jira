@@ -19,8 +19,10 @@
 //     with an identical current replacement under /rest/software/1.0
 //   multipart_upload - requires multipart/form-data with no JSON request
 //     alternative (attachment upload); out of scope for v1
-//   app_context_api - operations callable only by Connect/Forge apps
-//     ("(apps)" tags), not with site-level basic auth
+//
+// App-context operations (Connect/Forge-app-only surfaces) are already
+// dropped by clean_specs.mjs and never reach the inventory; an "(apps)" tag
+// showing up here as unmapped is the intended failure mode.
 //
 // Usage: npm run build-inventory
 
@@ -152,7 +154,6 @@ function proposeVerb(verb, pathKey, op) {
 }
 
 function skipReason(specName, verb, pathKey, op) {
-  const tag = (op.tags || [])[0] || '';
   if (specName === 'jira-platform-v3' && pathKey === '/rest/api/3/search') return 'deprecated_legacy_search';
   if (specName === 'jira-software-agile' && op.deprecated && pathKey.startsWith('/rest/agile/1.0/')) {
     return 'deprecated_superseded';
@@ -161,7 +162,6 @@ function skipReason(specName, verb, pathKey, op) {
   if (mediaTypes.length > 0 && mediaTypes.every((m) => m.includes('multipart') || m.includes('octet-stream'))) {
     return 'multipart_upload';
   }
-  if (/\(apps\)$/.test(tag)) return 'app_context_api';
   return '';
 }
 
