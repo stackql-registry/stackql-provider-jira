@@ -1,2 +1,59 @@
-# stackql-provider-jira
-StackQL provider for Jira
+# `jira` provider for [`stackql`](https://github.com/stackql/stackql)
+
+This repository generates and documents the `jira` provider for StackQL, enabling SQL-based query and provisioning operations against the Jira Cloud REST APIs - issues, projects, users, groups, permissions, workflows, fields, screens, dashboards, filters, versions, components, webhooks, audit records, and the Jira Software agile surface (boards, sprints, epics, backlog). The provider is built using the `@stackql/provider-utils` package and follows the pattern established by the [`k8s` provider rebuild](https://github.com/stackql-registry/stackql-provider-k8s/tree/feature/provider-dev).
+
+## Design Principles
+
+- **One provider, any Jira Cloud site** - the base URL is `https://{site}.atlassian.net`, with `{site}` supplied as a server variable in the `WHERE` clause of each query. Platform paths sit under `/rest/api/3`, agile paths under `/rest/agile/1.0`, both on the same server.
+- **Vendor specs, pinned and cleaned** - the provider is built from Atlassian's published OpenAPI 3 specs (platform v3 and Jira Software agile). Jira Cloud is continuously delivered and the spec URLs are not versioned, so snapshots are pinned by content hash in `provider-dev/config/spec_pin.json`, and known spec-quality issues are fixed by a deterministic cleaning script - never by hand-editing spec files.
+- **JQL is a parameter, not a translation target** - issue search takes a `jql` string supplied in the `WHERE` clause (`WHERE jql = 'project = ENG AND status != Done'`). SQL-predicate-to-JQL pushdown is a future any-sdk enhancement, not attempted in the provider.
+- **ADF fields are opaque** - v3 rich text fields (issue `description`, comment `body`, worklog comments) are Atlassian Document Format JSON, addressed with `json_extract` as JSON-blob columns. The provider does not model ADF structure.
+- **Users are accountIds** - user-referencing operations key on `accountId` (GDPR-era API), not usernames.
+- **Honest pagination** - Jira mixes three pagination schemes (`startAt`/`maxResults` offset, `nextPageToken` cursor, `isLast` hybrids). Transparent traversal is configured and claimed only where the integration tests prove it; everywhere else pagination is parameter-driven and documented per resource.
+
+Jira Service Management is a separate spec and out of scope for v1; it is a candidate follow-up service. Attachment upload (multipart + `X-Atlassian-Token: no-check`) is out of scope for v1; attachment metadata reads are in scope.
+
+## Prerequisites
+
+To build or test the Jira provider you will need:
+
+1. Node.js 20+ (for the build pipeline)
+2. StackQL CLI installed (see [StackQL](https://github.com/stackql/stackql))
+3. A Jira Cloud site for live testing (a [free plan](https://www.atlassian.com/software/jira/pricing) site is sufficient - never test against a production site)
+
+## 0. Download and Clean the Specs
+
+Download the published specs and record the pin:
+
+```bash
+npm run fetch-specs
+```
+
+This fetches the two vendor specs into `provider-dev/downloaded/`:
+
+| Spec | URL | Serves |
+|---|---|---|
+| `jira-platform-v3` | `https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json` | `/rest/api/3` (platform) |
+| `jira-software-agile` | `https://dac-static.atlassian.com/cloud/jira/software/swagger.v3.json` | `/rest/agile/1.0` (boards, sprints, epics, backlog) |
+
+and records the fetch date and sha256 of each in `provider-dev/config/spec_pin.json`. If upstream content has drifted from the pin, the fetch fails without writing; re-run with `--update` to accept the refresh and review the resulting diff.
+
+Then apply the deterministic spec fixes and validate:
+
+```bash
+npm run clean-specs
+```
+
+`provider-dev/scripts/clean_specs.mjs` parses both specs with `@apidevtools/swagger-parser`, applies the known fixes (duplicate operation definitions, generator-breaking schema constructs), writes cleaned specs to `provider-dev/downloaded/cleaned/`, and emits a fix report listing every change applied. Unfixable violations fail the run without writing anything.
+
+## Status
+
+Phase 1 (spec acquisition, cleaning, endpoint inventory, mapping groundwork) is in progress. Later steps (normalize, generate, test, publish, docs) follow the k8s provider pipeline and will be documented here as they are completed. Open engineering questions are tracked in [NOTES.md](NOTES.md).
+
+## License
+
+MIT
+
+## Contributing
+
+Contributions are welcome. Please submit a Pull Request.
