@@ -1,0 +1,18 @@
+{
+  "specs": {
+    "jira-platform-v3": {
+      "url": "https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json",
+      "filename": "jira-platform-v3.json",
+      "sha256": "ec3a972f92daf706f4ae821b34d3f84cf58ee6ef9972b1db7d0af3f6c74db4d8",
+      "bytes": 2444594,
+      "fetched": "2026-07-11"
+    },
+    "jira-software-agile": {
+      "url": "https://dac-static.atlassian.com/cloud/jira/software/swagger.v3.json",
+      "filename": "jira-software-agile.json",
+      "sha256": "4e108d54b99064475c6ba0f986cce46dcace81336e034b58a5400b93174b927a",
+      "bytes": 658314,
+      "fetched": "2026-07-11"
+    }
+  }
+}
