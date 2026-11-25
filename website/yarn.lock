@@ -2979,6 +2979,11 @@
     remark-parse "^11.0.0"
     unified "^11.0.3"
 
+"@stackql/docusaurus-plugin-stackql-deploy-template@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@stackql/docusaurus-plugin-stackql-deploy-template/-/docusaurus-plugin-stackql-deploy-template-0.1.0.tgz#0e0ce78c022e4c177af8315602387b570883f08f"
+  integrity sha512-tv3om/9qWy568rHsRx55BUrPdEtahX8o9Vdgh6Zi5RBlka6+lQSznibtQ3hQAuRp9JYTYtGB0ns/O0RT8XAwXw==
+
 "@stackql/docusaurus-plugin-structured-data@^1.9.0":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@stackql/docusaurus-plugin-structured-data/-/docusaurus-plugin-structured-data-1.9.0.tgz#86e363cd81ac14b468ad986286ab98b7af54b03e"

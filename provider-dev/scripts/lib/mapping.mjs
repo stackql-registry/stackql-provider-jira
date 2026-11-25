@@ -1,6 +1,7 @@
-// The operation -> resource.method mapping, shared by map_operations.mjs (the
-// authoritative all_services.csv) and build_inventory.mjs (the draft
-// columns).
+// The operation -> resource.method derivation, shared by map_operations.mjs
+// (which uses it to name operations the all_services.csv dictionary does not
+// have yet; mapped rows are the source of truth) and build_inventory.mjs (the
+// proposed columns).
 //
 // Jira paths are a tree under /rest/api/3, /rest/agile/1.0 and
 // /rest/software/1.0: collection reads on a static segment, keyed reads on
@@ -131,6 +132,17 @@ export function resourceNameOf(node, service, serviceMeta, pluralizeFn = plurali
 // Maps every operation of one split service document.
 // Returns { rows: Map(`${pathKey}::${verb}` -> mapping), notes: [] } where a
 // mapping is { resource, method, sqlVerb, objectKey, skip, shape, hoisted }.
+/**
+ * The required-parameter signature of an operation: its path parameters and
+ * required query parameters, sorted. Two methods of one resource with the
+ * same SQL verb and signature cannot be told apart by StackQL. `resolve` is
+ * makeResolver(doc) of the operation's document.
+ */
+export function requiredSignature(resolve, pathKey, op) {
+  const requiredQuery = (op.parameters || []).map((p) => resolve(p)).filter((p) => p && p.in === 'query' && p.required).map((p) => p.name);
+  return [...pathParams(pathKey), ...requiredQuery].sort().join(',');
+}
+
 export function mapService(doc, service, specKey, resolver, { resourceRules = [], methodRules = [] } = {}) {
   const resolve = makeResolver(doc);
   const serviceMeta = loadServiceConfig().services?.[service] || {};
@@ -263,10 +275,7 @@ export function mapService(doc, service, specKey, resolver, { resourceRules = []
 
   // ---- signature clashes: one SQL verb, one required-parameter signature ----------
   const sigSeen = new Map();
-  const signature = (o) => {
-    const requiredQuery = (o.op.parameters || []).map((p) => resolve(p)).filter((p) => p && p.in === 'query' && p.required).map((p) => p.name);
-    return [...pathParams(o.pathKey), ...requiredQuery].sort().join(',');
-  };
+  const signature = (o) => requiredSignature(resolve, o.pathKey, o.op);
   const ordered = [...derived].sort((a, b) => (a.ruled === b.ruled ? 0 : a.ruled ? -1 : 1) || a.o.params.length - b.o.params.length || (a.o.pathKey < b.o.pathKey ? -1 : a.o.pathKey > b.o.pathKey ? 1 : 0) || (a.o.verb < b.o.verb ? -1 : 1));
   for (const d of ordered) {
     if (d.sqlVerb === 'exec') continue;
