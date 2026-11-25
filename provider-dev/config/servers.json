@@ -1,0 +1,26 @@
+{
+  "gateway": [
+    {
+      "url": "https://api.atlassian.com/ex/jira/{cloud_id}",
+      "description": "The Atlassian API gateway for one Jira Cloud site.",
+      "variables": {
+        "cloud_id": {
+          "description": "The cloud ID of the Jira Cloud site. Resolved from ATLASSIAN_CLOUD_ID when set; SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = '<site>' answers it.",
+          "x-stackQL-envVar": "ATLASSIAN_CLOUD_ID"
+        }
+      }
+    }
+  ],
+  "site": [
+    {
+      "url": "https://{site}.atlassian.net",
+      "description": "A Jira Cloud site, addressed by its subdomain (the part before .atlassian.net).",
+      "variables": {
+        "site": {
+          "description": "The site subdomain, e.g. acme for https://acme.atlassian.net.",
+          "default": "your-domain"
+        }
+      }
+    }
+  ]
+}

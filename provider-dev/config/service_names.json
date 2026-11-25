@@ -1,0 +1,171 @@
+{
+  "description": "Service split for the jira provider. Ordered rules, first match wins; a rule matches when every criterion it states holds: spec (platform | software, the keys of SPECS in lib/spec_helpers.mjs), tags (the operation's first vendor tag is one of them) and pathRegex (a JavaScript regex against the full vendor path). Every operation must match a rule or bin/split.mjs and build_inventory.mjs fail without writing. A rule with \"excluded\": true classifies the operation for the inventory but the service is never emitted; its \"skip\" code is the reason recorded in the inventory. \"services\" carries the title and description written into each service document, and \"stripLeading\": the leading path segments the service name already says, dropped before resource names are derived (/issue/{issueIdOrKey}/comment -> comments in the issues service).",
+  "rules": [
+    {
+      "spec": "software",
+      "pathRegex": "^/rest/(devinfo|builds|deployments|featureflags|remotelinks|security|operations|devopscomponents)/",
+      "service": "dev_tools",
+      "excluded": true,
+      "skip": "app_only"
+    },
+    { "spec": "software", "service": "agile" },
+    {
+      "pathRegex": "^/rest/(atlassian-connect|forge|internal)/",
+      "service": "apps",
+      "excluded": true,
+      "skip": "app_only"
+    },
+    {
+      "tags": [
+        "Issue custom field configuration (apps)",
+        "Issue custom field options (apps)",
+        "Issue custom field values (apps)",
+        "JQL functions (apps)",
+        "UI modifications (apps)",
+        "Workflow transition rules",
+        "Webhooks"
+      ],
+      "service": "apps",
+      "excluded": true,
+      "skip": "app_only"
+    },
+    {
+      "tags": [
+        "Issues", "Issue search", "Issue comments", "Issue comment properties", "Issue attachments", "Issue links",
+        "Issue link types", "Issue remote links", "Issue properties", "Issue votes", "Issue watchers", "Issue worklogs",
+        "Issue worklog properties", "Issue bulk operations", "Issue redaction", "Labels"
+      ],
+      "service": "issues"
+    },
+    {
+      "tags": [
+        "Projects", "Project avatars", "Project categories", "Project classification levels", "Project components",
+        "Project email", "Project features", "Project key and name validation", "Project properties", "Project role actors",
+        "Project roles", "Project templates", "Project types", "Project versions", "Policies"
+      ],
+      "service": "projects"
+    },
+    { "tags": ["Users", "User search", "User properties", "Myself", "Groups", "Group and user picker"], "service": "users" },
+    {
+      "tags": ["Permissions", "Permission schemes", "Project permission schemes", "Issue security schemes", "Issue security level"],
+      "service": "permissions"
+    },
+    {
+      "tags": [
+        "Workflows", "Workflow schemes", "Workflow scheme drafts", "Workflow scheme project associations", "Workflow statuses",
+        "Workflow status categories", "Status"
+      ],
+      "service": "workflows"
+    },
+    {
+      "tags": [
+        "Issue fields", "Issue custom field contexts", "Issue custom field options", "Issue custom field associations",
+        "Issue field configurations", "Field schemes"
+      ],
+      "service": "fields"
+    },
+    { "tags": ["Issue types", "Issue type properties", "Issue type schemes", "Issue type screen schemes"], "service": "issue_types" },
+    { "tags": ["Screens", "Screen tabs", "Screen tab fields", "Screen schemes"], "service": "screens" },
+    { "tags": ["Dashboards"], "service": "dashboards" },
+    { "tags": ["Filters", "Filter sharing"], "service": "filters" },
+    { "tags": ["Issue priorities", "Priority schemes", "Issue resolutions"], "service": "issue_attributes" },
+    { "tags": ["Issue notification schemes"], "service": "notifications" },
+    { "tags": ["JQL"], "service": "jql" },
+    { "tags": ["Plans", "Teams in plan"], "service": "plans" },
+    {
+      "tags": [
+        "Server info", "Jira settings", "Application roles", "License metrics", "Announcement banner", "Audit records",
+        "Time tracking", "Avatars", "Tasks", "Issue navigator settings", "Classification levels", "Jira expressions",
+        "App data policies", "Issue panels", "Agents"
+      ],
+      "service": "system"
+    }
+  ],
+  "services": {
+    "issues": {
+      "title": "Jira Issues",
+      "description": "Issues and everything attached to them: JQL issue search, comments, worklogs, transitions, changelogs, links, remote links, watchers, votes, attachment metadata, properties, labels and bulk operations.",
+      "stripLeading": ["issue"]
+    },
+    "projects": {
+      "title": "Jira Projects",
+      "description": "Projects and their configuration: components, versions, roles and role actors, categories, properties, features, templates, types and project policies.",
+      "stripLeading": ["project"]
+    },
+    "users": {
+      "title": "Jira Users and Groups",
+      "description": "Users (by accountId), user search, user properties, the calling identity (myself) and groups with their members.",
+      "stripLeading": ["user"]
+    },
+    "permissions": {
+      "title": "Jira Permissions",
+      "description": "Permission schemes and grants, permission checks, project permission scheme assignments, issue security schemes and security levels.",
+      "stripLeading": []
+    },
+    "workflows": {
+      "title": "Jira Workflows",
+      "description": "Workflows, workflow schemes and their drafts and project associations, statuses and status categories.",
+      "stripLeading": ["workflow"]
+    },
+    "fields": {
+      "title": "Jira Fields",
+      "description": "System and custom fields, custom field contexts and options, field configurations and field configuration schemes, and field schemes.",
+      "stripLeading": ["field"]
+    },
+    "issue_types": {
+      "title": "Jira Issue Types",
+      "description": "Issue types, issue type properties, issue type schemes and issue type screen schemes.",
+      "stripLeading": []
+    },
+    "screens": {
+      "title": "Jira Screens",
+      "description": "Screens, screen tabs and tab fields, and screen schemes.",
+      "stripLeading": []
+    },
+    "dashboards": {
+      "title": "Jira Dashboards",
+      "description": "Dashboards, their gadgets and dashboard item properties.",
+      "stripLeading": ["dashboard"]
+    },
+    "filters": {
+      "title": "Jira Filters",
+      "description": "Saved JQL filters, favourites, columns and share permissions.",
+      "stripLeading": ["filter"]
+    },
+    "issue_attributes": {
+      "title": "Jira Issue Attributes",
+      "description": "Issue priorities, priority schemes and issue resolutions.",
+      "stripLeading": []
+    },
+    "notifications": {
+      "title": "Jira Notification Schemes",
+      "description": "Notification schemes, their notifications and project assignments.",
+      "stripLeading": []
+    },
+    "jql": {
+      "title": "Jira JQL",
+      "description": "JQL tooling: autocomplete data and suggestions, parsing, sanitising, personal data migration and the invalid JQL access log.",
+      "stripLeading": ["jql"]
+    },
+    "plans": {
+      "title": "Jira Plans",
+      "description": "Plans (Jira Premium) and the teams in a plan.",
+      "stripLeading": ["plans"]
+    },
+    "system": {
+      "title": "Jira System",
+      "description": "Site-wide configuration and information: server info, application properties and global settings, application roles, license metrics, the announcement banner, audit records, time tracking, avatars, long-running tasks, issue navigator columns, classification levels, Jira expressions, app data policies, issue panel pins and agent invocation.",
+      "stripLeading": []
+    },
+    "agile": {
+      "title": "Jira Software (Agile)",
+      "description": "Jira Software boards, sprints, epics, the backlog, board configuration and properties, issue ranking and estimation.",
+      "stripLeading": []
+    },
+    "atlassian_tenant": {
+      "title": "Atlassian Tenant",
+      "description": "Public, unauthenticated site metadata: the cloud ID of a Jira Cloud site, looked up by its subdomain.",
+      "stripLeading": []
+    }
+  }
+}
