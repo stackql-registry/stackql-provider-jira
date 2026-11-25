@@ -1,176 +1,120 @@
 #!/usr/bin/env node
 
-// Builds the endpoint inventory (provider-dev/config/endpoint_inventory.csv)
-// across both cleaned Jira specs: one row per operation with the response
-// envelope style, pagination scheme, deprecation/experimental flags, proposed
-// service (from provider-dev/config/service_names.json), a draft resource and
-// StackQL verb, and a skip reason where the operation is not mapped.
+// Builds provider-dev/config/endpoint_inventory.csv: one row per operation in
+// the two pinned Jira documents (plus the authored atlassian_tenant
+// operation), with the classifications every later step depends on:
+// service (from the ordered rules in service_names.json), vendor tag,
+// pagination parameters and scheme, request body kind, update semantics
+// presumption, vendor labels (experimental, deprecated), response shape and
+// envelope candidates, the proposed mapping (lib/mapping.mjs plus the rules
+// in lib/mapping_rules.mjs) and the skip reason code where an operation is
+// not mapped. Operations of excluded services (app-only surfaces) are listed
+// with their skip code.
 //
-// The envelope and pagination classifications drive stackql_object_key and
-// pagination config decisions downstream; the proposed resource/verb columns
-// are groundwork drafts - map_operations.mjs produces the authoritative
-// mapping. Fails without writing if any tag lacks a service mapping.
-//
-// Skip reasons:
-//   deprecated_legacy_search - the offset-based /rest/api/3/search issue
-//     search (GET and POST), deprecated by Atlassian; the cursor-based
-//     /rest/api/3/search/jql endpoints are the mapped replacement
-//   deprecated_superseded - deprecated /rest/agile/1.0 issue-read endpoints
-//     with an identical current replacement under /rest/software/1.0
-//   multipart_upload - requires multipart/form-data with no JSON request
-//     alternative (attachment upload); out of scope for v1
-//
-// App-context operations (Connect/Forge-app-only surfaces) are already
-// dropped by clean_specs.mjs and never reach the inventory; an "(apps)" tag
-// showing up here as unmapped is the intended failure mode.
+// Validates before writing: every operation resolves to a service rule.
+// Fails without writing otherwise.
 //
 // Usage: npm run build-inventory
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const cleanedDir = path.join(repoRoot, 'provider-dev', 'downloaded', 'cleaned');
-const serviceNamesPath = path.join(repoRoot, 'provider-dev', 'config', 'service_names.json');
-const outPath = path.join(repoRoot, 'provider-dev', 'config', 'endpoint_inventory.csv');
-
 import {
-  HTTP_VERBS, camelToSnake, stripPathPrefix, makeResolver,
-  classifyEnvelope, classifyPagination, skipReason
+  SPECS, CONFIG_DIR, HTTP_VERBS, specPath, loadSpec, makeResolver, makeServiceResolver, pathParams,
+  classifyResponse, classifyBody, proposeObjectKey, updateSemantics, vendorLabels, paginationParams,
+  paginationScheme, skipReason, csvField
 } from './lib/spec_helpers.mjs';
+import { mapService } from './lib/mapping.mjs';
+import { RESOURCE_RULES, METHOD_RULES } from './lib/mapping_rules.mjs';
+import { TENANT_SERVICE, tenantServiceDoc } from './lib/tenant_service.mjs';
 
-// POST paths whose last segment is a read (query) rather than a mutation
-const POST_READ_SEGMENTS = new Set(['search', 'jql', 'list', 'map', 'match', 'parse', 'picker', 'query', 'id']);
-// POST/PUT paths whose last segment is an action rather than entity CRUD
-const ACTION_SEGMENTS = new Set([
-  'archive', 'unarchive', 'restore', 'trash', 'move', 'rank', 'assignee', 'notify',
-  'transitions', 'cancel', 'validate', 'evaluate', 'eval', 'sanitize', 'sanitise',
-  'copy', 'swap', 'close', 'start', 'complete', 'duplicate', 'clone', 'default',
-  'reorder', 'migrate', 'replace', 'export', 'purge', 'delete', 'changelog', 'expression'
-]);
-
-const serviceNames = JSON.parse(fs.readFileSync(serviceNamesPath, 'utf8'));
-
-// ---------------------------------------------------------------------------
-// Draft resource / verb proposals (authoritative mapping is map_operations.mjs)
-// ---------------------------------------------------------------------------
-
-function pathSegments(pathKey) {
-  return stripPathPrefix(pathKey).split('/').filter(Boolean);
-}
-
-function proposeResource(pathKey) {
-  const segs = pathSegments(pathKey).filter((s) => !s.startsWith('{'));
-  return segs.map(camelToSnake).join('_') || '(root)';
-}
-
-function proposeVerb(verb, pathKey, op) {
-  const segs = pathSegments(pathKey);
-  const last = segs[segs.length - 1] || '';
-  const lastStatic = [...segs].reverse().find((s) => !s.startsWith('{')) || '';
-  if (verb === 'get') return 'select';
-  if (verb === 'delete') return 'delete';
-  if (verb === 'put' || verb === 'patch') {
-    return ACTION_SEGMENTS.has(lastStatic) && !last.startsWith('{') ? 'exec' : 'update';
-  }
-  // post
-  if (POST_READ_SEGMENTS.has(lastStatic)) return 'select';
-  if (ACTION_SEGMENTS.has(lastStatic)) return 'exec';
-  const codes = Object.keys(op.responses || {}).filter((c) => /^2/.test(c));
-  if (codes.length > 0 && codes.every((c) => c === '204')) return 'exec';
-  return 'insert';
-}
-
-// ---------------------------------------------------------------------------
-// Main
-// ---------------------------------------------------------------------------
-
-const rows = [];
+const outPath = path.join(CONFIG_DIR, 'endpoint_inventory.csv');
+const resolver = makeServiceResolver();
 const errors = [];
-const stats = {
-  bySpec: {}, byEnvelope: {}, byPagination: {}, byDisposition: {}, byService: {}
-};
-const bump = (obj, key) => { obj[key] = (obj[key] || 0) + 1; };
+const rows = [];
 
-const specFiles = fs.readdirSync(cleanedDir).filter((f) => f.endsWith('.json')).sort();
-if (specFiles.length === 0) {
-  console.error(`Error: no cleaned specs in ${cleanedDir} - run npm run clean-specs first`);
-  process.exit(1);
-}
-
-for (const specFile of specFiles) {
-  const specName = specFile.replace(/\.json$/, '');
-  const spec = JSON.parse(fs.readFileSync(path.join(cleanedDir, specFile), 'utf8'));
-  const resolve = makeResolver(spec);
-  const tagMap = serviceNames[specName];
-  if (!tagMap) {
-    errors.push(`no service_names.json entry for spec ${specName}`);
-    continue;
-  }
-
+// the proposed mapping, per service document assembled from the pinned spec
+// (the same operations bin/split.mjs emits)
+function mappingFor(specKey, spec, service) {
+  const doc = { ...spec, paths: {} };
   for (const [pathKey, pathItem] of Object.entries(spec.paths || {})) {
     for (const verb of HTTP_VERBS) {
       const op = pathItem[verb];
       if (!op) continue;
-      const tag = (op.tags || [])[0] || '';
-      const service = tagMap[tag] || tagMap['*'];
-      if (!service) {
-        errors.push(`unmapped tag "${tag}" (${verb} ${pathKey})`);
-        continue;
+      const rule = resolver.resolveRule(specKey, pathKey, op);
+      if (rule?.service !== service) continue;
+      doc.paths[pathKey] = doc.paths[pathKey] || {};
+      doc.paths[pathKey][verb] = op;
+    }
+  }
+  return mapService(doc, service, specKey, resolver, { resourceRules: RESOURCE_RULES, methodRules: METHOD_RULES }).rows;
+}
+
+const docs = SPECS.map((s) => ({ key: s.key, spec: loadSpec(specPath(s.key)) }));
+docs.push({ key: 'authored', spec: tenantServiceDoc() });
+
+for (const { key, spec } of docs) {
+  const resolve = makeResolver(spec);
+  const mappings = new Map();
+  for (const [pathKey, pathItem] of Object.entries(spec.paths || {})) {
+    for (const verb of HTTP_VERBS) {
+      const op = pathItem[verb];
+      if (!op) continue;
+      const rule = key === 'authored' ? { service: TENANT_SERVICE, excluded: false, skip: null } : resolver.resolveRule(key, pathKey, op);
+      if (!rule) { errors.push(`${key}: no service rule for ${verb.toUpperCase()} ${pathKey}`); continue; }
+      let m = null;
+      if (!rule.excluded) {
+        if (!mappings.has(rule.service)) {
+          mappings.set(rule.service, key === 'authored' ? mapService(spec, TENANT_SERVICE, null, resolver, { resourceRules: RESOURCE_RULES, methodRules: METHOD_RULES }).rows : mappingFor(key, spec, rule.service));
+        }
+        m = mappings.get(rule.service).get(`${pathKey}::${verb}`);
       }
-      const { envelope, key } = classifyEnvelope(op, resolve);
-      const pagination = classifyPagination(op, pathItem, resolve);
-      const skip = skipReason(pathKey, op);
-      const pathParams = (pathKey.match(/\{[^}]+\}/g) || []).map((s) => s.slice(1, -1)).join(';');
-
+      const body = classifyBody(op, resolve);
+      const resp = classifyResponse(op, resolve);
+      const skip = rule.excluded ? rule.skip : (m?.skip || skipReason(key, pathKey, op, resolve, verb));
       rows.push({
-        spec: specName,
-        tags: (op.tags || []).join(';'),
-        method: verb,
+        spec: key,
+        service: rule.service,
+        excluded: rule.excluded ? 'yes' : '',
+        tag: (op.tags || [])[0] || '',
+        operation_id: op.operationId || '',
+        verb: verb.toUpperCase(),
         path: pathKey,
-        operation_id: op.operationId,
-        path_params: pathParams,
-        envelope,
-        envelope_key: key,
-        pagination,
-        deprecated: op.deprecated ? 'y' : 'n',
-        experimental: op['x-experimental'] === true ? 'y' : 'n',
-        proposed_service: service,
-        proposed_resource: proposeResource(pathKey),
-        proposed_verb: skip ? '' : proposeVerb(verb, pathKey, op),
-        skip_reason: skip
+        server: key === 'authored' ? 'site' : 'gateway (cloud_id)',
+        path_params: pathParams(pathKey).join(' '),
+        pagination_params: paginationParams(op, pathItem, resolve).join(' '),
+        pagination_scheme: verb === 'get' ? paginationScheme(op, pathItem, resolve) : '',
+        body_media_types: body.mediaTypes.join(' '),
+        bare_array_body: body.bareArray ? 'yes' : '',
+        update_semantics: updateSemantics(verb),
+        vendor_labels: vendorLabels(op).join(' '),
+        response_shape: resp.shape,
+        envelope_candidates: (resp.arrayProps || []).join(' '),
+        proposed_resource: skip ? '' : (m?.resource || ''),
+        proposed_method: skip ? '' : (m?.method || ''),
+        proposed_verb: skip ? '' : (m?.sqlVerb || ''),
+        proposed_object_key: skip ? '' : (m?.objectKey || (m?.sqlVerb === 'select' && !m ? proposeObjectKey(resp) : '') || ''),
+        skip_reason: skip || ''
       });
-
-      bump(stats.bySpec, specName);
-      bump(stats.byEnvelope, envelope);
-      bump(stats.byPagination, pagination);
-      bump(stats.byDisposition, skip ? `skipped: ${skip}` : 'mapped');
-      if (!skip) bump(stats.byService, service);
     }
   }
 }
 
-if (errors.length > 0) {
+if (errors.length) {
   console.error(`FAILED with ${errors.length} error(s), nothing written:`);
   for (const e of errors) console.error(`  ${e}`);
   process.exit(1);
 }
 
-const columns = Object.keys(rows[0]);
-const csvField = (v) => (/[",\n\r]/.test(v) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
-const csv = [columns.join(',')]
-  .concat(rows.map((r) => columns.map((c) => csvField(r[c] ?? '')).join(',')))
-  .join('\n') + '\n';
-fs.writeFileSync(outPath, csv);
+rows.sort((a, b) => (a.service < b.service ? -1 : a.service > b.service ? 1 : 0) || (a.path < b.path ? -1 : a.path > b.path ? 1 : 0) || (a.verb < b.verb ? -1 : 1));
+const header = Object.keys(rows[0]);
+fs.writeFileSync(outPath, [header.join(','), ...rows.map((r) => header.map((h) => csvField(r[h])).join(','))].join('\n') + '\n');
 
-console.log(`Endpoint inventory written to ${outPath} (${rows.length} operations)\n`);
-const printStats = (title, obj) => {
-  console.log(title);
-  for (const [k, v] of Object.entries(obj).sort((a, b) => b[1] - a[1])) console.log(`  ${String(v).padStart(4)}  ${k}`);
-};
-printStats('By spec:', stats.bySpec);
-printStats('\nBy envelope style:', stats.byEnvelope);
-printStats('\nBy pagination scheme:', stats.byPagination);
-printStats('\nBy disposition:', stats.byDisposition);
-printStats('\nMapped operations by proposed service:', stats.byService);
+const count = (fn) => rows.filter(fn).length;
+const bySkip = {};
+for (const r of rows) if (r.skip_reason) bySkip[r.skip_reason] = (bySkip[r.skip_reason] || 0) + 1;
+const byScheme = {};
+for (const r of rows) if (r.pagination_scheme && !r.skip_reason) byScheme[r.pagination_scheme] = (byScheme[r.pagination_scheme] || 0) + 1;
+console.log(`Inventory: ${rows.length} operations (${docs.map((d) => d.key).join(', ')}) -> ${path.relative(process.cwd(), outPath)}`);
+console.log(`  mapped ${count((r) => !r.skip_reason)}, skipped ${count((r) => r.skip_reason)} (${Object.entries(bySkip).sort().map(([k, n]) => `${k} ${n}`).join(', ')})`);
+console.log(`  mapped reads by pagination scheme: ${Object.entries(byScheme).sort().map(([k, n]) => `${k} ${n}`).join(', ')}`);
+console.log(`  vendor labels: experimental ${count((r) => r.vendor_labels.includes('experimental') && !r.skip_reason)}, deprecated ${count((r) => r.vendor_labels.includes('deprecated') && !r.skip_reason)} (mapped)`);

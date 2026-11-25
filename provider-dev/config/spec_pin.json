@@ -1,18 +1,60 @@
 {
   "specs": {
-    "jira-platform-v3": {
+    "platform": {
       "url": "https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json",
       "filename": "jira-platform-v3.json",
-      "sha256": "ec3a972f92daf706f4ae821b34d3f84cf58ee6ef9972b1db7d0af3f6c74db4d8",
-      "bytes": 2444594,
-      "fetched": "2026-07-11"
+      "title": "The Jira Cloud platform REST API",
+      "spec_version": "1001.0.0-SNAPSHOT-a7b4351c3da87b54b4403678bdb0ff81c88ca648",
+      "openapi": "3.0.1",
+      "paths": 433,
+      "operations": 630,
+      "sha256": "b303b589c1e8d4066eed7ec007b496a37a4925ffc36369c999543d911bb07945",
+      "sanitized_sha256": "ef73e8aaa8cf8ce03bc25fdda1d20e329895fc20bff8f188f75c4a8146f45318",
+      "fixes": {
+        "type_null_to_nullable": 0,
+        "type_array_lowered": 0,
+        "numeric_exclusive_bounds": 0,
+        "property_names_removed": 0,
+        "schema_dialect_key_removed": 0,
+        "const_to_enum": 0,
+        "top_level_tags_sorted": 0,
+        "response_schema_from_example": 1,
+        "property_response_schema_injected": 0,
+        "array_or_item_response_lowered": 1,
+        "documented_required_parameter_flagged": 3,
+        "data_security_policy_removed": 630
+      },
+      "redactions": {},
+      "bytes": 2514735,
+      "fetched": "2026-11-25"
     },
-    "jira-software-agile": {
-      "url": "https://dac-static.atlassian.com/cloud/jira/software/swagger.v3.json",
-      "filename": "jira-software-agile.json",
+    "software": {
+      "url": "https://developer.atlassian.com/cloud/jira/software/swagger.v3.json",
+      "filename": "jira-software.json",
+      "title": "Jira Software Cloud API",
+      "spec_version": "1001.0.0",
+      "openapi": "3.0.1",
+      "paths": 78,
+      "operations": 105,
       "sha256": "4e108d54b99064475c6ba0f986cce46dcace81336e034b58a5400b93174b927a",
+      "sanitized_sha256": "f1951b77941c665b2ffab781e7f56d3c016e5847c0714f099774e4586fff0a39",
+      "fixes": {
+        "type_null_to_nullable": 0,
+        "type_array_lowered": 0,
+        "numeric_exclusive_bounds": 0,
+        "property_names_removed": 0,
+        "schema_dialect_key_removed": 0,
+        "const_to_enum": 0,
+        "top_level_tags_sorted": 1,
+        "response_schema_from_example": 23,
+        "property_response_schema_injected": 2,
+        "array_or_item_response_lowered": 0,
+        "documented_required_parameter_flagged": 0,
+        "data_security_policy_removed": 92
+      },
+      "redactions": {},
       "bytes": 658314,
-      "fetched": "2026-07-11"
+      "fetched": "2026-11-25"
     }
   }
 }

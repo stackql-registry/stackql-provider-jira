@@ -1,0 +1,336 @@
+{
+  "description": "Where each PageBean read's next-page URL points, measured through the API gateway by tests/live/survey_pagination.mjs (make survey-pagination). post_process.mjs enables next-page-URL pagination only on reads whose verdict is gateway; other_host and unsurveyed reads stay parameter-driven (startAt / maxResults).",
+  "surveyed": "2026-11-25",
+  "summary": {
+    "unsurveyed": 40,
+    "gateway": 17,
+    "other_host": 2
+  },
+  "results": {
+    "GET /rest/api/3/component": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/config/fieldschemes": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/config/fieldschemes/projects": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/config/fieldschemes/{id}/fields": {
+      "verdict": "gateway",
+      "evidence": "nextPage",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/config/fieldschemes/{id}/projects": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/dashboard/search": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/field/search": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/field/search/trashed": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/field/{fieldId}/association/project": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/field/{fieldId}/context": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/field/{fieldId}/context/defaultValues": {
+      "verdict": "unsurveyed",
+      "reason": "answered 400"
+    },
+    "GET /rest/api/3/field/{fieldId}/context/issuetypemapping": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/field/{fieldId}/context/projectmapping": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/field/{fieldId}/context/{contextId}/option": {
+      "verdict": "unsurveyed",
+      "reason": "answered 400"
+    },
+    "GET /rest/api/3/field/{fieldId}/screens": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/fieldconfiguration": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/fieldconfiguration/{id}/fields": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/fieldconfigurationscheme": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/fieldconfigurationscheme/mapping": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/fieldconfigurationscheme/project": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/filter/search": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/group/bulk": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/group/member": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/issue/{issueIdOrKey}/changelog": {
+      "verdict": "unsurveyed",
+      "reason": "no value for {issueIdOrKey} on the survey site"
+    },
+    "GET /rest/api/3/issuesecurityschemes/level": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/issuesecurityschemes/level/member": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/issuesecurityschemes/project": {
+      "verdict": "unsurveyed",
+      "reason": "no value for a required query parameter on the survey site"
+    },
+    "GET /rest/api/3/issuesecurityschemes/search": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/issuesecurityschemes/{issueSecuritySchemeId}/members": {
+      "verdict": "unsurveyed",
+      "reason": "no value for {issueSecuritySchemeId} on the survey site"
+    },
+    "GET /rest/api/3/issuetypescheme": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/issuetypescheme/mapping": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/issuetypescheme/project": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/issuetypescreenscheme": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/issuetypescreenscheme/mapping": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/issuetypescreenscheme/project": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/project": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/label": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/notificationscheme": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/notificationscheme/project": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/priority/search": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/priorityscheme": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/priorityscheme/priorities/available": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/priorityscheme/{schemeId}/priorities": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/priorityscheme/{schemeId}/projects": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/project/search": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/project/{projectIdOrKey}/component": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/project/{projectIdOrKey}/version": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/projects/fields": {
+      "verdict": "gateway",
+      "evidence": "nextPage",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/resolution/search": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/screens": {
+      "verdict": "gateway",
+      "evidence": "nextPage",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/screenscheme": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/statuses/search": {
+      "verdict": "other_host",
+      "evidence": "nextPage",
+      "host": "jira-wfl-prd-use-01.us-east-1.sp.prod.atl-paas.net"
+    },
+    "GET /rest/api/3/user/bulk": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/user/search/query": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/user/search/query/key": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/workflows/search": {
+      "verdict": "other_host",
+      "evidence": "nextPage",
+      "host": "jira-wfl-prd-use-01.us-east-1.sp.prod.atl-paas.net"
+    },
+    "GET /rest/api/3/workflowscheme": {
+      "verdict": "unsurveyed",
+      "evidence": "none",
+      "host": null,
+      "reason": "the response carried neither nextPage nor self"
+    },
+    "GET /rest/api/3/worklog/deleted": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    },
+    "GET /rest/api/3/worklog/updated": {
+      "verdict": "gateway",
+      "evidence": "self",
+      "host": "api.atlassian.com"
+    }
+  }
+}

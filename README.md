@@ -1,162 +1,164 @@
 # `jira` provider for [`stackql`](https://github.com/stackql/stackql)
 
-This repository generates and documents the `jira` provider for StackQL, enabling SQL-based query and provisioning operations against the Jira Cloud REST APIs - issues, projects, users, groups, permissions, workflows, fields, screens, dashboards, filters, versions, components, webhooks, audit records, and the Jira Software agile surface (boards, sprints, epics, backlog). The provider is built using the `@stackql/provider-utils` package and follows the pattern established by the [`k8s` provider rebuild](https://github.com/stackql-registry/stackql-provider-k8s/tree/feature/provider-dev).
+This repository builds and tests the `jira` provider for StackQL from the OpenAPI documents Atlassian publishes for Jira Cloud, and builds its documentation site, [jira-provider.stackql.io](https://jira-provider.stackql.io).
 
-## Design Principles
+The provider maps the Jira Cloud platform REST API v3 and the Jira Software REST API to SQL: 17 services, 227 resources and 611 methods. Issues are searched with JQL inside a `WHERE` clause:
 
-- **One provider, any Jira Cloud site** - the base URL is `https://{site}.atlassian.net`, with `{site}` supplied as a server variable in the `WHERE` clause of each query. Platform paths sit under `/rest/api/3`, agile paths under `/rest/agile/1.0`, both on the same server.
-- **Vendor specs, pinned and cleaned** - the provider is built from Atlassian's published OpenAPI 3 specs (platform v3 and Jira Software agile). Jira Cloud is continuously delivered and the spec URLs are not versioned, so snapshots are pinned by content hash in `provider-dev/config/spec_pin.json`, and known spec-quality issues are fixed by a deterministic cleaning script - never by hand-editing spec files.
-- **JQL is a parameter, not a translation target** - issue search takes a `jql` string supplied in the `WHERE` clause (`WHERE jql = 'project = ENG AND status != Done'`). SQL-predicate-to-JQL pushdown is a future any-sdk enhancement, not attempted in the provider.
-- **ADF fields are opaque** - v3 rich text fields (issue `description`, comment `body`, worklog comments) are Atlassian Document Format JSON, addressed with `json_extract` as JSON-blob columns. The provider does not model ADF structure.
-- **Users are accountIds** - user-referencing operations key on `accountId` (GDPR-era API), not usernames.
-- **Honest pagination** - Jira mixes three pagination schemes (`startAt`/`maxResults` offset, `nextPageToken` cursor, `isLast` hybrids). Transparent traversal is configured and claimed only where the integration tests prove it; everywhere else pagination is parameter-driven and documented per resource.
+```sql
+SELECT key,
+       json_extract(fields, '$.summary') AS summary,
+       json_extract(fields, '$.status.name') AS status
+FROM jira.issues.issues
+WHERE jql = 'project = ENG AND statusCategory != Done ORDER BY created DESC';
+```
 
-Jira Service Management is a separate spec and out of scope for v1; it is a candidate follow-up service. Attachment upload (multipart + `X-Atlassian-Token: no-check`) is out of scope for v1; attachment metadata reads are in scope.
+The build is a deterministic `make` pipeline from the pinned documents to the generated provider (committed under `provider-dev/openapi/src/jira`), three credential-free test layers, and a live smoke suite run against a dedicated trial site. Settled design decisions are in [AGENTS.md](AGENTS.md); findings with their evidence in [NOTES.md](NOTES.md).
+
+## What is StackQL
+
+[StackQL](https://github.com/stackql/stackql) is an open-source SQL interface for cloud and SaaS APIs. A provider is a versioned set of OpenAPI documents plus `x-stackQL-resources` extensions that the engine turns into SQL tables: `SELECT` for reads, `INSERT` / `UPDATE` / `DELETE` for lifecycle, `EXEC` for actions, with `json_extract` over nested fields and joins across providers.
+
+## Authentication and configuration
+
+The provider authenticates as an Atlassian service account with an OAuth 2.0 credential (client credentials grant) and calls Jira through the Atlassian API gateway, addressed by the site's cloud ID:
+
+| Variable | Meaning |
+|---|---|
+| `ATLASSIAN_CLIENT_ID` | client ID of the service account's OAuth 2.0 credential |
+| `ATLASSIAN_CLIENT_SECRET` | its client secret |
+| `ATLASSIAN_CLOUD_ID` | the site's cloud ID (the `cloud_id` server variable of every service except `atlassian_tenant`) |
+
+The cloud ID of a site is one query away (the client ID and secret must be set; the cloud ID need not be):
+
+```sql
+SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = 'acme';
+```
+
+The Jira Software resources (`jira.agile.*`) need the credential to carry the granular `*:jira-software` scopes. Without `ATLASSIAN_CLOUD_ID`, the docs show how to keep the cloud ID in a session variable (`SET jira_cloud_id = '...'`) or bind each site as a provider alias.
 
 ## Prerequisites
 
-To build or test the Jira provider you will need:
+- Node.js >= 22.19
+- A `stackql` binary >= v1.1.959 (`$STACKQL`, `./stackql`, or on `PATH`; `bin/start-server.sh` downloads one if none is found)
+- GNU make and bash (Linux, macOS or WSL); Python 3 for the smoke suite; yarn for the website
+- For the live targets: a dedicated Jira Cloud trial or free site (never production) and the variables above in `.env` (see [.env.example](.env.example))
 
-1. Node.js 20+ (for the build pipeline)
-2. StackQL CLI installed (see [StackQL](https://github.com/stackql/stackql))
-3. A Jira Cloud site for live testing (a [free plan](https://www.atlassian.com/software/jira/pricing) site is sufficient - never test against a production site)
+## Makefile
 
-## 0. Download and Clean the Specs
-
-Download the published specs and record the pin:
+Every step is a `make` target (`make help` lists them). The composites:
 
 ```bash
-npm run fetch-specs
+make all      # deps, full pipeline (pin verify, inventory, split, mappings, pre-normalize, normalize,
+              # generate, post-process, GraphQL merge), offline + integration + meta-route tests,
+              # docs generation, website build - no credentials needed
+make build    # the spec -> provider pipeline only
+make test     # the three credential-free test layers
+make smoke    # live smoke suite against the trial site (sources .env)
 ```
 
-This fetches the two vendor specs into `provider-dev/downloaded/`:
+The live targets: `smoke`, `smoke-live` (the published provider, post-publish verification), `smoke-read-only`, `smoke-project-lifecycle` (also creates and deletes a whole project), `smoke-cleanup` (sweep stackql-smoke breadcrumbs) and `survey-pagination` (read-only: where each PageBean read's next link points).
 
-| Spec | URL | Serves |
+## 0. Download and pin the specs
+
+```bash
+make fetch-spec      # verify both documents against the recorded pin (fails on drift)
+make refresh-spec    # accept an upstream change (rewrites the pin - review the diff)
+```
+
+`provider-dev/scripts/record_spec_pin.mjs` downloads the platform REST API v3 document (OpenAPI 3.0.1, 433 paths, 630 operations) and the Jira Software document (OpenAPI 3.0.1, 78 paths, 105 operations), applies the deterministic fix classes (counted in the pin: the per-operation data classification annotation removed, 23 response schemas synthesised from the vendor's own examples, 2 property read schemas, an array-or-item response lowered, 3 documented-required parameters flagged), validates each with `@apidevtools/swagger-parser`, verifies the upstream sha256 against `provider-dev/config/spec_pin.json`, and only then writes both snapshots into `provider-dev/downloaded/` (committed). An unchanged upstream leaves the pin untouched. Before accepting a refresh, run `node .claude/skills/stackql-provider-development/scripts/spec_diff.mjs <pinned> <fetched>` and record the summary in NOTES.md.
+
+## 1. Endpoint inventory and service split
+
+```bash
+make inventory
+make split
+```
+
+`build_inventory.mjs` writes `provider-dev/config/endpoint_inventory.csv`: one row per operation (736: the two documents plus the authored tenant operation) with its service, vendor tag, pagination parameters and scheme, body kind, update semantics presumption, vendor labels, response shape, the proposed mapping and a skip code.
+
+`bin/split.mjs` applies the ordered rules in `provider-dev/config/service_names.json` (document, first vendor tag, path regex; first match wins, an unmatched operation fails the run) and writes 17 service specs to `provider-dev/source/`, each with the gateway server template from `provider-dev/config/servers.json` (`https://api.atlassian.com/ex/jira/{cloud_id}`, `cloud_id` from `ATLASSIAN_CLOUD_ID`). The authored `atlassian_tenant` service (`provider-dev/scripts/lib/tenant_service.mjs`) uses the site template `https://{site}.atlassian.net`. Two excluded services classify the app-only operations: `apps` (46) and `dev_tools` (44).
+
+| Service | Resources | Contents |
 |---|---|---|
-| `jira-platform-v3` | `https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json` | `/rest/api/3` (platform) |
-| `jira-software-agile` | `https://dac-static.atlassian.com/cloud/jira/software/swagger.v3.json` | `/rest/agile/1.0` (boards, sprints, epics, backlog) |
+| `issues` | 31 | issues, JQL search, comments, worklogs, transitions, changelogs, links, remote links, watchers, votes, attachments metadata, properties, labels, bulk operations |
+| `projects` | 28 | projects, components, versions, roles and role actors, categories, properties, features, templates, types, policies |
+| `users` | 23 | users, user searches, user properties, myself, groups and members |
+| `agile` | 26 | Jira Software boards, sprints, epics, backlog, board configuration and properties, ranking, estimation |
+| `system` | 22 | server info, application properties, application roles, licenses, announcement banner, audit records, time tracking, avatars, tasks, expressions |
+| `workflows` | 21 | workflows, workflow schemes and drafts, statuses, status categories, usages |
+| `fields` | 19 | fields, custom field contexts and options, field configurations and schemes, field schemes |
+| `permissions` | 12 | permission schemes and grants, permission checks, issue security schemes and levels |
+| `issue_types` | 11 | issue types, issue type schemes, issue type screen schemes, properties |
+| `screens` | 7 | screens, tabs, tab fields, screen schemes |
+| `filters` | 6 | filters, favourites, columns, share permissions |
+| `issue_attributes` | 6 | priorities, priority schemes, resolutions |
+| `dashboards` | 4 | dashboards, gadgets, item properties |
+| `jql` | 4 | autocomplete data and suggestions, parse / sanitise, the invalid JQL log |
+| `plans` | 4 | plans and plan teams (Jira Premium) |
+| `notifications` | 2 | notification schemes and project associations |
+| `atlassian_tenant` | 1 | `info`: the cloud ID of a site |
 
-and records the fetch date and sha256 of each in `provider-dev/config/spec_pin.json`. If upstream content has drifted from the pin, the fetch fails without writing; re-run with `--update` to accept the refresh and review the resulting diff.
-
-Then apply the deterministic spec fixes and validate:
-
-```bash
-npm run clean-specs
-```
-
-`provider-dev/scripts/clean_specs.mjs` parses both specs with `@apidevtools/swagger-parser`, applies the known fix classes, writes cleaned specs to `provider-dev/downloaded/cleaned/`, and records every change in `provider-dev/config/clean_report.json`. Unfixable violations fail the run without writing anything. The fix classes, each detected on every run whether or not the current snapshot exhibits them:
-
-1. **Duplicate JSON keys** (duplicated method or path definitions) - detected by scanning the raw text, since `JSON.parse` collapses them silently. Byte-identical duplicates are deduped; conflicting duplicates are unfixable.
-2. **Duplicate operationIds** - renamed deterministically with a numeric suffix.
-3. **Untagged operations** - unfixable (the tag drives the service split).
-4. **Arrays of enums** (`type: array` with `items.enum`) - historically rejected by generators; the items enum is dropped, keeping the item type.
-5. **Out-of-scope path prefixes** - each spec carries surfaces beyond the site-level REST APIs the provider targets. The platform spec's `/rest/atlassian-connect` and `/rest/forge` paths (app-context APIs) and `/rest/internal` (not a public API) are dropped. The agile spec's dev-tools ingestion APIs (`/rest/devinfo`, `/rest/builds`, `/rest/deployments`, `/rest/featureflags`, `/rest/remotelinks`, `/rest/security`, `/rest/operations`, `/rest/devopscomponents`) are Connect-app integration surfaces for CI/CD tools, not site-level basic-auth APIs, and are dropped; `/rest/software/1.0` (board, epic, and sprint issue reads, basic-auth callable) is kept alongside `/rest/agile/1.0`.
-6. **App-context operations** - operations callable only by Connect/Forge apps, never with site-level basic auth: tags suffixed `(apps)` (app custom field configuration/options/values, app JQL functions, UI modifications) and operations whose documented permissions are "Only Connect / OAuth 2.0 apps can use this operation" (the dynamic webhook registration API and workflow transition rule configuration). Because the entire platform `Webhooks` tag is app-only, the provider has no `webhooks` service - Jira Cloud offers no site-level REST API for webhook administration.
-
-Against the 2026-07-11 snapshots both specs validate before and after cleaning; 80 fixes were applied (44 out-of-scope paths dropped, 28 app-context operations dropped, 15 array-of-enum items lowered, with 7 of the enum fixes on subsequently dropped paths) and the historical duplicate-operation defect is not present in the current snapshots.
-
-## 1. Endpoint Inventory and Service Split
+## 2. Mappings
 
 ```bash
-npm run build-inventory
+make mappings          # regenerate all_services.csv from scratch and apply the rules
+make mappings-report   # print every derived mapping without writing
 ```
 
-`provider-dev/scripts/build_inventory.mjs` produces `provider-dev/config/endpoint_inventory.csv` - one row per operation across both cleaned specs, with the response envelope style, pagination scheme, deprecation and experimental flags, the proposed service (from `provider-dev/config/service_names.json`), draft resource and StackQL verb columns, and a skip reason where an operation is not mapped. Against the 2026-07-11 snapshots:
+`npm run generate-mappings` (provider-utils `analyze`) writes `provider-dev/config/all_services.csv`; `map_operations.mjs` fills the `stackql_*` columns from the path-derived derivation in `lib/mapping.mjs` and the 137 resource rules and 174 method rules in `lib/mapping_rules.mjs`, then validates (every operation mapped or skip-coded, method names unique per resource, unique required-parameter signatures per SQL verb, every rule used). Result: select 270, insert 51, update 71, delete 71, exec 148; 35 skip-coded in the emitted services (plus the 90 app-only operations of the excluded services). `all_services.csv` is committed: a diff on regeneration is a breaking-change review.
 
-| Measure | Count |
-|---|---|
-| Operations (platform / agile) | 631 (570 / 61) |
-| Envelope: single object | 337 |
-| Envelope: no JSON response body | 78 |
-| Envelope: `values` wrapper | 76 |
-| Envelope: other keyed object | 70 |
-| Envelope: bare array | 49 |
-| Envelope: `issues` wrapper | 21 |
-| Pagination: none | 515 |
-| Pagination: `isLast` hybrid | 68 |
-| Pagination: `startAt`/`maxResults` offset | 30 |
-| Pagination: `nextPageToken` cursor | 18 |
-| Mapped | 610 |
-| Skipped: deprecated reads superseded by a mapped replacement (8 agile issue reads with `/rest/software/1.0` twins, get-all-projects vs `/project/search`) | 9 |
-| Skipped: non-JSON request bodies (multipart attachment upload, avatar image upload, form-encoded column settings) | 6 |
-| Skipped: deprecated legacy issue search (`/rest/api/3/search`; `/rest/api/3/search/jql` is mapped) | 2 |
-| Skipped: binary redirect reads (attachment content/thumbnail) | 2 |
-| Skipped: unpaginated duplicates of paginated component/version lists | 2 |
-
-The platform spec's 87 surviving fine-grained tags are consolidated into 17 services, and the agile spec maps to a single `agile` service - 18 services in total, recorded in `provider-dev/config/service_names.json`:
-
-| Service | Consolidates (platform tags / agile) | Mapped ops |
-|---|---|---|
-| `issues` | Issues, attachments, comments (+properties), links, link types, properties, remote links, votes, watchers, worklogs (+properties), search, bulk operations, redaction, navigator settings, panels, labels | 100 |
-| `projects` | Projects, components, versions, categories, avatars, classification levels, email, features, key/name validation, properties, roles, role actors, templates, types | 80 |
-| `fields` | Issue fields, custom field contexts, custom field options, custom field associations, field configurations, field schemes | 64 |
-| `workflows` | Workflows, workflow schemes (+drafts, +project associations), statuses, status categories, transition rules, status | 64 |
-| `agile` | Boards, sprints, epics, backlog, agile issue ranking (both `/rest/agile/1.0` and `/rest/software/1.0`) | 53 |
-| `system` | Myself, server info, announcement banner, application roles, avatars, classification levels, Jira settings, license metrics, time tracking, tasks, data policies | 34 |
-| `permissions` | Permissions, permission schemes, project permission schemes, issue security schemes, issue security levels | 35 |
-| `issue_types` | Issue types, issue type schemes, issue type screen schemes, issue type properties | 32 |
-| `users` | Users, user search, user properties, group and user picker | 25 |
-| `priorities_resolutions` | Issue priorities, priority schemes, issue resolutions | 24 |
-| `screens` | Screens, screen schemes, screen tabs, screen tab fields | 21 |
-| `filters` | Filters, filter sharing | 19 |
-| `dashboards` | Dashboards | 17 |
-| `plans` | Plans, teams in plan (Advanced Roadmaps; requires a Premium plan) | 16 |
-| `jql` | JQL utilities (parse, autocomplete data, sanitize), Jira expressions | 9 |
-| `groups` | Groups | 8 |
-| `notifications` | Issue notification schemes | 8 |
-| `audit` | Audit records | 1 |
-
-Deviations from the candidate split in [CLAUDE.md](CLAUDE.md), decided from the inventory:
-
-- `labels` is a resource in `issues`, not a service - the Labels tag has a single operation
-- `myself_serverinfo` is named `system` and also holds site-level administration surfaces (settings, avatars, license metrics, time tracking, tasks, announcement banner, application roles, data policies)
-- `webhooks` is dropped entirely - the platform webhook registration API is app-context-only (see cleaning fix class 6)
-- `notifications` (notification schemes) and `plans` (Advanced Roadmaps) are added - both present in the spec but absent from the candidate list
-- agile builds/deployments are excluded - the dev-tools ingestion APIs are Connect-app integration surfaces (see cleaning fix class 5)
-
-## 2. Split into Service Specs
+## 3. Normalize
 
 ```bash
-npm run split -- --provider-name jira --overwrite
+make pre-normalize normalize
 ```
 
-`bin/split.mjs` splits both cleaned specs into one self-contained spec per service (`provider-dev/source/<service>.yaml`), consolidating the platform tags per `provider-dev/config/service_names.json` ("`*`" maps every agile tag to the `agile` service). An unmapped tag or a service produced by both specs fails the run. During phase 1 the split is limited to the pilot services with `--services issues,projects,agile`.
+`pre_normalize.mjs` passes: prefer JSON request bodies; declare the followed task response of the 13 operations that answer only `303 See Other`; remove the read-only `expand` metadata property from 34 response schemas (so `expand` works as a request parameter); type the two Atlassian Document Format properties as JSON objects; give the 8 entity property writes a `value` body. Then the provider-utils normalize pass (allOf flatten, oneOf / anyOf lowering, opaque objects, 52 bare-array responses wrapped).
 
-## 3. Generate Mappings
+## 4. Generate
 
 ```bash
-npm run generate-mappings -- --provider-name jira --input-dir provider-dev/source --output-dir provider-dev/config
-npm run map-operations
+make generate
 ```
 
-`generate-mappings` (provider-utils `analyze`) writes the operation manifest to `provider-dev/config/all_services.csv`; `provider-dev/scripts/map_operations.mjs` then populates `stackql_resource_name`, `stackql_method_name`, `stackql_verb`, and `stackql_object_key` mechanically:
+`provider-utils generate` with `provider_config.json` (`auth.type: oauth2`, client credentials, `snake_case_aliases: true`) and `--naive-req-body-translate`, then `post_process.mjs`: `request.nativeCasing: camel` on all 611 methods; naive DELETE bodies; scalar reads as a `value` row and the label page as `label` rows; the permission maps as one row per permission; the JQL search as the POST form with `request.base` `{"fields": ["*navigable"]}` and its token in the body; `nextPageToken` pagination (10 reads); offset pagination through a response transform that adds the next `startAt` (71 reads); `LIMIT` -> `maxResults` (90 reads), `OFFSET` -> `startAt` (70) and `ORDER BY` -> `orderBy` in Jira's prefix syntax (17) pushdown; entity property values sent as the raw body. Then the GraphQL merge (no operations).
 
-| Operation pattern | StackQL verb | Resource / method |
-|---|---|---|
-| GET collection (any wrapper or bare array) | `SELECT` | `<resource>.list`, `stackql_object_key` per envelope (`$.issues`, `$.values`, `$.<key>`, none for bare arrays) |
-| GET `/search` endpoints | `SELECT` | `<resource>.search` |
-| GET single | `SELECT` | `<resource>.get`; static-ending config/meta reads use the operationId |
-| POST create | `INSERT` | `<resource>.create` |
-| PUT/PATCH edit | `UPDATE` | `<resource>.update` - Jira PUT carries partial field-update semantics on most resources, a documented deviation from the k8s PUT -> REPLACE convention |
-| DELETE entity | `DELETE` | `<resource>.delete` |
-| POST/PUT/DELETE actions (transitions, assign, notify, archive, rank, swap, move) | `EXEC` | `<resource>.<snake(operationId)>` (`issues.do_transition`, `issues.assign_issue`, `sprints.swap_sprint`) |
-| POST reads (body-parameterized queries, bulk fetches) | `EXEC` | StackQL cannot route `SELECT` WHERE parameters into request bodies (any-sdk gap, same as the k8s review kinds), so `POST /search/jql` maps as `issues.search_post` etc |
-| bulk operations | `EXEC` | `issues.submit_bulk_delete`, `issues.submit_bulk_transition`, `issue_properties.bulk_set_issue_property`, ... |
+## 5. Test
 
-Resource names are the full static path chain, snake_cased and pluralized on the last token (`issue_comments`, `project_roles`, `board_sprints`) - stable across spec refreshes and collision-free by construction. Explicit rules in `map_operations.mjs` (`RESOURCE_RULES`, `METHOD_RULES`) handle the cases the mechanical derivation gets wrong; the cursor-based `GET /rest/api/3/search/jql` maps as the primary `issues.search` with the legacy `/rest/api/3/search` endpoints skipped.
+```bash
+make test-offline        # SHOW / DESCRIBE against the local file registry (25 checks)
+make test-integration    # the mock Jira API: rows and wire calls per archetype (59 checks)
+make test-meta           # meta-route walk: 17 services, 227 resources, 611 methods
+make smoke               # live, against the trial site (78 checks, including a Jira Software board and sprint)
+```
 
-The script validates before writing: every operation in the split specs has a CSV row, every row is mapped or skipped with a reason, `(resource, method)` is unique per service, and no two non-exec methods on the same `(resource, SQL verb)` share a required-parameter signature (path parameters plus required query parameters). Violations fail the run without writing.
+`npm run probe -- "<sql>"` runs ad-hoc SQL against the mock and prints the wire calls. The smoke suite works in the project `SQLUAT` (`JIRA_SMOKE_PROJECT`), creating it on the first run with the identity as lead and in its Administrators role; it sweeps every stackql-smoke breadcrumb first and deletes everything it creates. Jira Cloud does not bill per call: the budget is 0.00.
 
-Pilot results (`issues`, `projects`, `agile` - all envelope styles, all pagination schemes, both specs, both path prefixes): 233 operations mapped (109 `SELECT`, 14 `INSERT`, 26 `UPDATE`, 23 `DELETE`, 61 `EXEC`), 18 skipped, 100 resources (issues 36, projects 37, agile 27).
+## 6. Docs
 
-## Status
+```bash
+make docs       # generate-docs --snake-case-aliases --source-project ..., then sanitize-docs
+make website    # yarn install && yarn build (vendors the shared stackql/docusaurus-config)
+```
 
-Phase 1 (spec acquisition, cleaning, endpoint inventory, mapping groundwork) is in progress. Later steps (normalize, generate, test, publish, docs) follow the k8s provider pipeline and will be documented here as they are completed. Open engineering questions are tracked in [NOTES.md](NOTES.md).
+The landing page is `provider-dev/docgen/provider-data/headerContent1.txt` and `headerContent2.txt` (installation, authentication, the cloud ID, JQL search, pagination, example queries). `sanitize-docs` escapes MDX-hostile description text and annotates `cloud_id` "required unless ATLASSIAN_CLOUD_ID is set". `website/docs` is committed after every regeneration so pages stamp with their regeneration date. The site emits JSON-LD through the shared config's `withStructuredData` (`@stackql/docusaurus-plugin-structured-data`) and `llms.txt`, `llms-full.txt` and Markdown companion files through `@stackql/docusaurus-plugin-aeo`.
 
-## License
+## 7. Publish
 
-MIT
+Publishing is a separate, human-in-the-loop step: push `provider-dev/openapi/src/jira` to `providers/src` in a feature branch of [stackql-provider-registry](https://github.com/stackql/stackql-provider-registry), follow the registry release flow, then verify with `make smoke-live`.
+
+## 8. CI
+
+`.github/workflows/build-and-test.yml`: on push and pull request - install, `make fetch-spec` (warns on drift, builds from the pin), the build steps, a check that regeneration reproduces the committed artifacts, the three test layers and `make docs`; a smoke job when `ATLASSIAN_CLIENT_ID`, `ATLASSIAN_CLIENT_SECRET` and `ATLASSIAN_CLOUD_ID` are configured as secrets (never on pull requests); a weekly spec-drift job that opens a labelled issue when the served documents move. `test-web-deploy.yml` builds the site on pull requests to `main`; `prod-web-deploy.yml` builds and deploys it to GitHub Pages on pushes to `main` (DNS: `jira-provider.stackql.io` CNAME `stackql.github.io.`).
 
 ## Contributing
 
-Contributions are welcome. Please submit a Pull Request.
+Mapping and shaping decisions are rules in scripts, never hand-edits to generated files: change the rule, run `make build && make test`, review the `all_services.csv` and generated diffs, and record the reason in NOTES.md.
+
+## Security
+
+See [SECURITY.md](SECURITY.md).
+
+## License
+
+MIT - see [LICENSE](LICENSE).

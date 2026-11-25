@@ -1,29 +1,40 @@
 #!/usr/bin/env node
 
-// Splits the cleaned Jira Cloud specs into per-service StackQL service specs.
+// Splits the two pinned Jira documents (platform REST API v3 and Jira
+// Software) into per-service StackQL service specs, plus the authored
+// atlassian_tenant service.
 //
-// The platform spec is split by tag with consolidation: every tag must map to
-// a service in provider-dev/config/service_names.json (keyed by spec name,
-// "*" matches any tag). The agile spec maps to its own service(s) the same
-// way. Unmapped tags fail the run without writing anything.
+// The service of each operation comes from the ordered rules in
+// provider-dev/config/service_names.json (spec, first vendor tag, path
+// regex; first match wins). An operation that matches no rule FAILS the run
+// without writing - add a rule. A rule with "excluded": true classifies the
+// operation for the inventory but its service is never emitted (every
+// operation in it is app-only). A service may not take operations from both
+// documents (their component schemas would collide).
 //
-// provider-utils split() cleans its output dir on every call, so each spec is
-// split into a temp dir and the service specs are merged into --output-dir.
-// Two specs contributing the same service name is an error.
+// provider-utils split() cleans its output dir on every call, so each
+// document is split into its own temp dir and the service specs are copied
+// into --output-dir only after both splits and the rules validated.
+//
+// Every Jira service is served through the Atlassian API gateway
+// (SERVERS.gateway: https://api.atlassian.com/ex/jira/{cloud_id}, cloud_id
+// resolved from ATLASSIAN_CLOUD_ID); the paths keep their /rest/api/3,
+// /rest/agile/1.0 and /rest/software/1.0 prefixes. The atlassian_tenant
+// service uses SERVERS.site (https://{site}.atlassian.net). generate is run
+// without --servers, so these templates are kept.
 //
 // Usage:
-//   node bin/split.mjs --provider-name jira \
-//     --input-dir provider-dev/downloaded/cleaned \
-//     --output-dir provider-dev/source \
-//     [--services issues,projects,agile] [--overwrite] [--verbose]
+//   node bin/split.mjs [--output-dir provider-dev/source] [--services a,b,c] [--overwrite] [--verbose]
 
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import yaml from 'js-yaml';
 import { providerdev } from '@stackql/provider-utils';
-
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+import {
+  PROVIDER_NAME, SPECS, SERVERS, REPO_ROOT, SOURCE_DIR, makeServiceResolver, specPath, dumpYaml
+} from '../provider-dev/scripts/lib/spec_helpers.mjs';
+import { TENANT_SERVICE, tenantServiceDoc } from '../provider-dev/scripts/lib/tenant_service.mjs';
 
 const args = process.argv.slice(2);
 const getArg = (flag) => {
@@ -31,23 +42,19 @@ const getArg = (flag) => {
   return index !== -1 ? args[index + 1] : null;
 };
 
-const providerName = getArg('--provider-name') || 'jira';
-const inputDir = getArg('--input-dir') || path.join(repoRoot, 'provider-dev', 'downloaded', 'cleaned');
-const outputDir = getArg('--output-dir') || path.join(repoRoot, 'provider-dev', 'source');
-const serviceNamesPath = getArg('--service-names') || path.join(repoRoot, 'provider-dev', 'config', 'service_names.json');
+const outputDir = getArg('--output-dir') ? path.resolve(getArg('--output-dir')) : SOURCE_DIR;
 const servicesFilter = getArg('--services') ? getArg('--services').split(',').map((s) => s.trim()) : null;
 const overwrite = args.includes('--overwrite');
 const verbose = args.includes('--verbose');
 
-const serviceNames = JSON.parse(fs.readFileSync(serviceNamesPath, 'utf8'));
-
-const specFiles = fs.readdirSync(inputDir).filter((f) => f.endsWith('.json')).sort();
-if (specFiles.length === 0) {
-  console.error(`Error: no cleaned specs found in ${inputDir} (run npm run clean-specs first)`);
-  process.exit(1);
+for (const s of SPECS) {
+  if (!fs.existsSync(specPath(s.key))) {
+    console.error(`Error: ${path.relative(REPO_ROOT, specPath(s.key))} not found (run make fetch-spec first)`);
+    process.exit(1);
+  }
 }
+const resolver = makeServiceResolver();
 
-// Prepare the output directory, preserving non-spec files (e.g. .gitkeep)
 fs.mkdirSync(outputDir, { recursive: true });
 const existing = fs.readdirSync(outputDir).filter((f) => /\.(yaml|yml|json)$/.test(f));
 if (existing.length > 0 && !overwrite) {
@@ -55,32 +62,32 @@ if (existing.length > 0 && !overwrite) {
   process.exit(1);
 }
 
-const written = new Map(); // service spec filename -> source spec file
-
-async function splitSpec(specFile) {
-  const specName = specFile.replace(/\.json$/, '');
-  const tagMap = serviceNames[specName];
-  if (!tagMap) {
-    console.error(`Error: no entry for spec "${specName}" in ${serviceNamesPath}`);
-    process.exit(1);
-  }
-
-  const unmapped = new Set();
-  const svcDiscriminatorFn = (pathKey, operationId, tags) => {
-    const tag = (tags && tags.length > 0) ? tags[0] : '';
-    const service = tagMap[tag] || tagMap['*'];
-    if (!service) {
-      unmapped.add(tag || `(no tag: ${pathKey})`);
-      return 'unmapped_service';
-    }
-    return service;
-  };
-
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'stackql-split-'));
-  try {
+const errors = [];
+const serviceSpec = new Map(); // service -> spec key
+const produced = new Map(); // service -> { doc, file }
+const excludedCounts = {};
+const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'stackql-split-'));
+try {
+  for (const s of SPECS) {
+    const tmpDir = path.join(tmpRoot, s.key);
+    const svcDiscriminatorFn = (pathKey, operationId, tags, { operation }) => {
+      const rule = resolver.resolveRule(s.key, pathKey, operation);
+      if (!rule) {
+        errors.push(`${s.key}: no service rule for ${operationId} ${pathKey} (tag ${JSON.stringify(tags[0] || '')})`);
+        return null;
+      }
+      if (rule.excluded) {
+        excludedCounts[rule.service] = (excludedCounts[rule.service] || 0) + 1;
+        return null; // classified, not emitted
+      }
+      const prior = serviceSpec.get(rule.service);
+      if (prior && prior !== s.key) errors.push(`service ${rule.service} takes operations from both ${prior} and ${s.key}`);
+      serviceSpec.set(rule.service, s.key);
+      return rule.service;
+    };
     const result = await providerdev.split({
-      apiDoc: path.join(inputDir, specFile),
-      providerName,
+      apiDoc: specPath(s.key),
+      providerName: PROVIDER_NAME,
       outputDir: tmpDir,
       svcDiscriminator: 'function',
       svcDiscriminatorFn,
@@ -88,42 +95,48 @@ async function splitSpec(specFile) {
       verbose,
       svcNameOverrides: {}
     });
-    if (!result) {
-      console.error(`Error: split failed for ${specFile}`);
-      process.exit(1);
-    }
-    if (unmapped.size > 0) {
-      console.error(`Error: ${specFile} has tags with no service mapping in ${serviceNamesPath}:`);
-      for (const t of [...unmapped].sort()) console.error(`  ${t}`);
-      process.exit(1);
-    }
-
+    if (!result) errors.push(`provider-utils split failed on ${s.key}`);
+    if (!fs.existsSync(tmpDir)) continue;
     for (const outFile of fs.readdirSync(tmpDir)) {
       const service = outFile.replace(/\.(yaml|yml|json)$/, '');
-      if (servicesFilter && !servicesFilter.includes(service)) continue;
-      if (written.has(outFile)) {
-        console.error(`Error: service spec ${outFile} produced by both ${written.get(outFile)} and ${specFile}`);
-        process.exit(1);
-      }
-      fs.copyFileSync(path.join(tmpDir, outFile), path.join(outputDir, outFile));
-      written.set(outFile, specFile);
+      if (produced.has(service)) { errors.push(`service ${service} produced by two documents`); continue; }
+      const doc = yaml.load(fs.readFileSync(path.join(tmpDir, outFile), 'utf8'));
+      produced.set(service, { doc, file: `${service}.yaml` });
     }
-  } finally {
-    fs.rmSync(tmpDir, { recursive: true, force: true });
   }
+} finally {
+  fs.rmSync(tmpRoot, { recursive: true, force: true });
 }
 
-// Clear previous service specs only after config validation passed
-for (const f of existing) {
-  fs.rmSync(path.join(outputDir, f));
+for (const r of resolver.unusedRules()) errors.push(`service rule #${r.index} (${r.service}) matched no operation - remove or fix it`);
+for (const service of produced.keys()) {
+  if (!resolver.services[service]) errors.push(`service ${service} has no title/description entry in service_names.json "services"`);
+}
+if (errors.length > 0) {
+  console.error(`Split FAILED with ${errors.length} error(s), nothing written:`);
+  for (const e of [...new Set(errors)].sort()) console.error(`  ${e}`);
+  process.exit(1);
 }
 
-for (const specFile of specFiles) {
-  console.log(`Splitting ${specFile}`);
-  await splitSpec(specFile);
+// The authored tenant service
+produced.set(TENANT_SERVICE, { doc: tenantServiceDoc(), file: `${TENANT_SERVICE}.yaml`, authored: true });
+
+for (const f of existing) fs.rmSync(path.join(outputDir, f));
+const written = [];
+for (const [service, { doc, file, authored }] of [...produced.entries()].sort()) {
+  if (servicesFilter && !servicesFilter.includes(service)) continue;
+  const meta = resolver.services[service];
+  if (!authored) {
+    doc.servers = JSON.parse(JSON.stringify(SERVERS.gateway));
+    doc.info = { ...(doc.info || {}), title: meta.title, description: meta.description, 'x-stackQL-sourceSpec': serviceSpec.get(service) };
+  } else {
+    doc.info['x-stackQL-sourceSpec'] = 'authored';
+  }
+  fs.writeFileSync(path.join(outputDir, file), dumpYaml(doc));
+  const ops = Object.values(doc.paths || {}).reduce((n, pi) => n + ['get', 'post', 'put', 'patch', 'delete'].filter((v) => pi[v]).length, 0);
+  written.push(`${file} (${ops} operations${authored ? ', authored' : `, ${serviceSpec.get(service)}`})`);
 }
 
-console.log(`Split completed: ${written.size} service specs written to ${outputDir}`);
-for (const f of [...written.keys()].sort()) {
-  console.log(`  ${f}`);
-}
+console.log(`Split completed: ${written.length} service specs written to ${path.relative(REPO_ROOT, outputDir)}`);
+for (const f of written) console.log(`  ${f}`);
+console.log(`Excluded (classified, not emitted): ${Object.entries(excludedCounts).sort().map(([k, n]) => `${k} ${n}`).join(', ') || 'none'}`);

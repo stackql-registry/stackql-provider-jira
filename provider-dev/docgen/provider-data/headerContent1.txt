@@ -1,0 +1,22 @@
+---
+title: jira
+hide_title: false
+hide_table_of_contents: false
+keywords:
+  - jira
+  - atlassian
+  - jql
+  - stackql
+  - infrastructure-as-code
+  - configuration-as-data
+  - issue tracking
+description: Query, provision and manage Jira Cloud resources using SQL
+custom_edit_url: null
+image: /img/stackql-jira-provider-featured-image.png
+id: 'provider-intro'
+softwareApplication: true
+---
+
+import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
+
+The `jira` provider maps the Jira Cloud platform REST API (v3) and the Jira Software REST API to SQL: issues and everything attached to them (comments, worklogs, transitions, links, watchers, changelogs), projects with their components, versions and roles, users and groups, workflows and statuses, fields and custom field contexts, issue types, screens, the permission, notification and issue security schemes, filters, dashboards, plans, site configuration and audit records, and the Jira Software boards, sprints and epics. Search issues with JQL inside a `WHERE` clause, inventory and audit a site's configuration as rows, report across projects and providers, and create, change, transition and remove issues and their configuration with `INSERT`, `UPDATE`, `EXEC` and `DELETE`.

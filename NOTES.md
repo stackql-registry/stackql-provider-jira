@@ -1,79 +1,134 @@
 # Engineering Notes
 
-Open questions from the phase 1 kickoff, answered with evidence where possible. Sources: `stackql/any-sdk` and `stackql/stackql` at their default branches as of 2026-07-11, plus the pinned spec snapshots.
+The memory of the build: numbered findings with evidence (what was measured, against what, what was decided and why), the blockers only a live run can resolve, and the testing requirements. A future refresh reads this before touching a rule. Cross-build findings from the sibling providers (see the skill's reference-repos.md) are reused, not re-derived.
 
-## 1. any-sdk pagination
+Sources: the pinned spec snapshots (`provider-dev/downloaded/`, hashes and date in `provider-dev/config/spec_pin.json`, fetched 2026-11-25), live calls against a Jira Cloud trial site through the API gateway with a service account OAuth 2.0 credential (2026-11-25), the mock API through `npm run probe`, and the engine source (stackql v1.1.959, omnisdk v0.1.13-beta01).
 
-**Question:** can the pagination config express `nextPageToken` cursor traversal, and is there any support for `startAt`/`maxResults` offset traversal?
+## Findings
 
-**What any-sdk supports** (evidence: `any-sdk/internal/anysdk/pagination.go`, `any-sdk/internal/anysdk/http_armoury_params.go` `SetNextPage()`, `stackql/internal/stackql/execution/mono_valent_execution.go` `page()`):
+### 1. The earlier work in this repository was not carried forward
 
-- The pagination config is a `requestToken` / `responseToken` (/ `responseTerminator`) pair. The traversal loop extracts the response token (locations: body attribute via JSONPath-style key, or header - including a `Link: rel="next"` transformer), stops when it is empty, and applies it to the next request. Request token locations: `query` (set a query parameter), `body` (set an attribute in the request body), `path`, and `requestString` (parse the token as a URL and use it verbatim as the next request).
-- Registered algorithms beyond plain tokens: `page_number` (page number vs page-count terminator) and `odata_next_link` (follow-the-link). There is **no offset-arithmetic algorithm** - nothing computes `startAt + maxResults`.
-- Config resolution is per operation -> resource -> service -> providerService (`operation_store.go` `GetPaginationRequestTokenSemantic()`), so different methods in one service can carry different schemes. The provider-level fallback is confirmed broken in code (the `op.Provider != nil` branch reads `op.ProviderService` - the same bug the k8s build worked around by configuring at service level).
+**Question.** The repository held a phase 1-2 build from 2026-07 (a pin, an inventory, a pilot mapping of three services, no generated provider, tests or site), to be treated as untrusted.
 
-**Per-scheme story for Jira:**
+**Evidence.** Its cleaning script's premise (duplicate operation definitions, array-of-enum schemas that break generators) does not hold for either current document: both validate with swagger-parser 13 before any fix (`validationBefore: valid` in its own report). It deleted the app-only operations from the snapshot instead of skip-coding them, assumed basic auth against `https://{site}.atlassian.net` (a service account token is refused there) and predates the template's Makefile, test layers, skill and microsite.
 
-| Scheme | Endpoints | Plan |
-|---|---|---|
-| `nextPageToken` cursor | `/search/jql` GET plus 17 others | `requestToken {key: nextPageToken, location: query}` + `responseToken {key: $.nextPageToken, location: body}` - same construct the k8s provider uses for `continue` tokens, applied at operation/resource level. Expect transparent traversal; prove it in integration tests before claiming it. |
-| `isLast` hybrid (PageBean) | 68 ops | The PageBean carries a `nextPage` URL on non-final pages; candidate config is `responseToken {key: $.nextPage, location: body}` + `requestToken {location: requestString}` (follow the URL verbatim, terminate when absent). Needs per-endpoint verification that `nextPage` is reliably emitted - configure only where integration tests prove traversal, otherwise document as parameter-driven. |
-| `startAt`/`maxResults` offset | 30 ops (user searches, group members, agile lists) | Not expressible in any-sdk today. Parameter-driven: explicit `startAt`/`maxResults` in the `WHERE` clause, documented per resource. `LIMIT` pushdown (`queryParamPushdown` `top -> maxResults`) is a candidate optimisation. |
-| none | single-object reads, writes | n/a |
+**Decision.** The repository was re-scaffolded from the current template (`bin/init-provider.sh jira "Jira"`); the prior files remain in git history. Its two useful observations were re-measured rather than reused: the Jira Software document's schema-less responses (finding 4) and the app-only surfaces (finding 6).
 
-The honest docs position: transparent traversal is claimed per resource only where an integration test proves it; everything else documents explicit paging parameters.
+### 2. Two vendor documents, pinned together
 
-## 2. Basic auth construct and the JIRA_CREDS convention
+**Evidence.** `https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json` (OpenAPI 3.0.1, 433 paths, 630 operations, version `1001.0.0-SNAPSHOT-a7b4351...`) and `https://developer.atlassian.com/cloud/jira/software/swagger.v3.json` (OpenAPI 3.0.1, 78 paths, 105 operations). The `dac-static.atlassian.com` mirrors serve byte-identical documents. Against the July snapshot the platform document gained 14 operations (agents bulk invoke, project policies, the invalid JQL access log, the ADF limit report, workflow copy, field context default values, forge panel pin status) and 30 schemas, removed none; the software document is unchanged. Jira Service Management is a third document (`.../service-desk/swagger.v3.json`) and a separate product; the trial site's credential has no access to it (`/rest/servicedeskapi` answers 403).
 
-**Answered** (evidence: `any-sdk/pkg/dto/auth_ctx.go`). The `basic` auth type resolves credentials in this order:
+**Decision.** Direct archetype, two documents pinned under `specs.platform` and `specs.software`, fetched, fixed, validated and written all or nothing (`record_spec_pin.mjs`). An unchanged upstream leaves the pin byte-identical (the fetched date only moves when content does). Jira Service Management is out of scope for this provider.
 
-1. `username_var` + `password_var` - env vars holding the plaintext pair, base64-encoded at request time
-2. inline `username` + `password` (or `api_key` / `api_secret`)
-3. `credentialsenvvar` - a single env var holding the **already base64-encoded** `email:api_token` string
+### 3. Fix classes
 
-Convention adopted (matches the CLAUDE.md generate command, `--provider-config '{"auth": {"type": "basic", "credentialsenvvar": "JIRA_CREDS"}}'`):
+**Evidence and decision.** Counted per document in the pin: `data_security_policy_removed` (630 + 92: the vendor's internal data-classification annotation on every operation), `top_level_tags_sorted` (software 1), `response_schema_from_example` (platform 1, software 23 - finding 4), `property_response_schema_injected` (software 2), `array_or_item_response_lowered` (platform 1: `GET .../remotelink` declares `oneOf [array of RemoteIssueLink, RemoteIssueLink]`), `documented_required_parameter_flagged` (platform 3: `GET /user` and `DELETE .../watchers` `accountId` described "Required." and `GET /mypermissions` `permissions`, whose `x-changes` records the change to required on 2019-02-01; the API answers 400 without it). The generic OpenAPI 3.1 classes count 0. No redactions.
 
-```bash
-export JIRA_CREDS=$(echo -n "you@example.com:YOUR_API_TOKEN" | base64)
-```
+### 4. Jira Software responses with an example and no schema
 
-The docs will also show the runtime-auth alternative with the plaintext pair, which is friendlier for rotation:
+**Evidence.** 22 JSON success responses in the software document (board epics, projects, sprints, versions, the deprecated issue lists, epic and sprint reads and writes, estimation) and one in the platform document (`GET /screens/tabs`) declare an `example` string and no `schema`; the board property reads declare neither.
 
-```bash
-export JIRA_USER='you@example.com'
-export JIRA_API_TOKEN='YOUR_API_TOKEN'
-AUTH='{ "jira": { "type": "basic", "username_var": "JIRA_USER", "password_var": "JIRA_API_TOKEN" } }'
-stackql shell --auth="${AUTH}"
-```
+**Decision.** Fix class `response_schema_from_example` parses the vendor's example and synthesises the schema (objects -> properties, arrays -> merged items, integers -> integer), so the mapping sees row arrays and the generated resources have columns. The two property reads get the platform's entity property shapes.
 
-## 3. The {site} server variable and host routing
+### 5. Authentication: a service account through the API gateway
 
-**Answered by code analysis; runtime confirmation due in phase 2** (evidence: `any-sdk/pkg/queryrouter/queryrouter.go`). The query router builds gorilla/mux routes with `muxRoute.Host("{site}.atlassian.net")`. Mux host variables match a single label (`[^.]+` - they do not span dots). The k8s/proxmox dotted-host constraint arises when the variable is the *entire* host (`{cluster_addr}` cannot hold `api.example.com`); Jira's `{site}` is a single dot-free subdomain label inside a fixed domain, which is exactly what mux host variables match. Jira Cloud site names cannot contain dots, so the constraint is structurally avoided. Verify at runtime in phase 2 offline validation (`SHOW SERVICES` + a routed call through the mock server).
+**Evidence.** The client credentials grant against `https://auth.atlassian.com/oauth/token` returns a bearer token (3600 s) with form-encoded and with HTTP Basic client authentication; the credential's scopes are fixed when it is created and returned with the token (here the classic `read:jira-work`, `write:jira-work`, `read:jira-user`, `manage:jira-project`, `manage:jira-configuration`, plus service management scopes). The token is accepted only through the gateway, `https://api.atlassian.com/ex/jira/<cloud id>/rest/...`; the service account's identity is `accountType: app`. The Jira Software API answers `401 Unauthorized; scope does not match` to this credential: it needs the granular `*:jira-software` scopes, which the trial credential does not carry.
 
-**Consequence for integration testing:** unlike k8s (whole-host variable pointed at `localhost`), the Jira server template pins the `atlassian.net` domain, so requests cannot be redirected to a local mock by a server variable. The integration harness will materialize a test copy of the local registry with the `servers` block rewritten to `http://127.0.0.1:<port>` (a deterministic step in the test runner, not a hand edit of build artifacts). Smoke tests run against a real free-tier site with `--registry local` and `--registry public` variants, the latter doubling as post-publish verification.
+There is no Terraform provider from HashiCorp or Atlassian for the Jira platform. The registry's community provider (`fourplusone/jira`) uses basic auth against the site URL with `JIRA_URL`, `JIRA_USER` and `JIRA_PASSWORD` (an API token in the password); it has no OAuth 2.0 service account support. Atlassian's own `atlassian/atlassian-operations` provider covers Jira Service Management operations only.
 
-## 4. Two path prefixes under one server
+**Decision.** `auth.type: oauth2`, `grant_type: client_credentials`, `ATLASSIAN_CLIENT_ID` / `ATLASSIAN_CLIENT_SECRET` (the project owner's names for the credential parts), token URL fixed. These are the only credential variables documented: the project does not follow community Terraform providers' conventions, so no `JIRA_USER` / `JIRA_PASSWORD` alternative is offered.
 
-**Answered** (evidence: `provider-dev/source/*.yaml` and the router's route construction `s.base + path`). The split service specs carry absolute paths (`/rest/api/3/...` in platform services, `/rest/agile/1.0/...` and `/rest/software/1.0/...` in `agile`), and the server URL is host-only, so every operation routes on its full path. No per-service base path handling is required; the `agile` service freely mixes `/rest/agile/1.0` and `/rest/software/1.0` operations.
+The Jira Software operations declare these granular scopes in the spec's `security` (61 operations): `read:board-scope:jira-software`, `write:board-scope:jira-software`, `read:board-scope.admin:jira-software`, `write:board-scope.admin:jira-software`, `delete:board-scope.admin:jira-software`, `read:sprint:jira-software`, `write:sprint:jira-software`, `delete:sprint:jira-software`, `read:epic:jira-software`, `write:epic:jira-software`, `read:issue:jira-software`, `write:issue:jira-software`, plus `read:issue-details:jira`, `read:jql:jira` and `read:project:jira`. A credential's scopes are chosen when it is created (Atlassian Administration > Directory > Service accounts > the account > Create credentials > OAuth 2.0); Atlassian documents no way to edit them, so a credential with these scopes replaced the first one (2026-11-25): the new token carries the 15 granular scopes alongside the classic ones (25 in all), the platform reads behave as before, and the Jira Software reads and writes work live (finding 16).
 
-## 5. ADF schema lowering
+### 6. App-only surfaces are excluded, not deleted
 
-**Partially answered; pre_normalize work item.** In the platform spec, `Comment.body` and `Worklog.comment` are **typeless** schemas (a description only, no `type`), and issue `description` flows through the untyped `fields` map (`IssueUpdateDetails.fields` is `additionalProperties: {}`). Typeless schemas may not be caught by normalize's opaque-object-to-string lowering (which keys on `type: object` without structure), so `pre_normalize.mjs` must stamp the ADF-bearing properties as `type: string` explicitly. As string-typed JSON-blob columns, ADF values pass through reads (`json_extract`) and writes (JSON supplied in the column value) without modelling; round-trip is verified in the phase 5 write-lifecycle tests.
+**Evidence.** 46 platform operations are callable only by Connect, Forge or 3LO apps: `/rest/atlassian-connect`, `/rest/forge`, `/rest/internal`, the `(apps)`-suffixed tags, workflow transition rule configuration, and the dynamic webhook API (documented "Only Connect and OAuth 2.0 apps"; the service account's `GET /rest/api/3/webhook` answers 500). 44 software operations are the development tool ingestion APIs (`/rest/devinfo`, builds, deployments, feature flags, remote links, security, operations, DevOps components), documented "Only Connect apps that define the ... module can access this resource".
 
-Related: the JQL AST schemas (`JqlQueryClauseOperand` is an `anyOf` of four operand types, recursive through `JqlQueryClause`) will exercise the normalize flatten heavily - inspect `jql.yaml` after the full normalize and lower residual polymorphism in `pre_normalize.mjs` if the flatten mangles it.
+**Decision.** Service rules classify them into the excluded services `apps` and `dev_tools` with skip code `app_only`; they stay in the inventory. The other skip codes: `deprecated_superseded` 18 (each with its vendor-named replacement mapped, listed in `DEPRECATED_SUPERSEDED`), `binary_upload` 6 (attachment and avatar uploads, the column-list form PUTs), `non_json_response` 5 (avatar images, attachment content and thumbnails), `removed_upstream` 2 (the legacy `/rest/api/3/search`, which answers 410 "The requested API has been removed"), `untyped_json_response` 2 (project classification reads with an empty schema), `no_response_schema` 1, `map_response` 1 (`GET /project/{key}/role`, a role-name-to-URL map; `project_roles.list` returns the same roles as rows). 125 of 736 operations skipped, 611 mapped.
 
-## 6. expand query parameters
+### 7. The cloud ID and the atlassian_tenant service
 
-**Decided.** 66 of 570 platform operations carry an `expand` query parameter. Policy: uniform pass-through - `expand` remains an optional method parameter usable in the `WHERE` clause (`WHERE expand = 'description,lead'`); the provider does not model expansion variants as separate resources or methods. Documented once in the provider docs header rather than per resource.
+**Evidence.** `GET https://<site>.atlassian.net/_edge/tenant_info` answers `{"cloudId": "<uuid>"}` with no credential, and ignores any `Authorization` header (a valid bearer, a garbage bearer and none all answer 200); an unknown site answers 404. omnisdk resolves authentication per provider (`provider.Security()` reads the provider document's `config.auth`; no service, resource or operation level override exists). With the client ID and secret set the query works (the token is fetched and the bearer sent and ignored); without them omnisdk refuses before sending ("jira oauth2 credentials cannot be used: jira client id not provided"). A runtime `--auth='{"jira": {"type": "null_auth"}}'` does not help: in `providerOptions` (omnisdk `pkg/omnisdk/omnisdk.go`) an explicit credential suppresses the token exchange only when its method has a request transform (`oauth := m != nil && m.RequestTransform() != nil`), and `null_auth` has none, so the document's client credentials exchange still runs. A `bearer` or `basic` override does suppress it.
 
-## 7. Findings not in the kickoff list
+**Decision.** An authored service, `atlassian_tenant` (`provider-dev/scripts/lib/tenant_service.mjs`, emitted by `bin/split.mjs`), with the site server template `https://{site}.atlassian.net` and one resource, `info`: `SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = 'acme'` (the wire name `cloudId` also resolves). The docs say the query needs the client ID and secret but not the cloud ID. Without `ATLASSIAN_CLOUD_ID` the docs show, all proved live: `curl -s https://<site>.atlassian.net/_edge/tenant_info | jq -r .cloudId` into the variable (credential-free; PowerShell `Invoke-RestMethod`); a join from `atlassian_tenant.info` to the resource read, `... FROM jira.atlassian_tenant.info t INNER JOIN jira.projects.projects p ON p.cloud_id = t.cloud_id WHERE t.site = 'acme'` (the join supplies the right-hand table's server variable; a CTE works the same way - the skill's note that a join cannot feed a server variable predates omnisdk); and `SET "$.params_by_provider.jira" = '{"cloud_id": "..."}'` as a session default for every jira query. Not possible: `SET x = (SELECT ...)` ("variables accepts scalar literals only", `sessionconfig/set.go`: variables take scalar literals) and a scalar subquery in WHERE ("cannot be applied to stackql_unstable_* relations"). A session variable (`SET v = '...'`, `WHERE cloud_id = $v`) and a provider alias (`SET "$.providers.acme"`, which needs `tenancy` and explicit credentials) also work but are not taught. Every other service uses the gateway template with the `cloud_id` server variable resolved from `ATLASSIAN_CLOUD_ID` (`x-stackQL-envVar`; a WHERE value beats it; unset makes it a required parameter - all mock-proved). Proposed engine change (to file against stackql-labs/omnisdk): treat an explicit `null_auth` override as a request credential, so a credential-free query on a public endpoint is possible.
 
-- **The agile spec is largely schema-less on responses.** 25 of 61 agile operations have 2xx JSON responses defined by an `example` (a JSON string) with no schema at all. The mapping pipeline classifies envelopes from examples (see `lib/spec_helpers.mjs`), but the generated provider needs real response schemas or agile resources will project zero columns. `pre_normalize.mjs` must synthesize response schemas from the examples deterministically. This is the largest phase 3 work item.
-- **App-context surfaces are pervasive.** Beyond the obvious `/rest/atlassian-connect` paths, 28 platform operations (including the entire `Webhooks` tag and workflow transition rule configuration) are callable only by Connect/Forge apps. These are dropped in cleaning with the evidence recorded in `clean_report.json`; the provider intentionally has no `webhooks` service.
-- **POST-body reads map as EXEC.** StackQL cannot route `SELECT` WHERE parameters into request bodies (any-sdk gap, same as the k8s parameterized review kinds), so body-parameterized reads (`POST /search/jql`, bulk fetches, `jql/match`) are exec methods. Promote to `SELECT` if/when any-sdk grows body-parameter routing.
-- **Experimental surface.** A sizable minority of platform operations are marked `x-experimental` (dashboards gadgets, field schemes, issue security schemes, archiving). They are mapped and flagged in the inventory; the docs should carry the experimental marker per method (docgen decision in phase 7).
-- **Deprecated-but-functional operations are kept** (marked deprecated in docs) unless a mapped current replacement makes them redundant or ambiguous - the skip reasons in `endpoint_inventory.csv` enumerate the exceptions.
+### 8. Resource and method naming
 
-## Test plan requirements (from the kickoff)
+**Evidence.** Jira paths are a regular tree under `/rest/api/3`, `/rest/agile/1.0` and `/rest/software/1.0`, with run-together segment words (`issuetypescheme`, `fieldconfiguration`) and an older get-all read beside a newer paginated search for many entities.
 
-Four layers, mirroring the k8s repo: offline validation, meta-route tests, integration tests against a mock Jira server (registry copy with rewritten `servers`, real wire shapes for every envelope and pagination archetype, full issue lifecycle), and `tests/smoke_test.py` (pystackql) against a live free-tier site - runnable against either the local provider build (`--registry local`, default) or the published provider (`--registry public`) so the same suite serves pre-publish UAT and post-publish verification.
+**Decision.** `lib/mapping.mjs` (adapted from the OVH build): the resource is the static segments after the API prefix, run-together words split (`SEGMENT_WORDS`), the service's leading noun dropped (`stripLeading`), the last word pluralised; actions on a node with no read are hoisted as EXEC onto the nearest readable ancestor; overloads get `_by_<param>`; a signature clash demotes to EXEC. 137 `RESOURCE_RULES` and 174 `METHOD_RULES` (`lib/mapping_rules.mjs`) apply the house conventions: the paginated search is the `list` and the older read EXEC `list_all`; global scheme-to-project mappings are `<scheme>_project_associations` and the projects using one scheme `<scheme>_projects`; POST reads and actions are EXEC on the resource they act on (`issues.transition`, `issues.assign`, `projects.archive`, `sprints.move_issues`); a POST partial update is the UPDATE and a documented full-update PUT is EXEC `replace` (`roles`, `sprints`). Result: 17 services, 227 resources (223 selectable; `jql.queries`, `system.agent_sessions`, `system.expressions` and `system.issue_panels` have no read), 611 methods. Names are a contract: `all_services.csv` is committed.
+
+### 9. Pagination: no usable next link, so the next offset is synthesised
+
+**Evidence.** Of the 59 mapped PageBean reads (`{startAt, maxResults, total, isLast, values}`), most answer `isLast: false` with no `nextPage` at all (priority, resolution, notification scheme, group, field searches, measured with `maxResults=1`); where `nextPage` is present, the workflow and status searches put an internal host in it (`jira-wfl-prd-use-01.us-east-1.sp.prod.atl-paas.net`) that the gateway token cannot reach (`provider-dev/config/pagination_survey.json`, written by `make survey-pagination`). omnisdk follows a next URL, a body or query token, a page number or a Link header, and has no offset arithmetic; it reads the continuation token from the transformed response document (`docx.go`: "Continuation paths address the same transformed document as response rows"), and its templates offer `jsonMapFromString`, `toInt`, `toBool`, `plus1` and Go's variable reassignment.
+
+**Decision.** `post_process.mjs` rule 6: on every list read with a `startAt` parameter and a `startAt` plus `isLast` (or `total`) response, a text template counts the rows of the page and, while more pages exist, adds `"stackqlNextStartAt": startAt + rows` to the page; the pagination block sends it back as `startAt` (71 reads, including the agile lists and the comment and worklog pages, which have `total` but no `isLast`; the audit records page the same way on `offset`). Rule 5: token pagination on the 10 reads that answer `nextPageToken` (the Jira Software issue lists, the invalid JQL log); the JQL search sends its token in the body (finding 11). Live: 87 fields, 32 groups (at 5 per page) and 5 priorities (at 2 per page) returned in full; workflows and statuses page through the gateway. Bare-array reads with `startAt` (user searches) return the requested page only: the response carries no offset to continue from. Clause pushdown (rule 7, omnisdk `pkg/omnisdk/pushdown.go`): `LIMIT n` -> `maxResults` (90 reads; the JQL search's goes into its body), `OFFSET n` -> `startAt` (70 reads; omnisdk pushes it only for a single read with every filter pushed and the order pushed or absent), and `ORDER BY` -> `orderBy` in the `prefix` syntax Jira uses (`name`, `-name`; 17 reads), for the sort keys in the parameter's enum that are also row columns. omnisdk renders the SQL column name, so `ORDER BY release_date` is not pushed (Jira's key is `releaseDate`) and is sorted locally; `key`, `name`, `id`, `description`, `created` push. Filter parameters push down by name without configuration; omnisdk renders a `filter` block only for OData, which Jira does not speak. Mock-proved on the wire; the engine reads one page past a satisfied LIMIT before stopping.
+
+### 10. A WHERE key that is also a column is applied as a row filter
+
+**Evidence.** With a query parameter and a response column of the same name, stackql sends the WHERE value as the parameter and also filters the rows on the column (mock wire log: `GET /project/search?expand=description` sent, zero rows returned; live the same). For `id`, `account_id`, `name`, `state` the two agree. For `expand` (27 reads: the column is Jira's list of available expansions), `fields` (11), `properties` (5), `permissions` (the required parameter of `my_permissions`), `scope` and `owner` they do not, and no rows survive. This is omnisdk's design, not a defect: `pkg/omnisdk/pushdown.go` states that every filter still runs on the rows, so a looser server match cannot change the answer. It is not specific to POST or to naive request body translation (which only concerns request bodies): the cases measured are GET reads with query parameters, for example `SELECT key FROM jira.issues.issues WHERE issue_id_or_key = 'SQLUAT-1' AND fields = 'summary'` sends `GET /rest/api/3/issue/SQLUAT-1?fields=summary`, gets the issue back with `fields: {"summary": ...}`, and returns no row because that object is not equal to `'summary'`; without the `fields` predicate the same read returns the row. omnisdk has no parameter alias (`x-stackQL-alias` is not implemented: the extensions it reads are `x-stackQL-resources`, `-config`, `-envVar`, `-envVarSelector`, `-stringOnly`, `-graphQL`, `-beta`).
+
+**Decision.** Pre-normalize pass 3 removes the `expand` metadata property from response schemas (34 schemas; request beans keep theirs), so `WHERE expand = 'description,lead'` works. Post-process rule 4b turns the permission maps of `my_permissions` and `permissions` into one row per permission, which removes the `permissions` column. `fields`, `properties`, `scope` and `owner` are documented as not settable from WHERE. Proposed engine change: a WHERE key consumed as a request parameter should not also be applied as a residual filter (or an alias extension).
+
+### 11. The JQL search answers only issue IDs unless fields are requested
+
+**Evidence.** `GET /rest/api/3/search/jql?jql=project=SQLUAT` answers `{"issues":[{"id":"10000"}],"isLast":true}` - no key, no fields. omnisdk applies a parameter's schema default to headers only (`docx.go`: the default branch is `p.In() == aot.InHeader`), so a `fields` default on the query parameter is not sent; and `fields` cannot be set from WHERE (finding 10). A method's `request.base` is merged under the statement's own body attributes for a JSON body.
+
+**Decision.** `issues.issues.search` is the POST form of `/search/jql` (`jql` and the other WHERE keys become body attributes) with `request.base: {"fields": ["*navigable"]}`, the page token in the body, and its objectKey set in post-process (the generator applies the CSV objectKey to GET methods only). The GET form is EXEC `search_get`. Live: key, summary and status columns returned, two pages followed on the mock. Proposed engine change: send query parameter defaults like header defaults.
+
+### 12. Rich text and entity property bodies
+
+**Evidence.** `Comment.body` and `Worklog.comment` (Atlassian Document Format) are declared with no type; stackql sends a typeless body attribute as a string and the API answers 400 "Comment body is not valid!". Entity property writes (`PUT .../{entity}/properties/{propertyKey}`, 8 operations) take the property value as the whole body, declared `schema: {}`, so no column can carry it.
+
+**Decision.** Pre-normalize pass 4 types the two ADF properties `object` with `additionalProperties` (the engine then sends the JSON as an object, and reads it back as a JSON column); live comment INSERT / UPDATE / read with `json_extract(body, '$.content[0].content[0].text')`. Pass 5 declares the property bodies as `{value}` and post-process rule 9 sends `.value` as the raw body with a `golang_template_json_v0.3.0` request transform: `UPDATE ... SET value = '{"by": "stackql"}'` (mock wire and live). Issue `fields` is an object with `additionalProperties` and needed nothing.
+
+### 13. Asynchronous operations answer 303
+
+**Evidence.** 13 operations (field, priority and resolution deletes, the bulk issue property writes, project deletion, security scheme association, workflow scheme switch, custom field option replacement, project creation from a template) declare only `303 See Other` with a `Location` to `/rest/api/3/task/{taskId}`; the generator requires a 2xx. The engine's HTTP client follows a 303 with a GET.
+
+**Decision.** Pre-normalize pass 2 declares the followed redirect's body (the task progress) as the 200 response. Mock-proved: `DELETE FROM jira.fields.fields` sends the DELETE and reads the task.
+
+### 14. Scalar and string-list reads
+
+**Evidence.** `GET /projectvalidate/validProjectKey` answers bare text (`KAN1`, not `"KAN1"`) as `application/json`; `GET /label` pages strings.
+
+**Decision.** Post-process rule 3 wraps scalar reads as `{"value": ...}` (`toJson` of the raw text for strings); rule 4 turns the label page into `{label}` rows and keeps the page fields for rule 6.
+
+### 15. Engine facts for this build (stackql v1.1.959, omnisdk)
+
+- INSERT and UPDATE send typed JSON: `project_id = 10001` as a number, `released = true` as a boolean (live), JSON-shaped strings as objects and arrays (`fields`, `@user = '["..."]'` in EXEC).
+- A snake_case column, parameter or body attribute resolves to the camelCase wire name (`request.nativeCasing: camel` on all 611 methods, `snake_case_aliases: true`).
+- A read of an absent issue surfaces the vendor's 404 body (`Issue does not exist or you do not have permission to see it.`).
+- The generator applies the CSV objectKey to GET methods only (finding 11).
+- pystackql returns an empty result for a read whose HTTP call failed, even with `suppress_errors=False` (stackql prints `null` on stdout and the failure on stderr); the smoke harness runs `stackql exec` itself and reads both streams.
+
+### 16. The first live run
+
+**Evidence.** 2026-11-25, trial site, stackql v1.1.959, the locally generated provider, the replacement service account credential (finding 5): `make smoke` 78 passed, 0 failed, 0 skipped in 89 statements, and `make smoke-cleanup` swept nothing afterwards. With the first credential the same day the suite reported 62 passed and the Jira Software read skipped (401, missing scopes). Earlier runs that day: one harness query error, and a false pass on the agile read before the harness fix in finding 15. Reads: the cloud ID lookup matched `ATLASSIAN_CLOUD_ID`, identity, projects with `expand`, issue types, paginated priorities, fields (87, past the first page), groups, statuses, workflows and workflow schemes (offset paging through the gateway), permission schemes, permission rows, issue type schemes, screens, notification schemes, dashboards, filters, audit records, application roles, JQL autocomplete data, labels, the key validator. Writes in project `SQLUAT` (created by the provider on the first run, with the identity as lead and added to its Administrators role through `project_roles.add_actors`, since the default permission scheme gives the lead no delete right): an issue (INSERT, keyed read, JQL search after 2 s, UPDATE, transition to a done status, ADF comment INSERT / UPDATE / DELETE, a second issue and a Relates link created and deleted, both issues deleted), a version (INSERT, UPDATE `released = true`, DELETE), a component, a saved filter, a project property and a project category; Jira Software: boards, a scrum board created on a smoke filter, its configuration, a sprint created, updated (the POST partial update) and listed on the board, an issue moved into it with `EXEC sprints.move_issues` and found through both token-paginated lists (`sprint_issues`, `board_issues`, after 2 s), then the issue, sprint, board and filter deleted. Afterwards the site held no stackql-smoke breadcrumb.
+
+## Spec refreshes
+
+2026-11-25: first pin of this build (finding 2 records the difference from the July snapshot). On a refresh: `make refresh-spec`, run `spec_diff.mjs` on the old and new snapshot of each document the fetch reports as changed, record the summary here, then `make build && make test`, `make survey-pagination` (read-only, live) and review the `all_services.csv` diff.
+
+## Engine issues to file
+
+Not filed from this build (filing is outward-facing; for the maintainers to raise):
+
+1. omnisdk: an explicit `null_auth` override should suppress a document's OAuth2 token exchange (finding 7; `pkg/omnisdk/omnisdk.go` `providerOptions`).
+2. omnisdk (enhancement): a way to mark a request parameter as not a row predicate, or a parameter alias, for parameters whose meaning differs from the same-named column (finding 10: by design today, every WHERE key that names a column also filters the rows).
+3. omnisdk: query parameter `schema.default` is not sent (headers only) (finding 11).
+
+## Open questions - what a live run has not yet established
+
+1. **Jira Software writes beyond the smoke lifecycle.** With the replacement credential (finding 5) the agile reads, a scrum board, a sprint (create, partial update, issue move, delete) and both token-paginated issue lists pass live (finding 16). Epic writes, ranking, sprint start / close and board property writes are proved against the mock or the meta-route walk only.
+2. **Partial PUT.** Jira documents its PUTs as edits; issue, comment, version, component, filter and category updates behaved as partial live. The rest is presumed.
+3. **Plans.** `GET /plans/plan` answered 403 "You do not have the Administer Jira global permission" although the identity reports the permission; plans need Jira Premium. Unverified.
+4. **Rate limits.** The suite paces at 0.5 s per statement and saw no 429; the cost-based limits were not approached.
+5. **Webhooks for a service account.** Excluded as app-only (finding 6); Atlassian may extend the dynamic webhook API to service accounts.
+
+## Testing requirements
+
+- `make test` green after every regeneration (offline 25 checks, integration 59 checks, meta-route walk of 17 services and 227 resources).
+- `make smoke` against the dedicated trial site before a publish; `make smoke-live` after (the provider is not in the public registry yet, so `--live` fails until it is published).
+- `make survey-pagination` after a spec refresh, then review `pagination_survey.json`.
+- Budget: Jira Cloud does not bill per call; the suite creates nothing billable (0.00). The gated `make smoke-project-lifecycle` creates and deletes a whole project (`enable_undo = false`).
