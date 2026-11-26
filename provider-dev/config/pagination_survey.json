@@ -1,6 +1,6 @@
 {
   "description": "Where each PageBean read's next-page URL points, measured through the API gateway by tests/live/survey_pagination.mjs (make survey-pagination). post_process.mjs enables next-page-URL pagination only on reads whose verdict is gateway; other_host and unsurveyed reads stay parameter-driven (startAt / maxResults).",
-  "surveyed": "2026-11-25",
+  "surveyed": "2026-11-26",
   "summary": {
     "unsurveyed": 40,
     "gateway": 17,
@@ -167,7 +167,7 @@
     },
     "GET /rest/api/3/issuetypescheme": {
       "verdict": "gateway",
-      "evidence": "self",
+      "evidence": "nextPage",
       "host": "api.atlassian.com"
     },
     "GET /rest/api/3/issuetypescheme/mapping": {
@@ -184,7 +184,7 @@
     },
     "GET /rest/api/3/issuetypescreenscheme": {
       "verdict": "gateway",
-      "evidence": "self",
+      "evidence": "nextPage",
       "host": "api.atlassian.com"
     },
     "GET /rest/api/3/issuetypescreenscheme/mapping": {
@@ -254,7 +254,7 @@
     },
     "GET /rest/api/3/project/search": {
       "verdict": "gateway",
-      "evidence": "self",
+      "evidence": "nextPage",
       "host": "api.atlassian.com"
     },
     "GET /rest/api/3/project/{projectIdOrKey}/component": {
@@ -286,7 +286,7 @@
     },
     "GET /rest/api/3/screenscheme": {
       "verdict": "gateway",
-      "evidence": "self",
+      "evidence": "nextPage",
       "host": "api.atlassian.com"
     },
     "GET /rest/api/3/statuses/search": {
