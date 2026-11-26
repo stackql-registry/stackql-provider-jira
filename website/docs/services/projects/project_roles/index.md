@@ -210,21 +210,21 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#delete_actor"><CopyableCode code="delete_actor" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectIdOrKey"><code>projectIdOrKey</code></a>, <a href="#parameter-id"><code>id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-project_id_or_key"><code>project_id_or_key</code></a>, <a href="#parameter-id"><code>id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td><a href="#parameter-user"><code>user</code></a>, <a href="#parameter-group"><code>group</code></a>, <a href="#parameter-groupId"><code>groupId</code></a></td>
     <td>Deletes actors from a project role for the project.&lt;br /&gt;&lt;br /&gt;To remove default actors from the project role, use &#91;Delete default actors from project role&#93;(#api-rest-api-3-role-id-actors-delete).&lt;br /&gt;&lt;br /&gt;This operation can be accessed anonymously.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project or *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#add_actors"><CopyableCode code="add_actors" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectIdOrKey"><code>projectIdOrKey</code></a>, <a href="#parameter-id"><code>id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-project_id_or_key"><code>project_id_or_key</code></a>, <a href="#parameter-id"><code>id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Adds actors to a project role for the project.&lt;br /&gt;&lt;br /&gt;To replace all actors for the project, use &#91;Set actors for project role&#93;(#api-rest-api-3-project-projectIdOrKey-role-id-put).&lt;br /&gt;&lt;br /&gt;This operation can be accessed anonymously.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project or *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#set_actors"><CopyableCode code="set_actors" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectIdOrKey"><code>projectIdOrKey</code></a>, <a href="#parameter-id"><code>id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-project_id_or_key"><code>project_id_or_key</code></a>, <a href="#parameter-id"><code>id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Sets the actors for a project role for a project, replacing all existing actors.&lt;br /&gt;&lt;br /&gt;To add actors to the project without overwriting the existing list, use &#91;Add actors to project role&#93;(#api-rest-api-3-project-projectIdOrKey-role-id-post).&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project or *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
@@ -254,15 +254,10 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>integer (int64)</code></td>
     <td>The ID of the project role. Use &#91;Get all project roles&#93;(#api-rest-api-3-role-get) to get a list of project role IDs.</td>
 </tr>
-<tr id="parameter-projectIdOrKey">
-    <td><CopyableCode code="projectIdOrKey" /></td>
-    <td><code>string</code></td>
-    <td>The project ID or project key (case sensitive).</td>
-</tr>
 <tr id="parameter-project_id_or_key">
     <td><CopyableCode code="project_id_or_key" /></td>
     <td><code>string</code></td>
-    <td>The project ID or project key (case sensitive). (wire: projectIdOrKey)</td>
+    <td>The project ID or project key (case sensitive).</td>
 </tr>
 <tr id="parameter-current_member">
     <td><CopyableCode code="current_member" /></td>
@@ -382,7 +377,7 @@ Deletes actors from a project role for the project.&lt;br /&gt;&lt;br /&gt;To re
 
 ```sql
 EXEC jira.projects.project_roles.delete_actor 
-@projectIdOrKey='{{ projectIdOrKey }}' --required, 
+@project_id_or_key='{{ project_id_or_key }}' --required, 
 @id='{{ id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set, 
 @user='{{ user }}', 
@@ -397,7 +392,7 @@ Adds actors to a project role for the project.&lt;br /&gt;&lt;br /&gt;To replace
 
 ```sql
 EXEC jira.projects.project_roles.add_actors 
-@projectIdOrKey='{{ projectIdOrKey }}' --required, 
+@project_id_or_key='{{ project_id_or_key }}' --required, 
 @id='{{ id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
@@ -415,7 +410,7 @@ Sets the actors for a project role for a project, replacing all existing actors.
 
 ```sql
 EXEC jira.projects.project_roles.set_actors 
-@projectIdOrKey='{{ projectIdOrKey }}' --required, 
+@project_id_or_key='{{ project_id_or_key }}' --required, 
 @id='{{ id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=

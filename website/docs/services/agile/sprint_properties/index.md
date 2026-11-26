@@ -160,12 +160,12 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-property_key">
     <td><CopyableCode code="property_key" /></td>
     <td><code>string</code></td>
-    <td>the key of the property to remove. (wire: propertyKey)</td>
+    <td>the key of the property to remove.</td>
 </tr>
 <tr id="parameter-sprint_id">
     <td><CopyableCode code="sprint_id" /></td>
     <td><code>string</code></td>
-    <td>the ID of the sprint from which the property will be removed. (wire: sprintId)</td>
+    <td>the ID of the sprint from which the property will be removed.</td>
 </tr>
 </tbody>
 </table>

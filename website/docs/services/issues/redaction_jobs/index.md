@@ -112,7 +112,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-job_id">
     <td><CopyableCode code="job_id" /></td>
     <td><code>string</code></td>
-    <td>Redaction job id (wire: jobId)</td>
+    <td>Redaction job id</td>
 </tr>
 </tbody>
 </table>

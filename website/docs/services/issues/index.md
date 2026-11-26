@@ -40,16 +40,16 @@ total resources: __31__
 <a href="/services/issues/create_meta_issue_types/">create_meta_issue_types</a><br />
 <a href="/services/issues/deleted_worklogs/">deleted_worklogs</a><br />
 <a href="/services/issues/edit_meta/">edit_meta</a><br />
-<a href="/services/issues/issue_events/">issue_events</a>
+<a href="/services/issues/events/">events</a>
 </div>
 <div class="providerDocColumn">
-<a href="/services/issues/issue_limit_reports/">issue_limit_reports</a><br />
-<a href="/services/issues/issue_link_types/">issue_link_types</a><br />
-<a href="/services/issues/issue_links/">issue_links</a><br />
-<a href="/services/issues/issue_properties/">issue_properties</a><br />
 <a href="/services/issues/issues/">issues</a><br />
 <a href="/services/issues/labels/">labels</a><br />
+<a href="/services/issues/limit_reports/">limit_reports</a><br />
+<a href="/services/issues/link_types/">link_types</a><br />
+<a href="/services/issues/links/">links</a><br />
 <a href="/services/issues/picker_suggestions/">picker_suggestions</a><br />
+<a href="/services/issues/properties/">properties</a><br />
 <a href="/services/issues/redaction_jobs/">redaction_jobs</a><br />
 <a href="/services/issues/remote_links/">remote_links</a><br />
 <a href="/services/issues/transitions/">transitions</a><br />

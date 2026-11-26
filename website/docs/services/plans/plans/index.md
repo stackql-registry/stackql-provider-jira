@@ -199,21 +199,21 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#archive"><CopyableCode code="archive" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-planId"><code>planId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-plan_id"><code>plan_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Archives a plan.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#duplicate"><CopyableCode code="duplicate" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-planId"><code>planId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-name"><code>name</code></a></td>
+    <td><a href="#parameter-plan_id"><code>plan_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-name"><code>name</code></a></td>
     <td></td>
     <td>Duplicates a plan.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#trash"><CopyableCode code="trash" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-planId"><code>planId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-plan_id"><code>plan_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Moves a plan to trash.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
@@ -238,15 +238,10 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The cloud ID of the Jira Cloud site. Resolved from ATLASSIAN_CLOUD_ID when set; SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = '&lt;site&gt;' answers it. (x-stackQL-envVar: ATLASSIAN_CLOUD_ID)</td>
 </tr>
-<tr id="parameter-planId">
-    <td><CopyableCode code="planId" /></td>
-    <td><code>integer (int64)</code></td>
-    <td>The ID of the plan.</td>
-</tr>
 <tr id="parameter-plan_id">
     <td><CopyableCode code="plan_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the plan. (wire: planId)</td>
+    <td>The ID of the plan.</td>
 </tr>
 <tr id="parameter-cursor">
     <td><CopyableCode code="cursor" /></td>
@@ -495,7 +490,7 @@ Archives a plan.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) re
 
 ```sql
 EXEC jira.plans.plans.archive 
-@planId='{{ planId }}' --required, 
+@plan_id='{{ plan_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set
 ;
 ```
@@ -506,7 +501,7 @@ Duplicates a plan.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) 
 
 ```sql
 EXEC jira.plans.plans.duplicate 
-@planId='{{ planId }}' --required, 
+@plan_id='{{ plan_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -521,7 +516,7 @@ Moves a plan to trash.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissio
 
 ```sql
 EXEC jira.plans.plans.trash 
-@planId='{{ planId }}' --required, 
+@plan_id='{{ plan_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set
 ;
 ```

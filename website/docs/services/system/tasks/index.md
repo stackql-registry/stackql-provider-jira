@@ -146,7 +146,7 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#cancel"><CopyableCode code="cancel" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-taskId"><code>taskId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-task_id"><code>task_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Cancels a task.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** either of:&lt;br /&gt;&lt;br /&gt; *  *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).&lt;br /&gt; *  Creator of the task.</td>
 </tr>
@@ -171,15 +171,10 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The cloud ID of the Jira Cloud site. Resolved from ATLASSIAN_CLOUD_ID when set; SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = '&lt;site&gt;' answers it. (x-stackQL-envVar: ATLASSIAN_CLOUD_ID)</td>
 </tr>
-<tr id="parameter-taskId">
-    <td><CopyableCode code="taskId" /></td>
-    <td><code>string</code></td>
-    <td>The ID of the task.</td>
-</tr>
 <tr id="parameter-task_id">
     <td><CopyableCode code="task_id" /></td>
     <td><code>string</code></td>
-    <td>The ID of the task. (wire: taskId)</td>
+    <td>The ID of the task.</td>
 </tr>
 </tbody>
 </table>
@@ -236,7 +231,7 @@ Cancels a task.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) req
 
 ```sql
 EXEC jira.system.tasks.cancel 
-@taskId='{{ taskId }}' --required, 
+@task_id='{{ task_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set
 ;
 ```

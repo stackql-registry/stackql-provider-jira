@@ -119,7 +119,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-issue_id_or_key">
     <td><CopyableCode code="issue_id_or_key" /></td>
     <td><code>string</code></td>
-    <td>The ID or key of the requested issue. (wire: issueIdOrKey)</td>
+    <td>The ID or key of the requested issue.</td>
 </tr>
 <tr id="parameter-board_id">
     <td><CopyableCode code="board_id" /></td>

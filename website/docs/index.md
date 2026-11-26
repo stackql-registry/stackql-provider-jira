@@ -25,7 +25,7 @@ The `jira` provider maps the Jira Cloud platform REST API (v3) and the Jira Soft
 :::info[Provider Summary] 
 
 total services: __17__  
-total resources: __227__  
+total resources: __217__  
 source project: __[stackql-provider-jira](https://github.com/stackql-registry/stackql-provider-jira)__  
 
 :::
@@ -205,7 +205,7 @@ The closed sprints of a Jira Software board with their dates and goals:
 
 ```sql
 SELECT id, name, state, start_date, complete_date, goal
-FROM jira.agile.board_sprints
+FROM jira.agile.sprints
 WHERE board_id = '1' AND state = 'closed'
 ORDER BY complete_date DESC;
 ```
@@ -219,7 +219,7 @@ SELECT ps.name AS scheme,
        json_extract(g.value, '$.permission') AS permission,
        json_extract(g.value, '$.holder.type') AS holder_type,
        json_extract(g.value, '$.holder.parameter') AS holder
-FROM jira.permissions.permission_schemes ps,
+FROM jira.permissions.schemes ps,
      json_each(ps.permissions) g
 WHERE ps.expand = 'permissions'
 ORDER BY scheme, permission;

@@ -141,7 +141,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-application_key">
     <td><CopyableCode code="application_key" /></td>
     <td><code>string</code></td>
-    <td>The ID of the application, represents a specific version of Jira. (wire: applicationKey)</td>
+    <td>The ID of the application, represents a specific version of Jira.</td>
 </tr>
 <tr id="parameter-cloud_id">
     <td><CopyableCode code="cloud_id" /></td>

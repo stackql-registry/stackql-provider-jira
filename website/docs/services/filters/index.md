@@ -25,9 +25,9 @@ total resources: __6__
 ## Resources
 <div class="row">
 <div class="providerDocColumn">
+<a href="/services/filters/columns/">columns</a><br />
 <a href="/services/filters/default_share_scopes/">default_share_scopes</a><br />
-<a href="/services/filters/favourite_filters/">favourite_filters</a><br />
-<a href="/services/filters/filter_columns/">filter_columns</a>
+<a href="/services/filters/favourite_filters/">favourite_filters</a>
 </div>
 <div class="providerDocColumn">
 <a href="/services/filters/filters/">filters</a><br />

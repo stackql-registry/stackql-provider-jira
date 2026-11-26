@@ -111,7 +111,7 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#assign"><CopyableCode code="assign" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectKeyOrId"><code>projectKeyOrId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-id"><code>id</code></a></td>
+    <td><a href="#parameter-project_key_or_id"><code>project_key_or_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-id"><code>id</code></a></td>
     <td><a href="#parameter-expand"><code>expand</code></a></td>
     <td>Assigns a permission scheme with a project. See &#91;Managing project permissions&#93;(https:​//confluence.atlassian.com/x/yodKLg) for more information about permission schemes.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg)</td>
 </tr>
@@ -136,15 +136,10 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The cloud ID of the Jira Cloud site. Resolved from ATLASSIAN_CLOUD_ID when set; SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = '&lt;site&gt;' answers it. (x-stackQL-envVar: ATLASSIAN_CLOUD_ID)</td>
 </tr>
-<tr id="parameter-projectKeyOrId">
-    <td><CopyableCode code="projectKeyOrId" /></td>
-    <td><code>string</code></td>
-    <td>The project ID or project key (case sensitive).</td>
-</tr>
 <tr id="parameter-project_key_or_id">
     <td><CopyableCode code="project_key_or_id" /></td>
     <td><code>string</code></td>
-    <td>The project ID or project key (case sensitive). (wire: projectKeyOrId)</td>
+    <td>The project ID or project key (case sensitive).</td>
 </tr>
 <tr id="parameter-expand">
     <td><CopyableCode code="expand" /></td>
@@ -200,7 +195,7 @@ Assigns a permission scheme with a project. See &#91;Managing project permission
 
 ```sql
 EXEC jira.permissions.project_permission_schemes.assign 
-@projectKeyOrId='{{ projectKeyOrId }}' --required, 
+@project_key_or_id='{{ project_key_or_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set, 
 @expand='{{ expand }}' 
 @@json=

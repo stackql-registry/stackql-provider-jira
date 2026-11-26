@@ -1,6 +1,7 @@
-// The operation -> resource.method mapping, shared by map_operations.mjs (the
-// authoritative all_services.csv) and build_inventory.mjs (the draft
-// columns).
+// The operation -> resource.method derivation, shared by map_operations.mjs
+// (which uses it to name operations the all_services.csv dictionary does not
+// have yet; mapped rows are the source of truth) and build_inventory.mjs (the
+// proposed columns).
 //
 // Jira paths are a tree under /rest/api/3, /rest/agile/1.0 and
 // /rest/software/1.0: collection reads on a static segment, keyed reads on
@@ -131,6 +132,199 @@ export function resourceNameOf(node, service, serviceMeta, pluralizeFn = plurali
 // Maps every operation of one split service document.
 // Returns { rows: Map(`${pathKey}::${verb}` -> mapping), notes: [] } where a
 // mapping is { resource, method, sqlVerb, objectKey, skip, shape, hoisted }.
+// ---------------------------------------------------------------------------
+// Naming passes (resource naming guidance: the shortest names that still say
+// what the rows are, related reads routed by their WHERE parameters).
+// ---------------------------------------------------------------------------
+
+// The 2xx JSON response schema of an operation.
+function successSchema(op) {
+  for (const [code, resp] of Object.entries(op.responses || {})) {
+    if (!/^2/.test(code)) continue;
+    const schema = resp?.content?.['application/json']?.schema;
+    if (schema) return schema;
+  }
+  return null;
+}
+
+// The column names of the rows a select method returns (the items at its
+// objectKey, the items of a bare array, or the object itself), without the
+// `expand` metadata field. Empty when the rows are not an object schema.
+function rowColumns(d, resolve) {
+  let s = resolve(successSchema(d.o.op));
+  if (!s) return new Set();
+  if (d.objectKey) {
+    const key = d.objectKey.replace(/^\$\./, '').split(/[.[]/)[0];
+    s = resolve(s.properties?.[key]);
+    if (s?.type === 'array' || s?.items) s = resolve(s.items);
+  } else if (s.type === 'array' || (s.items && !s.properties)) {
+    s = resolve(s.items);
+  }
+  return new Set(Object.keys(s?.properties || {}).filter((k) => k !== 'expand'));
+}
+
+// The nouns that qualify an operation's rows: the static segment before each
+// path parameter, singular (/board/{boardId}/sprint/{sprintId}/issue ->
+// board, sprint).
+function qualifierNouns(pathKey) {
+  const segs = pathKey.split('/').filter(Boolean);
+  const nouns = [];
+  for (let i = 1; i < segs.length; i++) {
+    if (!segs[i].startsWith('{') || segs[i - 1].startsWith('{')) continue;
+    const words = segmentWords(segs[i - 1]).split('_');
+    words[words.length - 1] = pluralize.singular(words[words.length - 1]);
+    nouns.push(words.join('_'));
+  }
+  return nouns;
+}
+
+// The noun of a literal `none` segment standing in for a parameter
+// (/epic/none/issue -> epic), or null.
+function noneNoun(pathKey) {
+  const segs = pathKey.split('/').filter(Boolean);
+  const i = segs.indexOf('none');
+  return i > 0 ? pluralize.singular(segmentWords(segs[i - 1]).split('_').pop()) : null;
+}
+
+/**
+ * Collapse: a read-only resource named for the parameters that select its
+ * rows (board_sprints: the sprints of a board) joins the resource of the
+ * same rows (sprints), its methods routed by those parameters
+ * (sprints.list_by_board, WHERE board_id = ...). Also <base>_without_<noun>
+ * for a literal /<noun>/none/ path (issues_without_epic ->
+ * issues.list_without_epic). It joins only when
+ *   - every column of the base's rows is in its rows (the base's get, else
+ *     its first select): a thinner projection stays a resource of its own;
+ *   - no method name clashes, and no two selects of the result have the same
+ *     required parameters (StackQL could not route them).
+ * Resources in keepNames are left alone.
+ */
+function collapseQualifiedReads(derived, { resolve, keepNames, notes, service }) {
+  const byResource = () => {
+    const m = new Map();
+    for (const d of derived) {
+      if (!m.has(d.resource)) m.set(d.resource, []);
+      m.get(d.resource).push(d);
+    }
+    return m;
+  };
+  const sig = (d) => `${d.sqlVerb}::${requiredSignature(resolve, d.o.pathKey, d.o.op)}`;
+
+  // candidates: read-only resources whose name is <qualifiers>_<base> or
+  // [<qualifiers>_]<base>_without_<noun>
+  const candidates = [];
+  for (const [name, ds] of byResource()) {
+    if (keepNames.has(name) || !ds.every((d) => d.sqlVerb === 'select')) continue;
+    const quals = [...new Set(ds.map((d) => qualifierNouns(d.o.pathKey).join('_')))];
+    const nones = [...new Set(ds.map((d) => noneNoun(d.o.pathKey) || ''))];
+    if (quals.length !== 1 || nones.length !== 1) continue;
+    let rest = name;
+    let without = '';
+    if (nones[0] && rest.endsWith(`_without_${nones[0]}`)) {
+      without = `_without_${nones[0]}`;
+      rest = rest.slice(0, -without.length);
+    }
+    let prefix = '';
+    if (quals[0] && rest.startsWith(`${quals[0]}_`)) {
+      prefix = quals[0];
+      rest = rest.slice(prefix.length + 1);
+    }
+    if (!prefix && !without) continue;
+    candidates.push({ name, base: rest, prefix, without, words: (prefix ? prefix.split('_').length : 0) + (without ? 1 : 0) });
+  }
+  candidates.sort((a, b) => a.words - b.words || (a.name < b.name ? -1 : 1));
+
+  for (const c of candidates) {
+    const all = byResource();
+    const base = all.get(c.base);
+    const own = all.get(c.name);
+    if (!base || !own || c.base === c.name) continue;
+    const baseSelects = base.filter((d) => d.sqlVerb === 'select');
+    if (baseSelects.length === 0) continue;
+    const reference = baseSelects.find((d) => d.method === 'get') || baseSelects[0];
+    const baseColumns = rowColumns(reference, resolve);
+    const missing = own.map((d) => [...baseColumns].filter((col) => !rowColumns(d, resolve).has(col))).flat();
+    if (baseColumns.size === 0 || missing.length > 0) {
+      notes.push(`not collapsed: ${service}.${c.name} into ${c.base} (its rows lack ${missing.length ? [...new Set(missing)].join(', ') : 'columns to compare'})`);
+      continue;
+    }
+    const methodNames = new Set(base.map((d) => d.method));
+    const signatures = new Map(baseSelects.map((d) => [sig(d), d.method]));
+    const renames = [];
+    let clash = null;
+    for (const d of own) {
+      const method = `${d.method}${c.prefix ? `_by_${c.prefix}` : ''}${c.without}`;
+      if (methodNames.has(method)) { clash = `method ${method} exists`; break; }
+      if (signatures.has(sig(d))) { clash = `same required parameters as ${c.base}.${signatures.get(sig(d))}`; break; }
+      methodNames.add(method);
+      signatures.set(sig(d), method);
+      renames.push({ d, method });
+    }
+    if (clash) {
+      notes.push(`not collapsed: ${service}.${c.name} into ${c.base} (${clash})`);
+      continue;
+    }
+    for (const { d, method } of renames) {
+      notes.push(`collapsed: ${service}.${c.name}.${d.method} -> ${c.base}.${method}`);
+      d.resource = c.base;
+      d.method = method;
+    }
+  }
+}
+
+// Words a resource name cannot start with once a prefix is dropped: the
+// remainder would not name rows (users_with_permissions stays, not
+// with_permissions; plans.plan_only_teams stays, not only_teams).
+const NOT_A_NAME_START = new Set(['with', 'without', 'by', 'for', 'in', 'of', 'to', 'from', 'on', 'only']);
+
+/**
+ * Service prefix: a resource name that starts with the service name, singular
+ * or plural, drops it (fields.field_schemes -> fields.schemes,
+ * issue_types.issue_type_schemes -> issue_types.schemes). Not when the
+ * remainder starts with a preposition, when it would equal another
+ * resource's name (or two would strip to the same name), or for names in
+ * keepNames (RESOURCE_RULES with keep: true).
+ */
+function stripServicePrefixes(derived, { keepNames, notes, service }) {
+  const words = service.split('_');
+  const singular = [...words.slice(0, -1), pluralize.singular(words[words.length - 1])].join('_');
+  const forms = [...new Set([service, singular])].sort((a, b) => b.length - a.length);
+  const names = new Set(derived.map((d) => d.resource));
+  const proposals = new Map();
+  for (const name of names) {
+    if (keepNames.has(name)) continue;
+    const form = forms.find((f) => name.startsWith(`${f}_`));
+    if (!form) continue;
+    const rest = name.slice(form.length + 1);
+    if (!rest || NOT_A_NAME_START.has(rest.split('_')[0])) continue;
+    proposals.set(name, rest);
+  }
+  const unchanged = new Set([...names].filter((n) => !proposals.has(n)));
+  const counts = new Map();
+  for (const rest of proposals.values()) counts.set(rest, (counts.get(rest) || 0) + 1);
+  const renames = new Map();
+  for (const [name, rest] of proposals) {
+    if (unchanged.has(rest) || counts.get(rest) > 1) {
+      notes.push(`prefix kept: ${service}.${name} (${rest} would collide)`);
+      continue;
+    }
+    renames.set(name, rest);
+    notes.push(`prefix dropped: ${service}.${name} -> ${rest}`);
+  }
+  for (const d of derived) if (renames.has(d.resource)) d.resource = renames.get(d.resource);
+}
+
+/**
+ * The required-parameter signature of an operation: its path parameters and
+ * required query parameters, sorted. Two methods of one resource with the
+ * same SQL verb and signature cannot be told apart by StackQL. `resolve` is
+ * makeResolver(doc) of the operation's document.
+ */
+export function requiredSignature(resolve, pathKey, op) {
+  const requiredQuery = (op.parameters || []).map((p) => resolve(p)).filter((p) => p && p.in === 'query' && p.required).map((p) => p.name);
+  return [...pathParams(pathKey), ...requiredQuery].sort().join(',');
+}
+
 export function mapService(doc, service, specKey, resolver, { resourceRules = [], methodRules = [] } = {}) {
   const resolve = makeResolver(doc);
   const serviceMeta = loadServiceConfig().services?.[service] || {};
@@ -235,6 +429,11 @@ export function mapService(doc, service, specKey, resolver, { resourceRules = []
     }
   }
 
+  // ---- naming passes: collapse qualified reads, then drop the service prefix -------
+  const keepNames = new Set(resourceRules.filter((r) => r.keep && (!r.service || r.service === service)).map((r) => r.resource));
+  collapseQualifiedReads(derived, { resolve, keepNames, notes, service });
+  stripServicePrefixes(derived, { keepNames, notes, service });
+
   // ---- overloads: same (resource, method) from different operations ---------------
   const byName = new Map();
   for (const d of derived) {
@@ -263,10 +462,7 @@ export function mapService(doc, service, specKey, resolver, { resourceRules = []
 
   // ---- signature clashes: one SQL verb, one required-parameter signature ----------
   const sigSeen = new Map();
-  const signature = (o) => {
-    const requiredQuery = (o.op.parameters || []).map((p) => resolve(p)).filter((p) => p && p.in === 'query' && p.required).map((p) => p.name);
-    return [...pathParams(o.pathKey), ...requiredQuery].sort().join(',');
-  };
+  const signature = (o) => requiredSignature(resolve, o.pathKey, o.op);
   const ordered = [...derived].sort((a, b) => (a.ruled === b.ruled ? 0 : a.ruled ? -1 : 1) || a.o.params.length - b.o.params.length || (a.o.pathKey < b.o.pathKey ? -1 : a.o.pathKey > b.o.pathKey ? 1 : 0) || (a.o.verb < b.o.verb ? -1 : 1));
   for (const d of ordered) {
     if (d.sqlVerb === 'exec') continue;

@@ -153,12 +153,12 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-dashboard_id">
     <td><CopyableCode code="dashboard_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the dashboard. (wire: dashboardId)</td>
+    <td>The ID of the dashboard.</td>
 </tr>
 <tr id="parameter-gadget_id">
     <td><CopyableCode code="gadget_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the gadget. (wire: gadgetId)</td>
+    <td>The ID of the gadget.</td>
 </tr>
 <tr id="parameter-gadget_id">
     <td><CopyableCode code="gadget_id" /></td>

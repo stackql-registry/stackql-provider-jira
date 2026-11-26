@@ -119,7 +119,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-entity_id">
     <td><CopyableCode code="entity_id" /></td>
     <td><code>string</code></td>
-    <td>The ID of the item the avatar is associated with. (wire: entityId)</td>
+    <td>The ID of the item the avatar is associated with.</td>
 </tr>
 <tr id="parameter-id">
     <td><CopyableCode code="id" /></td>
@@ -129,7 +129,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-owning_object_id">
     <td><CopyableCode code="owning_object_id" /></td>
     <td><code>string</code></td>
-    <td>The ID of the item the avatar is associated with. (wire: owningObjectId)</td>
+    <td>The ID of the item the avatar is associated with.</td>
 </tr>
 <tr id="parameter-type">
     <td><CopyableCode code="type" /></td>

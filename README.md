@@ -2,7 +2,7 @@
 
 This repository builds and tests the `jira` provider for StackQL from the OpenAPI documents Atlassian publishes for Jira Cloud, and builds its documentation site, [jira-provider.stackql.io](https://jira-provider.stackql.io).
 
-The provider maps the Jira Cloud platform REST API v3 and the Jira Software REST API to SQL: 17 services, 227 resources and 611 methods. Issues are searched with JQL inside a `WHERE` clause:
+The provider maps the Jira Cloud platform REST API v3 and the Jira Software REST API to SQL: 17 services, 217 resources and 611 methods. Issues are searched with JQL inside a `WHERE` clause:
 
 ```sql
 SELECT key,
@@ -101,11 +101,11 @@ make split
 ## 2. Mappings
 
 ```bash
-make mappings          # regenerate all_services.csv from scratch and apply the rules
-make mappings-report   # print every derived mapping without writing
+make mappings          # add new operations to all_services.csv (named by the rules); mapped rows are kept
+make mappings-report   # print the mapping and where it differs from the rules, without writing
 ```
 
-`npm run generate-mappings` (provider-utils `analyze`) writes `provider-dev/config/all_services.csv`; `map_operations.mjs` fills the `stackql_*` columns from the path-derived derivation in `lib/mapping.mjs` and the 137 resource rules and 174 method rules in `lib/mapping_rules.mjs`, then validates (every operation mapped or skip-coded, method names unique per resource, unique required-parameter signatures per SQL verb, every rule used). Result: select 270, insert 51, update 71, delete 71, exec 148; 35 skip-coded in the emitted services (plus the 90 app-only operations of the excluded services). `all_services.csv` is committed: a diff on regeneration is a breaking-change review.
+`provider-dev/config/all_services.csv` is the naming dictionary: one row per operation, keyed by `filename::operationId`, and the source of truth for every operation it maps. `npm run generate-mappings` (provider-utils `analyze`) appends a row for each operationId the dictionary does not have; `map_operations.mjs` names those rows from the path-derived derivation in `lib/mapping.mjs` and the 137 resource rules and 174 method rules in `lib/mapping_rules.mjs`, keeps every mapped row as it is, updates the path of an operation that moved, drops rows of operations removed upstream (and lists them), then validates every row (every operation mapped or skip-coded, names lower snake_case, method names unique per resource, unique required-parameter signatures per SQL verb, every rule used). To rename, edit the row; to have the rules name an operation again, blank its `stackql_resource_name`. Result: select 270, insert 51, update 71, delete 71, exec 148; 35 skip-coded in the emitted services (plus the 90 app-only operations of the excluded services). `all_services.csv` is committed: a diff on regeneration is a breaking-change review.
 
 ## 3. Normalize
 
@@ -121,14 +121,14 @@ make pre-normalize normalize
 make generate
 ```
 
-`provider-utils generate` with `provider_config.json` (`auth.type: oauth2`, client credentials, `snake_case_aliases: true`) and `--naive-req-body-translate`, then `post_process.mjs`: `request.nativeCasing: camel` on all 611 methods; naive DELETE bodies; scalar reads as a `value` row and the label page as `label` rows; the permission maps as one row per permission; the JQL search as the POST form with `request.base` `{"fields": ["*navigable"]}` and its token in the body; `nextPageToken` pagination (10 reads); offset pagination through a response transform that adds the next `startAt` (71 reads); `LIMIT` -> `maxResults` (90 reads), `OFFSET` -> `startAt` (70) and `ORDER BY` -> `orderBy` in Jira's prefix syntax (17) pushdown; entity property values sent as the raw body. Then the GraphQL merge (no operations).
+`provider-utils generate` with `provider_config.json` (`auth.type: oauth2`, client credentials, `snake_case_aliases: true`) and `--naive-req-body-translate`, then `post_process.mjs`: `request.nativeCasing: camel` on all 611 methods; naive DELETE bodies; scalar reads as a `value` row and the label page as `label` rows; the permission maps as one row per permission; the JQL search as the POST form with `request.base` `{"fields": ["*navigable"]}` and its token in the body; `nextPageToken` pagination (10 reads); offset pagination through a response transform that adds the next `startAt` (71 reads); `LIMIT` -> `maxResults` (90 reads), `OFFSET` -> `startAt` (70) and `ORDER BY` -> `orderBy` in Jira's prefix syntax (17) pushdown; entity property values sent as the raw body; path parameters renamed to snake_case (rule 10, last). Then the GraphQL merge (no operations).
 
 ## 5. Test
 
 ```bash
 make test-offline        # SHOW / DESCRIBE against the local file registry (25 checks)
 make test-integration    # the mock Jira API: rows and wire calls per archetype (59 checks)
-make test-meta           # meta-route walk: 17 services, 227 resources, 611 methods
+make test-meta           # meta-route walk: 17 services, 217 resources, 611 methods
 make smoke               # live, against the trial site (78 checks, including a Jira Software board and sprint)
 ```
 
@@ -141,7 +141,7 @@ make docs       # generate-docs --snake-case-aliases --source-project ..., then 
 make website    # yarn install && yarn build (vendors the shared stackql/docusaurus-config)
 ```
 
-The landing page is `provider-dev/docgen/provider-data/headerContent1.txt` and `headerContent2.txt` (installation, authentication, the cloud ID, JQL search, pagination, example queries). `sanitize-docs` escapes MDX-hostile description text and annotates `cloud_id` "required unless ATLASSIAN_CLOUD_ID is set". `website/docs` is committed after every regeneration so pages stamp with their regeneration date. The site emits JSON-LD through the shared config's `withStructuredData` (`@stackql/docusaurus-plugin-structured-data`) and `llms.txt`, `llms-full.txt` and Markdown companion files through `@stackql/docusaurus-plugin-aeo`.
+The landing page is `provider-dev/docgen/provider-data/headerContent1.txt` and `headerContent2.txt` (installation, authentication, the cloud ID, JQL search, pagination, example queries). `sanitize-docs` escapes MDX-hostile description text and annotates `cloud_id` "required unless ATLASSIAN_CLOUD_ID is set". `website/docs` is committed after every regeneration so pages stamp with their regeneration date. The site emits JSON-LD through the shared config's `withStructuredData` (`@stackql/docusaurus-plugin-structured-data`) `llms.txt`, `llms-full.txt`, Markdown companion files and the Ask AI button through `@stackql/docusaurus-plugin-aeo`, and the stackql-deploy template menu on resource pages through `@stackql/docusaurus-plugin-stackql-deploy-template`.
 
 ## 7. Publish
 
@@ -153,7 +153,7 @@ Publishing is a separate, human-in-the-loop step: push `provider-dev/openapi/src
 
 ## Contributing
 
-Mapping and shaping decisions are rules in scripts, never hand-edits to generated files: change the rule, run `make build && make test`, review the `all_services.csv` and generated diffs, and record the reason in NOTES.md.
+Shaping decisions are rules in scripts, never hand-edits to generated files: change the rule, run `make build && make test`, review the generated diff, and record the reason in NOTES.md. Resource and method names live in `all_services.csv`: edit the row (a rename is a breaking change for users of the published provider), run `make build && make test`, update the tests, examples and docs that name it, and review the `all_services.csv` and generated diffs. Rule changes name only operations added after them.
 
 ## Security
 

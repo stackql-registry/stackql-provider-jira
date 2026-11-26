@@ -1,5 +1,7 @@
 // Exceptions to the mechanical derivation in lib/mapping.mjs, shared by
-// map_operations.mjs (authoritative) and build_inventory.mjs (draft columns).
+// map_operations.mjs (naming operations new to the all_services.csv
+// dictionary; a rule change does not rename operations already in it) and
+// build_inventory.mjs (proposed columns).
 // Patterns match the vendor path with every parameter collapsed to {};
 // RESOURCE_RULES match a node (the path with its trailing parameters
 // removed) and rename the resource every operation on that node lands in;

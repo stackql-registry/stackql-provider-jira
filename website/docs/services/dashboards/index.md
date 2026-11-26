@@ -26,10 +26,10 @@ total resources: __4__
 <div class="row">
 <div class="providerDocColumn">
 <a href="/services/dashboards/available_gadgets/">available_gadgets</a><br />
-<a href="/services/dashboards/dashboard_item_properties/">dashboard_item_properties</a>
+<a href="/services/dashboards/dashboards/">dashboards</a>
 </div>
 <div class="providerDocColumn">
-<a href="/services/dashboards/dashboards/">dashboards</a><br />
-<a href="/services/dashboards/gadgets/">gadgets</a>
+<a href="/services/dashboards/gadgets/">gadgets</a><br />
+<a href="/services/dashboards/item_properties/">item_properties</a>
 </div>
 </div>

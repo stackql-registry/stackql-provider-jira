@@ -25,11 +25,11 @@ total resources: __4__
 ## Resources
 <div class="row">
 <div class="providerDocColumn">
-<a href="/services/plans/plan_atlassian_teams/">plan_atlassian_teams</a><br />
+<a href="/services/plans/atlassian_teams/">atlassian_teams</a><br />
 <a href="/services/plans/plan_only_teams/">plan_only_teams</a>
 </div>
 <div class="providerDocColumn">
-<a href="/services/plans/plan_teams/">plan_teams</a><br />
-<a href="/services/plans/plans/">plans</a>
+<a href="/services/plans/plans/">plans</a><br />
+<a href="/services/plans/teams/">teams</a>
 </div>
 </div>

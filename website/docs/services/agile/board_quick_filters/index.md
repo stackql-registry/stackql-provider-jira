@@ -179,7 +179,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-board_id">
     <td><CopyableCode code="board_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the board that contains the requested quick filters. (wire: boardId)</td>
+    <td>The ID of the board that contains the requested quick filters.</td>
 </tr>
 <tr id="parameter-cloud_id">
     <td><CopyableCode code="cloud_id" /></td>
@@ -189,7 +189,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-quick_filter_id">
     <td><CopyableCode code="quick_filter_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the requested quick filter. (wire: quickFilterId)</td>
+    <td>The ID of the requested quick filter.</td>
 </tr>
 <tr id="parameter-max_results">
     <td><CopyableCode code="max_results" /></td>

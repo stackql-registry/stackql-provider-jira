@@ -24,7 +24,8 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 import {
-  SERVICES_DIR, PROVIDER_DIR, WIRE_CASING, listServiceFiles, forEachMethod, sqlVerbOf, dumpYaml, makeResolver
+  SERVICES_DIR, PROVIDER_DIR, WIRE_CASING, listServiceFiles, forEachMethod, sqlVerbOf, dumpYaml, makeResolver,
+  HTTP_VERBS, camelToSnake
 } from './lib/spec_helpers.mjs';
 
 if (!fs.existsSync(SERVICES_DIR)) {
@@ -355,6 +356,65 @@ function propertyValueTransform() {
 }
 
 // ---------------------------------------------------------------------------
+// 10. Path parameters in snake_case. A path parameter's name never goes on
+//     the wire (its value is substituted into the URL), so the provider names
+//     it for SQL: /board/{boardId} -> /board/{board_id}, parameter board_id.
+//     The path keys, the parameters (inline and shared components) and the
+//     operation $refs of every method are renamed together. Runs last, so
+//     the rules above match the vendor's path keys. Query parameters keep
+//     their wire names (request.nativeCasing maps them, rule 1).
+// ---------------------------------------------------------------------------
+const escapePointer = (p) => p.replace(/~/g, '~0').replace(/\//g, '~1');
+function snakePathParams() {
+  let params = 0;
+  let pathsRenamed = 0;
+  for (const [f, doc] of docs) {
+    const resolve = makeResolver(doc);
+    const renamedPaths = new Map();
+    const paths = {};
+    for (const [pathKey, item] of Object.entries(doc.paths || {})) {
+      const snakeKey = pathKey.replace(/\{([^}]+)\}/g, (_, n) => `{${camelToSnake(n)}}`);
+      if (snakeKey !== pathKey) {
+        if (doc.paths[snakeKey] || paths[snakeKey]) { errors.push(`10. ${f}: ${pathKey} and ${snakeKey} would be the same path`); continue; }
+        renamedPaths.set(pathKey, snakeKey);
+      }
+      paths[snakeKey] = item;
+      const lists = [item.parameters, ...HTTP_VERBS.map((v) => item[v]?.parameters)].filter(Array.isArray);
+      for (const list of lists) {
+        for (const p of list) {
+          const param = resolve(p);
+          if (param?.in !== 'path') continue;
+          const snake = camelToSnake(param.name);
+          if (snake !== param.name) { param.name = snake; params++; }
+        }
+      }
+      // the template and the declared names must agree
+      for (const verb of HTTP_VERBS) {
+        if (!item[verb]) continue;
+        const declared = [...(item.parameters || []), ...(item[verb].parameters || [])].map(resolve).filter((p) => p?.in === 'path').map((p) => p.name).sort();
+        const inTemplate = [...snakeKey.matchAll(/\{([^}]+)\}/g)].map((m) => m[1]).sort();
+        if (declared.join(',') !== inTemplate.join(',')) errors.push(`10. ${f}: ${verb.toUpperCase()} ${snakeKey} declares path parameters [${declared}] for [${inTemplate}]`);
+      }
+    }
+    doc.paths = paths;
+    pathsRenamed += renamedPaths.size;
+    if (renamedPaths.size === 0) continue;
+    const byPointer = new Map([...renamedPaths].map(([from, to]) => [`#/paths/${escapePointer(from)}/`, `#/paths/${escapePointer(to)}/`]));
+    for (const res of Object.values(doc.components?.['x-stackQL-resources'] || {})) {
+      for (const m of Object.values(res.methods || {})) {
+        const ref = m.operation?.$ref;
+        if (!ref) continue;
+        for (const [from, to] of byPointer) {
+          if (ref.startsWith(from)) { m.operation.$ref = to + ref.slice(from.length); break; }
+        }
+      }
+    }
+  }
+  bump('10. path parameters renamed to snake_case', params);
+  bump('10. path keys with renamed parameters', pathsRenamed);
+}
+
+// ---------------------------------------------------------------------------
 // 8. Sanity: every service has resources; every resource has a method.
 // ---------------------------------------------------------------------------
 function validateResources() {
@@ -377,6 +437,7 @@ tokenPagination();
 offsetPagination();
 clausePushdown();
 propertyValueTransform();
+snakePathParams();
 validateResources();
 
 if (errors.length > 0) {

@@ -176,7 +176,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-project_type_key">
     <td><CopyableCode code="project_type_key" /></td>
     <td><code>string</code></td>
-    <td>The key of the project type. (wire: projectTypeKey)</td>
+    <td>The key of the project type.</td>
 </tr>
 </tbody>
 </table>

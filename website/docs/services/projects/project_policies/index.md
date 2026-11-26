@@ -116,7 +116,7 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#validate"><CopyableCode code="validate" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectIdOrKey"><code>projectIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-project_id_or_key"><code>project_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Validates whether a set of policies can be applied to a project without actually applying them.&lt;br /&gt;&lt;br /&gt;Runs the compliance checks for each specified policy against the project's current configuration. This can be called before applying policies to preview potential issues. Jira Admin only.</td>
 </tr>
@@ -141,15 +141,10 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The cloud ID of the Jira Cloud site. Resolved from ATLASSIAN_CLOUD_ID when set; SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = '&lt;site&gt;' answers it. (x-stackQL-envVar: ATLASSIAN_CLOUD_ID)</td>
 </tr>
-<tr id="parameter-projectIdOrKey">
-    <td><CopyableCode code="projectIdOrKey" /></td>
-    <td><code>string</code></td>
-    <td>project ID or project key</td>
-</tr>
 <tr id="parameter-project_id_or_key">
     <td><CopyableCode code="project_id_or_key" /></td>
     <td><code>string</code></td>
-    <td>project ID or project key (wire: projectIdOrKey)</td>
+    <td>project ID or project key</td>
 </tr>
 </tbody>
 </table>
@@ -223,7 +218,7 @@ Validates whether a set of policies can be applied to a project without actually
 
 ```sql
 EXEC jira.projects.project_policies.validate 
-@projectIdOrKey='{{ projectIdOrKey }}' --required, 
+@project_id_or_key='{{ project_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{

@@ -186,7 +186,7 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#delete_by_global_id"><CopyableCode code="delete_by_global_id" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-issueIdOrKey"><code>issueIdOrKey</code></a>, <a href="#parameter-globalId"><code>globalId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-issue_id_or_key"><code>issue_id_or_key</code></a>, <a href="#parameter-globalId"><code>globalId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Deletes the remote issue link from the issue using the link's global ID. Where the global ID includes reserved URL characters these must be escaped in the request. For example, pass `system=http:​//www.mycompany.com/support&id=1` as `system%3Dhttp%3A%2F%2Fwww.mycompany.com%2Fsupport%26id%3D1`.&lt;br /&gt;&lt;br /&gt;This operation requires &#91;issue linking to be active&#93;(https:​//confluence.atlassian.com/x/yoXKM).&lt;br /&gt;&lt;br /&gt;This operation can be accessed anonymously.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:**&lt;br /&gt;&lt;br /&gt; *  *Browse projects* and *Link issues* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project that the issue is in.&lt;br /&gt; *  If &#91;issue-level security&#93;(https:​//confluence.atlassian.com/x/J4lKLg) is implemented, issue-level security permission to view the issue.</td>
 </tr>
@@ -216,20 +216,15 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The global ID of a remote issue link.</td>
 </tr>
-<tr id="parameter-issueIdOrKey">
-    <td><CopyableCode code="issueIdOrKey" /></td>
-    <td><code>string</code></td>
-    <td>The ID or key of the issue.</td>
-</tr>
 <tr id="parameter-issue_id_or_key">
     <td><CopyableCode code="issue_id_or_key" /></td>
     <td><code>string</code></td>
-    <td>The ID or key of the issue. (wire: issueIdOrKey)</td>
+    <td>The ID or key of the issue.</td>
 </tr>
 <tr id="parameter-link_id">
     <td><CopyableCode code="link_id" /></td>
     <td><code>string</code></td>
-    <td>The ID of a remote issue link. (wire: linkId)</td>
+    <td>The ID of a remote issue link.</td>
 </tr>
 <tr id="parameter-global_id">
     <td><CopyableCode code="global_id" /></td>
@@ -442,7 +437,7 @@ Deletes the remote issue link from the issue using the link's global ID. Where t
 
 ```sql
 EXEC jira.issues.remote_links.delete_by_global_id 
-@issueIdOrKey='{{ issueIdOrKey }}' --required, 
+@issue_id_or_key='{{ issue_id_or_key }}' --required, 
 @globalId='{{ globalId }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set
 ;

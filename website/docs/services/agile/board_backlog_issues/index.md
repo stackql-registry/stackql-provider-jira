@@ -158,7 +158,7 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#move_to_board_backlog"><CopyableCode code="move_to_board_backlog" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-boardId"><code>boardId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-board_id"><code>board_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Move issues to the backlog of a particular board (if they are already on that board).  &lt;br /&gt;This operation is equivalent to remove future and active sprints from a given set of issues if the board has sprints If the board does not have sprints this will put the issues back into the backlog from the board. At most 50 issues may be moved at once.</td>
 </tr>
@@ -178,15 +178,10 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     </tr>
 </thead>
 <tbody>
-<tr id="parameter-boardId">
-    <td><CopyableCode code="boardId" /></td>
-    <td><code>integer (int64)</code></td>
-    <td></td>
-</tr>
 <tr id="parameter-board_id">
     <td><CopyableCode code="board_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the board that has the backlog containing the requested issues. (wire: boardId)</td>
+    <td></td>
 </tr>
 <tr id="parameter-cloud_id">
     <td><CopyableCode code="cloud_id" /></td>
@@ -306,7 +301,7 @@ Move issues to the backlog of a particular board (if they are already on that bo
 
 ```sql
 EXEC jira.agile.board_backlog_issues.move_to_board_backlog 
-@boardId='{{ boardId }}' --required, 
+@board_id='{{ board_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{

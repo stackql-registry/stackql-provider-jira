@@ -245,7 +245,7 @@ class Smoke:
         rows, err = self.q(f"SELECT id, name FROM {P}.agile.boards")
         for r in rows if not err else []:
             if str(r.get("name", "")).startswith(SMOKE):
-                sprints, serr = self.q(f"SELECT id, name FROM {P}.agile.board_sprints WHERE board_id = {sql_str(r.get('id'))}")
+                sprints, serr = self.q(f"SELECT id, name FROM {P}.agile.sprints WHERE board_id = {sql_str(r.get('id'))}")
                 for sp in sprints if not serr else []:
                     if str(sp.get("name", "")).startswith(SMOKE):
                         print(f"  sweeping sprint {sp.get('name')}")
@@ -260,17 +260,17 @@ class Smoke:
                 print(f"  sweeping filter {r.get('name')}")
                 self.q(f"DELETE FROM {P}.filters.filters WHERE id = {sql_str(r.get('id'))}")
                 swept += 1
-        rows, err = self.q(f"SELECT id, name FROM {P}.projects.project_categories")
+        rows, err = self.q(f"SELECT id, name FROM {P}.projects.categories")
         for r in rows if not err else []:
             if str(r.get("name", "")).startswith(SMOKE):
                 print(f"  sweeping project category {r.get('name')}")
-                self.q(f"DELETE FROM {P}.projects.project_categories WHERE id = {sql_str(r.get('id'))}")
+                self.q(f"DELETE FROM {P}.projects.categories WHERE id = {sql_str(r.get('id'))}")
                 swept += 1
-        rows, err = self.q(f"SELECT key FROM {P}.projects.project_properties WHERE project_id_or_key = {sql_str(SMOKE_PROJECT)}")
+        rows, err = self.q(f"SELECT key FROM {P}.projects.properties WHERE project_id_or_key = {sql_str(SMOKE_PROJECT)}")
         for r in rows if not err else []:
             if str(r.get("key", "")).startswith(SMOKE):
                 print(f"  sweeping project property {r.get('key')}")
-                self.q(f"DELETE FROM {P}.projects.project_properties WHERE project_id_or_key = {sql_str(SMOKE_PROJECT)} "
+                self.q(f"DELETE FROM {P}.projects.properties WHERE project_id_or_key = {sql_str(SMOKE_PROJECT)} "
                        f"AND property_key = {sql_str(r.get('key'))}")
                 swept += 1
         rows, err = self.q(f"SELECT id, key, name FROM {P}.projects.projects WHERE query = {sql_str(SMOKE)}")
@@ -307,15 +307,15 @@ class Smoke:
         self.step("users.groups", f"SELECT name, group_id FROM {P}.users.groups", expect_rows=True)
         self.step("workflows.statuses (offset paging through the gateway)", f"SELECT id, name, status_category FROM {P}.workflows.statuses", expect_rows=True)
         self.step("workflows.workflows (offset paging through the gateway)", f"SELECT id, name FROM {P}.workflows.workflows", expect_rows=True)
-        self.step("workflows.workflow_schemes", f"SELECT id, name FROM {P}.workflows.workflow_schemes", expect_rows=True)
-        self.step("permissions.permission_schemes", f"SELECT id, name FROM {P}.permissions.permission_schemes", expect_rows=True)
+        self.step("workflows.workflow_schemes", f"SELECT id, name FROM {P}.workflows.schemes", expect_rows=True)
+        self.step("permissions.permission_schemes", f"SELECT id, name FROM {P}.permissions.schemes", expect_rows=True)
         self.step("permissions.my_permissions: one row per permission",
                   f"SELECT key, have_permission FROM {P}.permissions.my_permissions "
                   f"WHERE permissions = 'BROWSE_PROJECTS,CREATE_ISSUES' AND project_key = {sql_str(SMOKE_PROJECT)}",
                   expect_rows=True, check=lambda r: len(r) == 2)
-        self.step("issue_types.issue_type_schemes", f"SELECT id, name FROM {P}.issue_types.issue_type_schemes", expect_rows=True)
+        self.step("issue_types.issue_type_schemes", f"SELECT id, name FROM {P}.issue_types.schemes", expect_rows=True)
         self.step("screens.screens", f"SELECT id, name FROM {P}.screens.screens", expect_rows=True)
-        self.step("notifications.notification_schemes", f"SELECT id, name FROM {P}.notifications.notification_schemes", expect_rows=True)
+        self.step("notifications.notification_schemes", f"SELECT id, name FROM {P}.notifications.schemes", expect_rows=True)
         self.step("dashboards.dashboards", f"SELECT id, name FROM {P}.dashboards.dashboards", expect_rows=True)
         self.step("filters.filters", f"SELECT id, name FROM {P}.filters.filters")
         self.step("system.audit_records (offset + limit, LIMIT pushdown)", f"SELECT id, summary, category FROM {P}.system.audit_records LIMIT 5")
@@ -404,13 +404,13 @@ class Smoke:
                              expect_rows=True)
             other = rows[0].get("key") if rows else None
             if other:
-                self.step("issue_links INSERT (Relates)", f"INSERT INTO {P}.issues.issue_links (type, inward_issue, outward_issue) "
+                self.step("links INSERT (Relates)", f"INSERT INTO {P}.issues.links (type, inward_issue, outward_issue) "
                           f"SELECT '{{\"name\": \"Relates\"}}', {sql_str(json.dumps({'key': key}))}, {sql_str(json.dumps({'key': other}))}")
                 links = self.step("issue links read back through the issuelinks field",
                                   f"SELECT json_extract(fields, '$.issuelinks[0].id') AS link_id FROM {P}.issues.issues "
                                   f"WHERE issue_id_or_key = {sql_str(key)}", expect_rows=True, check=lambda r: bool(r[0].get("link_id")))
                 if links:
-                    self.step("issue_links DELETE", f"DELETE FROM {P}.issues.issue_links WHERE link_id = {sql_str(links[0]['link_id'])}")
+                    self.step("links DELETE", f"DELETE FROM {P}.issues.links WHERE link_id = {sql_str(links[0]['link_id'])}")
         finally:
             for k in (other, key):
                 if k:
@@ -499,7 +499,7 @@ class Smoke:
                       f"WHERE sprint_id = {sql_str(sprint)}")
             self.step("sprints get reads back the goal", f"SELECT id, name, state, goal FROM {P}.agile.sprints WHERE sprint_id = {sql_str(sprint)}",
                       expect_rows=True, contains="updated by stackql smoke")
-            self.step("board_sprints lists the sprint", f"SELECT id, name, state FROM {P}.agile.board_sprints WHERE board_id = {sql_str(board)}",
+            self.step("sprints (list_by_board) lists the sprint", f"SELECT id, name, state FROM {P}.agile.sprints WHERE board_id = {sql_str(board)}",
                       contains=name)
             fields = {"project": {"key": SMOKE_PROJECT}, "summary": f"{self.name} (sprint)", "issuetype": {"name": "Task"}, "labels": [SMOKE]}
             rows = self.step("issues INSERT an issue for the sprint", f"INSERT INTO {P}.issues.issues (fields) SELECT {sql_str(json.dumps(fields))} RETURNING key",
@@ -508,11 +508,11 @@ class Smoke:
             if issue:
                 self.step("sprints EXEC move_issues", f"EXEC {P}.agile.sprints.move_issues @sprint_id = {sql_str(sprint)}, "
                           f"@issues = {sql_str(json.dumps([issue]))}")
-                self.wait_for("sprint_issues lists the moved issue (token pagination)",
-                              f"SELECT key FROM {P}.agile.sprint_issues WHERE sprint_id = {sql_str(sprint)}",
+                self.wait_for("issues (list_by_sprint) lists the moved issue (token pagination)",
+                              f"SELECT key FROM {P}.agile.issues WHERE sprint_id = {sql_str(sprint)}",
                               lambda r: any(x.get("key") == issue for x in r), timeout=60)
-                self.wait_for("board_issues on the scrum board lists it",
-                              f"SELECT key FROM {P}.agile.board_issues WHERE board_id = {sql_str(board)}",
+                self.wait_for("issues (list_by_board) on the scrum board lists it",
+                              f"SELECT key FROM {P}.agile.issues WHERE board_id = {sql_str(board)}",
                               lambda r: any(x.get("key") == issue for x in r), timeout=60)
         finally:
             if issue:
@@ -527,24 +527,24 @@ class Smoke:
     def property_and_category(self) -> None:
         print("== project property and project category ==")
         prop = f"{SMOKE}-{self.stamp}"
-        self.step("project_properties UPDATE (set a JSON value)",
-                  f"UPDATE {P}.projects.project_properties SET value = '{{\"by\": \"stackql\"}}' "
+        self.step("properties UPDATE (set a JSON value)",
+                  f"UPDATE {P}.projects.properties SET value = '{{\"by\": \"stackql\"}}' "
                   f"WHERE project_id_or_key = {sql_str(SMOKE_PROJECT)} AND property_key = {sql_str(prop)}")
-        self.step("project_properties read back", f"SELECT key, value FROM {P}.projects.project_properties "
+        self.step("properties read back", f"SELECT key, value FROM {P}.projects.properties "
                   f"WHERE project_id_or_key = {sql_str(SMOKE_PROJECT)} AND property_key = {sql_str(prop)}", contains="stackql")
-        self.step("project_properties DELETE", f"DELETE FROM {P}.projects.project_properties "
+        self.step("properties DELETE", f"DELETE FROM {P}.projects.properties "
                   f"WHERE project_id_or_key = {sql_str(SMOKE_PROJECT)} AND property_key = {sql_str(prop)}")
-        rows = self.step("project_categories INSERT ... RETURNING id (Jira administrator)",
-                         f"INSERT INTO {P}.projects.project_categories (name, description) SELECT {sql_str(self.name)}, 'stackql smoke' RETURNING id",
+        rows = self.step("categories INSERT ... RETURNING id (Jira administrator)",
+                         f"INSERT INTO {P}.projects.categories (name, description) SELECT {sql_str(self.name)}, 'stackql smoke' RETURNING id",
                          expect_rows=True)
         cat = rows[0].get("id") if rows else None
         if cat:
             try:
-                self.step("project_categories UPDATE", f"UPDATE {P}.projects.project_categories SET description = 'updated' WHERE id = {sql_str(cat)}")
-                self.step("project_categories get", f"SELECT name, description FROM {P}.projects.project_categories WHERE id = {sql_str(cat)}",
+                self.step("categories UPDATE", f"UPDATE {P}.projects.categories SET description = 'updated' WHERE id = {sql_str(cat)}")
+                self.step("categories get", f"SELECT name, description FROM {P}.projects.categories WHERE id = {sql_str(cat)}",
                           contains="updated")
             finally:
-                self.step("project_categories DELETE", f"DELETE FROM {P}.projects.project_categories WHERE id = {sql_str(cat)}")
+                self.step("categories DELETE", f"DELETE FROM {P}.projects.categories WHERE id = {sql_str(cat)}")
 
     def project_lifecycle(self) -> None:
         print("== gated project lifecycle ==")

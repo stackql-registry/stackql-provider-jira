@@ -237,7 +237,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-entity_id">
     <td><CopyableCode code="entity_id" /></td>
     <td><code>string</code></td>
-    <td>The entity ID of the workflow. (wire: entityId)</td>
+    <td>The entity ID of the workflow.</td>
 </tr>
 <tr id="parameter-expand">
     <td><CopyableCode code="expand" /></td>

@@ -33,11 +33,53 @@ Creates, updates, deletes, gets or lists a <code>screens</code> resource.
 The following fields are returned by `SELECT` queries:
 
 <Tabs
-    defaultValue="list"
+    defaultValue="list_by_field"
     values={[
+        { label: 'list_by_field', value: 'list_by_field' },
         { label: 'list', value: 'list' }
     ]}
 >
+<TabItem value="list_by_field">
+
+A screen with tab details.
+
+<table>
+<thead>
+    <tr>
+    <th>Name</th>
+    <th>Datatype</th>
+    <th>Description</th>
+    </tr>
+</thead>
+<tbody>
+<tr>
+    <td><CopyableCode code="id" /></td>
+    <td><code>integer (int64)</code></td>
+    <td>The ID of the screen.</td>
+</tr>
+<tr>
+    <td><CopyableCode code="name" /></td>
+    <td><code>string</code></td>
+    <td>The name of the screen.</td>
+</tr>
+<tr>
+    <td><CopyableCode code="description" /></td>
+    <td><code>string</code></td>
+    <td>The description of the screen.</td>
+</tr>
+<tr>
+    <td><CopyableCode code="scope" /></td>
+    <td><code>object</code></td>
+    <td>The scope of the screen.</td>
+</tr>
+<tr>
+    <td><CopyableCode code="tab" /></td>
+    <td><code>object</code></td>
+    <td>The tab for the screen.</td>
+</tr>
+</tbody>
+</table>
+</TabItem>
 <TabItem value="list">
 
 A screen.
@@ -92,6 +134,13 @@ The following methods are available for this resource:
 </thead>
 <tbody>
 <tr>
+    <td><a href="#list_by_field"><CopyableCode code="list_by_field" /></a></td>
+    <td><CopyableCode code="select" /></td>
+    <td><a href="#parameter-field_id"><code>field_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-start_at"><code>start_at</code></a>, <a href="#parameter-max_results"><code>max_results</code></a>, <a href="#parameter-expand"><code>expand</code></a></td>
+    <td>Returns a &#91;paginated&#93;(#pagination) list of the screens a field is used in.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
+</tr>
+<tr>
     <td><a href="#list"><CopyableCode code="list" /></a></td>
     <td><CopyableCode code="select" /></td>
     <td><a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
@@ -122,7 +171,7 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#add_field_to_default"><CopyableCode code="add_field_to_default" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-fieldId"><code>fieldId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-field_id"><code>field_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Adds a field to the default tab of the default screen.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
@@ -147,15 +196,20 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The cloud ID of the Jira Cloud site. Resolved from ATLASSIAN_CLOUD_ID when set; SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = '&lt;site&gt;' answers it. (x-stackQL-envVar: ATLASSIAN_CLOUD_ID)</td>
 </tr>
-<tr id="parameter-fieldId">
-    <td><CopyableCode code="fieldId" /></td>
+<tr id="parameter-field_id">
+    <td><CopyableCode code="field_id" /></td>
     <td><code>string</code></td>
     <td>The ID of the field.</td>
 </tr>
 <tr id="parameter-screen_id">
     <td><CopyableCode code="screen_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the screen. (wire: screenId)</td>
+    <td>The ID of the screen.</td>
+</tr>
+<tr id="parameter-expand">
+    <td><CopyableCode code="expand" /></td>
+    <td><code>string</code></td>
+    <td>Use &#91;expand&#93;(#expansion) to include additional information about screens in the response. This parameter accepts `tab` which returns details about the screen tabs the field is used in.</td>
 </tr>
 <tr id="parameter-id">
     <td><CopyableCode code="id" /></td>
@@ -193,11 +247,32 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 ## `SELECT` examples
 
 <Tabs
-    defaultValue="list"
+    defaultValue="list_by_field"
     values={[
+        { label: 'list_by_field', value: 'list_by_field' },
         { label: 'list', value: 'list' }
     ]}
 >
+<TabItem value="list_by_field">
+
+Returns a &#91;paginated&#93;(#pagination) list of the screens a field is used in.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).
+
+```sql
+SELECT
+id,
+name,
+description,
+scope,
+tab
+FROM jira.screens.screens
+WHERE field_id = '{{ field_id }}' -- required
+AND cloud_id = '{{ cloud_id }}' -- required unless ATLASSIAN_CLOUD_ID is set
+AND start_at = '{{ start_at }}'
+AND max_results = '{{ max_results }}'
+AND expand = '{{ expand }}'
+;
+```
+</TabItem>
 <TabItem value="list">
 
 Returns a &#91;paginated&#93;(#pagination) list of all screens or those specified by one or more screen IDs.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).
@@ -343,7 +418,7 @@ Adds a field to the default tab of the default screen.&lt;br /&gt;&lt;br /&gt;**
 
 ```sql
 EXEC jira.screens.screens.add_field_to_default 
-@fieldId='{{ fieldId }}' --required, 
+@field_id='{{ field_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set
 ;
 ```

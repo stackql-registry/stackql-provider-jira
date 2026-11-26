@@ -256,14 +256,14 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#bulk_delete"><CopyableCode code="bulk_delete" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-issueIdOrKey"><code>issueIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-ids"><code>ids</code></a></td>
+    <td><a href="#parameter-issue_id_or_key"><code>issue_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-ids"><code>ids</code></a></td>
     <td><a href="#parameter-adjustEstimate"><code>adjustEstimate</code></a>, <a href="#parameter-overrideEditableFlag"><code>overrideEditableFlag</code></a></td>
     <td>Deletes a list of worklogs from an issue. This is an experimental API with limitations:&lt;br /&gt;&lt;br /&gt; *  You can't delete more than 5000 worklogs at once.&lt;br /&gt; *  No notifications will be sent for deleted worklogs.&lt;br /&gt;&lt;br /&gt;Time tracking must be enabled in Jira, otherwise this operation returns an error. For more information, see &#91;Configuring time tracking&#93;(https:​//confluence.atlassian.com/x/qoXKM).&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:**&lt;br /&gt;&lt;br /&gt; *  *Browse projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project containing the issue.&lt;br /&gt; *  If &#91;issue-level security&#93;(https:​//confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.&lt;br /&gt; *  *Delete all worklogs*&#91; project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) to delete any worklog.&lt;br /&gt; *  If any worklog has visibility restrictions, belongs to the group or has the role visibility is restricted to.</td>
 </tr>
 <tr>
     <td><a href="#bulk_move"><CopyableCode code="bulk_move" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-issueIdOrKey"><code>issueIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-issue_id_or_key"><code>issue_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td><a href="#parameter-adjustEstimate"><code>adjustEstimate</code></a>, <a href="#parameter-overrideEditableFlag"><code>overrideEditableFlag</code></a></td>
     <td>Moves a list of worklogs from one issue to another. This is an experimental API with several limitations:&lt;br /&gt;&lt;br /&gt; *  You can't move more than 5000 worklogs at once.&lt;br /&gt; *  You can't move worklogs containing an attachment.&lt;br /&gt; *  You can't move worklogs restricted by project roles.&lt;br /&gt; *  No notifications will be sent for moved worklogs.&lt;br /&gt; *  No webhooks or events will be sent for moved worklogs.&lt;br /&gt; *  No issue history will be recorded for moved worklogs.&lt;br /&gt;&lt;br /&gt;Time tracking must be enabled in Jira, otherwise this operation returns an error. For more information, see &#91;Configuring time tracking&#93;(https:​//confluence.atlassian.com/x/qoXKM).&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:**&lt;br /&gt;&lt;br /&gt; *  *Browse projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the projects containing the source and destination issues.&lt;br /&gt; *  If &#91;issue-level security&#93;(https:​//confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.&lt;br /&gt; *  *Delete all worklogs* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg)&lt;br /&gt; *  *Work on issues* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) to log work on an issue, that is to create a worklog entry, if time tracking is enabled. This permission is required as a prerequisite for applying the other time-tracking permissions&lt;br /&gt; *  If the worklog has visibility restrictions, belongs to the group or has the role visibility is restricted to.</td>
 </tr>
@@ -300,15 +300,10 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The ID of the worklog.</td>
 </tr>
-<tr id="parameter-issueIdOrKey">
-    <td><CopyableCode code="issueIdOrKey" /></td>
-    <td><code>string</code></td>
-    <td></td>
-</tr>
 <tr id="parameter-issue_id_or_key">
     <td><CopyableCode code="issue_id_or_key" /></td>
     <td><code>string</code></td>
-    <td>The ID or key of the issue. (wire: issueIdOrKey)</td>
+    <td></td>
 </tr>
 <tr id="parameter-adjustEstimate">
     <td><CopyableCode code="adjustEstimate" /></td>
@@ -674,7 +669,7 @@ Deletes a list of worklogs from an issue. This is an experimental API with limit
 
 ```sql
 EXEC jira.issues.worklogs.bulk_delete 
-@issueIdOrKey='{{ issueIdOrKey }}' --required, 
+@issue_id_or_key='{{ issue_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set, 
 @adjustEstimate='{{ adjustEstimate }}', 
 @overrideEditableFlag={{ overrideEditableFlag }} 
@@ -691,7 +686,7 @@ Moves a list of worklogs from one issue to another. This is an experimental API 
 
 ```sql
 EXEC jira.issues.worklogs.bulk_move 
-@issueIdOrKey='{{ issueIdOrKey }}' --required, 
+@issue_id_or_key='{{ issue_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set, 
 @adjustEstimate='{{ adjustEstimate }}', 
 @overrideEditableFlag={{ overrideEditableFlag }} 

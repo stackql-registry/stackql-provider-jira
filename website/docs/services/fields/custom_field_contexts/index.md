@@ -127,35 +127,35 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#list_for_projects_and_issue_types"><CopyableCode code="list_for_projects_and_issue_types" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-fieldId"><code>fieldId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-mappings"><code>mappings</code></a></td>
+    <td><a href="#parameter-field_id"><code>field_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-mappings"><code>mappings</code></a></td>
     <td><a href="#parameter-startAt"><code>startAt</code></a>, <a href="#parameter-maxResults"><code>maxResults</code></a></td>
     <td>Returns a &#91;paginated&#93;(#pagination) list of project and issue type mappings and, for each mapping, the ID of a &#91;custom field context&#93;(https:​//confluence.atlassian.com/x/k44fOw) that applies to the project and issue type.&lt;br /&gt;&lt;br /&gt;If there is no custom field context assigned to the project then, if present, the custom field context that applies to all projects is returned if it also applies to the issue type or all issue types. If a custom field context is not found, the returned custom field context ID is `null`.&lt;br /&gt;&lt;br /&gt;Duplicate project and issue type mappings cannot be provided in the request.&lt;br /&gt;&lt;br /&gt;The order of the returned values is the same as provided in the request.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#add_issue_types"><CopyableCode code="add_issue_types" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-fieldId"><code>fieldId</code></a>, <a href="#parameter-contextId"><code>contextId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-field_id"><code>field_id</code></a>, <a href="#parameter-context_id"><code>context_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Adds issue types to a custom field context, appending the issue types to the issue types list.&lt;br /&gt;&lt;br /&gt;A custom field context without any issue types applies to all issue types. Adding issue types replaces the any-issue-type mapping unless \&#123;@code isAnyIssueType\&#125; is true. For sites that support defaults per issue type, a supplied \&#123;@code defaultValue\&#125; sets overrides for added IDs or the base default for all issue types. Omitted or null defaults leave stored defaults unchanged. Specific IDs and \&#123;@code isAnyIssueType=true\&#125; are mutually exclusive. Applicability and defaults update atomically.&lt;br /&gt;&lt;br /&gt;If any of the issue types exists in the custom field context, the operation fails and no issue types are added. Requesting \&#123;@code isAnyIssueType=true\&#125; when the context already applies to all issue types also returns HTTP 400, even when a default is supplied.&lt;br /&gt;&lt;br /&gt;This API will not allow adding issue types to the global context from April 2026. Instead, an HTTP 400 response will be returned. See &#91;CHANGE-3019&#93;(https:​//developer.atlassian.com/changelog/#CHANGE-3019)&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#remove_issue_types"><CopyableCode code="remove_issue_types" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-fieldId"><code>fieldId</code></a>, <a href="#parameter-contextId"><code>contextId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-issueTypeIds"><code>issueTypeIds</code></a></td>
+    <td><a href="#parameter-field_id"><code>field_id</code></a>, <a href="#parameter-context_id"><code>context_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-issueTypeIds"><code>issueTypeIds</code></a></td>
     <td></td>
     <td>Removes issue types from a custom field context.&lt;br /&gt;&lt;br /&gt;A custom field context without any issue types applies to all issue types.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#assign_projects"><CopyableCode code="assign_projects" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-fieldId"><code>fieldId</code></a>, <a href="#parameter-contextId"><code>contextId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-projectIds"><code>projectIds</code></a></td>
+    <td><a href="#parameter-field_id"><code>field_id</code></a>, <a href="#parameter-context_id"><code>context_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-projectIds"><code>projectIds</code></a></td>
     <td></td>
     <td>Assigns a custom field context to projects.&lt;br /&gt;&lt;br /&gt;If any project in the request is assigned to any context of the custom field, the operation fails.&lt;br /&gt;&lt;br /&gt;This API will not allow adding projects to the global context from April 2026. Instead, an HTTP 400 response will be returned. See &#91;CHANGE-3019&#93;(https:​//developer.atlassian.com/changelog/#CHANGE-3019)&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#remove_projects"><CopyableCode code="remove_projects" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-fieldId"><code>fieldId</code></a>, <a href="#parameter-contextId"><code>contextId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-projectIds"><code>projectIds</code></a></td>
+    <td><a href="#parameter-field_id"><code>field_id</code></a>, <a href="#parameter-context_id"><code>context_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-projectIds"><code>projectIds</code></a></td>
     <td></td>
     <td>Removes a custom field context from projects.&lt;br /&gt;&lt;br /&gt;A custom field context without any projects applies to all projects. Removing all projects from a custom field context would result in it applying to all projects.&lt;br /&gt;&lt;br /&gt;If any project in the request is not assigned to the context, or the operation would result in two global contexts for the field, the operation fails.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
@@ -180,25 +180,15 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The cloud ID of the Jira Cloud site. Resolved from ATLASSIAN_CLOUD_ID when set; SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = '&lt;site&gt;' answers it. (x-stackQL-envVar: ATLASSIAN_CLOUD_ID)</td>
 </tr>
-<tr id="parameter-contextId">
-    <td><CopyableCode code="contextId" /></td>
-    <td><code>integer (int64)</code></td>
-    <td>The ID of the context.</td>
-</tr>
 <tr id="parameter-context_id">
     <td><CopyableCode code="context_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the context. (wire: contextId)</td>
-</tr>
-<tr id="parameter-fieldId">
-    <td><CopyableCode code="fieldId" /></td>
-    <td><code>string</code></td>
-    <td>The ID of the custom field.</td>
+    <td>The ID of the context.</td>
 </tr>
 <tr id="parameter-field_id">
     <td><CopyableCode code="field_id" /></td>
     <td><code>string</code></td>
-    <td>The ID of the custom field. (wire: fieldId)</td>
+    <td>The ID of the custom field.</td>
 </tr>
 <tr id="parameter-context_id">
     <td><CopyableCode code="context_id" /></td>
@@ -413,7 +403,7 @@ Returns a &#91;paginated&#93;(#pagination) list of project and issue type mappin
 
 ```sql
 EXEC jira.fields.custom_field_contexts.list_for_projects_and_issue_types 
-@fieldId='{{ fieldId }}' --required, 
+@field_id='{{ field_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set, 
 @startAt='{{ startAt }}', 
 @maxResults='{{ maxResults }}' 
@@ -430,8 +420,8 @@ Adds issue types to a custom field context, appending the issue types to the iss
 
 ```sql
 EXEC jira.fields.custom_field_contexts.add_issue_types 
-@fieldId='{{ fieldId }}' --required, 
-@contextId='{{ contextId }}' --required, 
+@field_id='{{ field_id }}' --required, 
+@context_id='{{ context_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -448,8 +438,8 @@ Removes issue types from a custom field context.&lt;br /&gt;&lt;br /&gt;A custom
 
 ```sql
 EXEC jira.fields.custom_field_contexts.remove_issue_types 
-@fieldId='{{ fieldId }}' --required, 
-@contextId='{{ contextId }}' --required, 
+@field_id='{{ field_id }}' --required, 
+@context_id='{{ context_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -464,8 +454,8 @@ Assigns a custom field context to projects.&lt;br /&gt;&lt;br /&gt;If any projec
 
 ```sql
 EXEC jira.fields.custom_field_contexts.assign_projects 
-@fieldId='{{ fieldId }}' --required, 
-@contextId='{{ contextId }}' --required, 
+@field_id='{{ field_id }}' --required, 
+@context_id='{{ context_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -480,8 +470,8 @@ Removes a custom field context from projects.&lt;br /&gt;&lt;br /&gt;A custom fi
 
 ```sql
 EXEC jira.fields.custom_field_contexts.remove_projects 
-@fieldId='{{ fieldId }}' --required, 
-@contextId='{{ contextId }}' --required, 
+@field_id='{{ field_id }}' --required, 
+@context_id='{{ context_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{

@@ -350,14 +350,14 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#bulk_delete_property"><CopyableCode code="bulk_delete_property" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-propertyKey"><code>propertyKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-property_key"><code>property_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Deletes a property value from multiple issues. The issues to be updated can be specified by filter criteria.&lt;br /&gt;&lt;br /&gt;The criteria the filter used to identify eligible issues are:&lt;br /&gt;&lt;br /&gt; *  `entityIds` Only issues from this list are eligible.&lt;br /&gt; *  `currentValue` Only issues with the property set to this value are eligible.&lt;br /&gt;&lt;br /&gt;If both criteria is specified, they are joined with the logical *AND*: only issues that satisfy both criteria are considered eligible.&lt;br /&gt;&lt;br /&gt;If no filter criteria are specified, all the issues visible to the user and where the user has the EDIT\_ISSUES permission for the issue are considered eligible.&lt;br /&gt;&lt;br /&gt;This operation is:&lt;br /&gt;&lt;br /&gt; *  transactional, either the property is deleted from all eligible issues or, when errors occur, no properties are deleted.&lt;br /&gt; *  &#91;asynchronous&#93;(#async). Follow the `location` link in the response to determine the status of the task and use &#91;Get task&#93;(#api-rest-api-3-task-taskId-get) to obtain subsequent updates.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:**&lt;br /&gt;&lt;br /&gt; *  *Browse projects* &#91; project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for each project containing issues.&lt;br /&gt; *  If &#91;issue-level security&#93;(https:​//confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.&lt;br /&gt; *  *Edit issues* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for each issue.</td>
 </tr>
 <tr>
     <td><a href="#bulk_set_property"><CopyableCode code="bulk_set_property" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-propertyKey"><code>propertyKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-property_key"><code>property_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Sets a property value on multiple issues.&lt;br /&gt;&lt;br /&gt;The value set can be a constant or determined by a &#91;Jira expression&#93;(https:​//developer.atlassian.com/cloud/jira/platform/jira-expressions/). Expressions must be computable with constant complexity when applied to a set of issues. Expressions must also comply with the &#91;restrictions&#93;(https:​//developer.atlassian.com/cloud/jira/platform/jira-expressions/#restrictions) that apply to all Jira expressions.&lt;br /&gt;&lt;br /&gt;The issues to be updated can be specified by a filter.&lt;br /&gt;&lt;br /&gt;The filter identifies issues eligible for update using these criteria:&lt;br /&gt;&lt;br /&gt; *  `entityIds` Only issues from this list are eligible.&lt;br /&gt; *  `currentValue` Only issues with the property set to this value are eligible.&lt;br /&gt; *  `hasProperty`:&lt;br /&gt;    &lt;br /&gt;     *  If *true*, only issues with the property are eligible.&lt;br /&gt;     *  If *false*, only issues without the property are eligible.&lt;br /&gt;&lt;br /&gt;If more than one criteria is specified, they are joined with the logical *AND*: only issues that satisfy all criteria are eligible.&lt;br /&gt;&lt;br /&gt;If an invalid combination of criteria is provided, an error is returned. For example, specifying a `currentValue` and `hasProperty` as *false* would not match any issues (because without the property the property cannot have a value).&lt;br /&gt;&lt;br /&gt;The filter is optional. Without the filter all the issues visible to the user and where the user has the EDIT\_ISSUES permission for the issue are considered eligible.&lt;br /&gt;&lt;br /&gt;This operation is:&lt;br /&gt;&lt;br /&gt; *  transactional, either all eligible issues are updated or, when errors occur, none are updated.&lt;br /&gt; *  &#91;asynchronous&#93;(#async). Follow the `location` link in the response to determine the status of the task and use &#91;Get task&#93;(#api-rest-api-3-task-taskId-get) to obtain subsequent updates.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:**&lt;br /&gt;&lt;br /&gt; *  *Browse projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for each project containing issues.&lt;br /&gt; *  If &#91;issue-level security&#93;(https:​//confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.&lt;br /&gt; *  *Edit issues* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for each issue.</td>
 </tr>
@@ -378,21 +378,21 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#assign"><CopyableCode code="assign" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-issueIdOrKey"><code>issueIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-issue_id_or_key"><code>issue_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Assigns an issue to a user. Use this operation when the calling user does not have the *Edit Issues* permission but has the *Assign issue* permission for the project that the issue is in.&lt;br /&gt;&lt;br /&gt;If `name` or `accountId` is set to:&lt;br /&gt;&lt;br /&gt; *  `"-1"`, the issue is assigned to the default assignee for the project.&lt;br /&gt; *  `null`, the issue is set to unassigned.&lt;br /&gt;&lt;br /&gt;This operation can be accessed anonymously.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:**&lt;br /&gt;&lt;br /&gt; *  *Browse Projects* and *Assign Issues* &#91; project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project that the issue is in.&lt;br /&gt; *  If &#91;issue-level security&#93;(https:​//confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.</td>
 </tr>
 <tr>
     <td><a href="#notify"><CopyableCode code="notify" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-issueIdOrKey"><code>issueIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-issue_id_or_key"><code>issue_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Creates an email notification for an issue and adds it to the mail queue.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:**&lt;br /&gt;&lt;br /&gt; *  *Browse Projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project that the issue is in.&lt;br /&gt; *  If &#91;issue-level security&#93;(https:​//confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.</td>
 </tr>
 <tr>
     <td><a href="#transition"><CopyableCode code="transition" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-issueIdOrKey"><code>issueIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-issue_id_or_key"><code>issue_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td><a href="#parameter-preferFieldAssociatedErrors"><code>preferFieldAssociatedErrors</code></a></td>
     <td>Performs an issue transition and, if the transition has a screen, updates the fields from the transition screen.&lt;br /&gt;&lt;br /&gt;sortByCategory To update the fields on the transition screen, specify the fields in the `fields` or `update` parameters in the request body. Get details about the fields using &#91; Get transitions&#93;(#api-rest-api-3-issue-issueIdOrKey-transitions-get) with the `transitions.fields` expand.&lt;br /&gt;&lt;br /&gt;This operation can be accessed anonymously.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:**&lt;br /&gt;&lt;br /&gt; *  *Browse projects* and *Transition issues* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project that the issue is in.&lt;br /&gt; *  If &#91;issue-level security&#93;(https:​//confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.</td>
 </tr>
@@ -452,18 +452,13 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The cloud ID of the Jira Cloud site. Resolved from ATLASSIAN_CLOUD_ID when set; SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = '&lt;site&gt;' answers it. (x-stackQL-envVar: ATLASSIAN_CLOUD_ID)</td>
 </tr>
-<tr id="parameter-issueIdOrKey">
-    <td><CopyableCode code="issueIdOrKey" /></td>
-    <td><code>string</code></td>
-    <td>The ID or key of the issue.</td>
-</tr>
 <tr id="parameter-issue_id_or_key">
     <td><CopyableCode code="issue_id_or_key" /></td>
     <td><code>string</code></td>
-    <td>The ID or key of the issue. (wire: issueIdOrKey)</td>
+    <td>The ID or key of the issue.</td>
 </tr>
-<tr id="parameter-propertyKey">
-    <td><CopyableCode code="propertyKey" /></td>
+<tr id="parameter-property_key">
+    <td><CopyableCode code="property_key" /></td>
     <td><code>string</code></td>
     <td>The key of the property. The maximum length is 255 characters.</td>
 </tr>
@@ -1068,7 +1063,7 @@ Deletes a property value from multiple issues. The issues to be updated can be s
 
 ```sql
 EXEC jira.issues.issues.bulk_delete_property 
-@propertyKey='{{ propertyKey }}' --required, 
+@property_key='{{ property_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -1084,7 +1079,7 @@ Sets a property value on multiple issues.&lt;br /&gt;&lt;br /&gt;The value set c
 
 ```sql
 EXEC jira.issues.issues.bulk_set_property 
-@propertyKey='{{ propertyKey }}' --required, 
+@property_key='{{ property_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -1129,7 +1124,7 @@ Assigns an issue to a user. Use this operation when the calling user does not ha
 
 ```sql
 EXEC jira.issues.issues.assign 
-@issueIdOrKey='{{ issueIdOrKey }}' --required, 
+@issue_id_or_key='{{ issue_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -1146,7 +1141,7 @@ Creates an email notification for an issue and adds it to the mail queue.&lt;br 
 
 ```sql
 EXEC jira.issues.issues.notify 
-@issueIdOrKey='{{ issueIdOrKey }}' --required, 
+@issue_id_or_key='{{ issue_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -1165,7 +1160,7 @@ Performs an issue transition and, if the transition has a screen, updates the fi
 
 ```sql
 EXEC jira.issues.issues.transition 
-@issueIdOrKey='{{ issueIdOrKey }}' --required, 
+@issue_id_or_key='{{ issue_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set, 
 @preferFieldAssociatedErrors={{ preferFieldAssociatedErrors }} 
 @@json=

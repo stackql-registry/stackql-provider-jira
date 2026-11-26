@@ -209,7 +209,7 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#move_issues"><CopyableCode code="move_issues" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-boardId"><code>boardId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-board_id"><code>board_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Move issues from the backog to the board (if they are already in the backlog of that board).  &lt;br /&gt;This operation either moves an issue(s) onto a board from the backlog (by adding it to the issueList for the board) Or transitions the issue(s) to the first column for a kanban board with backlog. At most 50 issues may be moved at once.</td>
 </tr>
@@ -229,15 +229,10 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     </tr>
 </thead>
 <tbody>
-<tr id="parameter-boardId">
-    <td><CopyableCode code="boardId" /></td>
-    <td><code>integer (int64)</code></td>
-    <td></td>
-</tr>
 <tr id="parameter-board_id">
     <td><CopyableCode code="board_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>ID of the board to be deleted (wire: boardId)</td>
+    <td></td>
 </tr>
 <tr id="parameter-cloud_id">
     <td><CopyableCode code="cloud_id" /></td>
@@ -481,7 +476,7 @@ Move issues from the backog to the board (if they are already in the backlog of 
 
 ```sql
 EXEC jira.agile.boards.move_issues 
-@boardId='{{ boardId }}' --required, 
+@board_id='{{ board_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{

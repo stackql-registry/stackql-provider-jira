@@ -33,11 +33,73 @@ Creates, updates, deletes, gets or lists a <code>sprints</code> resource.
 The following fields are returned by `SELECT` queries:
 
 <Tabs
-    defaultValue="get"
+    defaultValue="list_by_board"
     values={[
+        { label: 'list_by_board', value: 'list_by_board' },
         { label: 'get', value: 'get' }
     ]}
 >
+<TabItem value="list_by_board">
+
+Synthesized from the vendor example (fix class response_schema_from_example).
+
+<table>
+<thead>
+    <tr>
+    <th>Name</th>
+    <th>Datatype</th>
+    <th>Description</th>
+    </tr>
+</thead>
+<tbody>
+<tr>
+    <td><CopyableCode code="id" /></td>
+    <td><code>integer (int64)</code></td>
+    <td></td>
+</tr>
+<tr>
+    <td><CopyableCode code="name" /></td>
+    <td><code>string</code></td>
+    <td></td>
+</tr>
+<tr>
+    <td><CopyableCode code="origin_board_id" /></td>
+    <td><code>integer (int64)</code></td>
+    <td> (wire: originBoardId)</td>
+</tr>
+<tr>
+    <td><CopyableCode code="complete_date" /></td>
+    <td><code>string</code></td>
+    <td> (wire: completeDate)</td>
+</tr>
+<tr>
+    <td><CopyableCode code="end_date" /></td>
+    <td><code>string</code></td>
+    <td> (wire: endDate)</td>
+</tr>
+<tr>
+    <td><CopyableCode code="goal" /></td>
+    <td><code>string</code></td>
+    <td></td>
+</tr>
+<tr>
+    <td><CopyableCode code="self" /></td>
+    <td><code>string</code></td>
+    <td></td>
+</tr>
+<tr>
+    <td><CopyableCode code="start_date" /></td>
+    <td><code>string</code></td>
+    <td> (wire: startDate)</td>
+</tr>
+<tr>
+    <td><CopyableCode code="state" /></td>
+    <td><code>string</code></td>
+    <td></td>
+</tr>
+</tbody>
+</table>
+</TabItem>
 <TabItem value="get">
 
 Returns the requested sprint.
@@ -117,6 +179,13 @@ The following methods are available for this resource:
 </thead>
 <tbody>
 <tr>
+    <td><a href="#list_by_board"><CopyableCode code="list_by_board" /></a></td>
+    <td><CopyableCode code="select" /></td>
+    <td><a href="#parameter-board_id"><code>board_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-start_at"><code>start_at</code></a>, <a href="#parameter-max_results"><code>max_results</code></a>, <a href="#parameter-state"><code>state</code></a></td>
+    <td>Returns all sprints from a board, for a given board ID. This only includes sprints that the user has permission to view.</td>
+</tr>
+<tr>
     <td><a href="#get"><CopyableCode code="get" /></a></td>
     <td><CopyableCode code="select" /></td>
     <td><a href="#parameter-sprint_id"><code>sprint_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
@@ -147,21 +216,21 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#replace"><CopyableCode code="replace" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-sprintId"><code>sprintId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-sprint_id"><code>sprint_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Performs a full update of a sprint. A full update means that the result will be exactly the same as the request body. Any fields not present in the request JSON will be set to null.&lt;br /&gt;&lt;br /&gt;Notes:&lt;br /&gt;&lt;br /&gt; *  For closed sprints, only the name and goal can be updated; changes to other fields will be ignored.&lt;br /&gt; *  A sprint can be started by updating the state to 'active'. This requires the sprint to be in the 'future' state and have a startDate and endDate set.&lt;br /&gt; *  A sprint can be completed by updating the state to 'closed'. This action requires the sprint to be in the 'active' state. This sets the completeDate to the time of the request.&lt;br /&gt; *  Other changes to state are not allowed.&lt;br /&gt; *  The completeDate field cannot be updated manually.</td>
 </tr>
 <tr>
     <td><a href="#move_issues"><CopyableCode code="move_issues" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-sprintId"><code>sprintId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-sprint_id"><code>sprint_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Moves issues to a sprint, for a given sprint ID. Issues can only be moved to open or active sprints. The maximum number of issues that can be moved in one operation is 50.</td>
 </tr>
 <tr>
     <td><a href="#swap"><CopyableCode code="swap" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-sprintId"><code>sprintId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-sprint_id"><code>sprint_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Swap the position of the sprint with the second sprint.</td>
 </tr>
@@ -181,20 +250,35 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     </tr>
 </thead>
 <tbody>
+<tr id="parameter-board_id">
+    <td><CopyableCode code="board_id" /></td>
+    <td><code>integer (int64)</code></td>
+    <td>The ID of the board that contains the requested sprints.</td>
+</tr>
 <tr id="parameter-cloud_id">
     <td><CopyableCode code="cloud_id" /></td>
     <td><code>string</code></td>
     <td>The cloud ID of the Jira Cloud site. Resolved from ATLASSIAN_CLOUD_ID when set; SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = '&lt;site&gt;' answers it. (x-stackQL-envVar: ATLASSIAN_CLOUD_ID)</td>
 </tr>
-<tr id="parameter-sprintId">
-    <td><CopyableCode code="sprintId" /></td>
-    <td><code>integer (int64)</code></td>
-    <td>The ID of the sprint to swap.</td>
-</tr>
 <tr id="parameter-sprint_id">
     <td><CopyableCode code="sprint_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the sprint to delete. (wire: sprintId)</td>
+    <td>The ID of the sprint to swap.</td>
+</tr>
+<tr id="parameter-max_results">
+    <td><CopyableCode code="max_results" /></td>
+    <td><code>integer (int32)</code></td>
+    <td>The maximum number of sprints to return per page. See the 'Pagination' section at the top of this page for more details. (wire: maxResults)</td>
+</tr>
+<tr id="parameter-start_at">
+    <td><CopyableCode code="start_at" /></td>
+    <td><code>integer (int64)</code></td>
+    <td>The starting index of the returned sprints. Base index: 0. See the 'Pagination' section at the top of this page for more details. (wire: startAt)</td>
+</tr>
+<tr id="parameter-state">
+    <td><CopyableCode code="state" /></td>
+    <td><code>object</code></td>
+    <td>Filters results to sprints in specified states. Valid values: future, active, closed. You can define multiple states separated by commas, e.g. state=active,closed</td>
 </tr>
 </tbody>
 </table>
@@ -202,11 +286,36 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 ## `SELECT` examples
 
 <Tabs
-    defaultValue="get"
+    defaultValue="list_by_board"
     values={[
+        { label: 'list_by_board', value: 'list_by_board' },
         { label: 'get', value: 'get' }
     ]}
 >
+<TabItem value="list_by_board">
+
+Returns all sprints from a board, for a given board ID. This only includes sprints that the user has permission to view.
+
+```sql
+SELECT
+id,
+name,
+origin_board_id,
+complete_date,
+end_date,
+goal,
+self,
+start_date,
+state
+FROM jira.agile.sprints
+WHERE board_id = '{{ board_id }}' -- required
+AND cloud_id = '{{ cloud_id }}' -- required unless ATLASSIAN_CLOUD_ID is set
+AND start_at = '{{ start_at }}'
+AND max_results = '{{ max_results }}'
+AND state = '{{ state }}'
+;
+```
+</TabItem>
 <TabItem value="get">
 
 Returns the sprint for a given sprint ID. The sprint will only be returned if the user can view the board that the sprint was created on, or view at least one of the issues in the sprint.
@@ -379,7 +488,7 @@ Performs a full update of a sprint. A full update means that the result will be 
 
 ```sql
 EXEC jira.agile.sprints.replace 
-@sprintId='{{ sprintId }}' --required, 
+@sprint_id='{{ sprint_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -403,7 +512,7 @@ Moves issues to a sprint, for a given sprint ID. Issues can only be moved to ope
 
 ```sql
 EXEC jira.agile.sprints.move_issues 
-@sprintId='{{ sprintId }}' --required, 
+@sprint_id='{{ sprint_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -421,7 +530,7 @@ Swap the position of the sprint with the second sprint.
 
 ```sql
 EXEC jira.agile.sprints.swap 
-@sprintId='{{ sprintId }}' --required, 
+@sprint_id='{{ sprint_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{

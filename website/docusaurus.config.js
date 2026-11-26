@@ -41,6 +41,11 @@ config.plugins = [
       },
     },
   ],
+  // The stackql-deploy template menu on resource pages, beside the Ask AI
+  // button at the right of the breadcrumb row (desktop only). It provides
+  // the breadcrumb row and renders the AEO plugin's Ask AI button in it, so
+  // it is listed after that plugin (the build fails otherwise).
+  '@stackql/docusaurus-plugin-stackql-deploy-template',
 ];
 
 // Use the locally vendored registry-branded logos (STACKQL>> | REGISTRY)

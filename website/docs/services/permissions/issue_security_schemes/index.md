@@ -36,10 +36,57 @@ The following fields are returned by `SELECT` queries:
     defaultValue="get"
     values={[
         { label: 'get', value: 'get' },
+        { label: 'get_by_project', value: 'get_by_project' },
         { label: 'list', value: 'list' }
     ]}
 >
 <TabItem value="get">
+
+Returned if the request is successful.
+
+<table>
+<thead>
+    <tr>
+    <th>Name</th>
+    <th>Datatype</th>
+    <th>Description</th>
+    </tr>
+</thead>
+<tbody>
+<tr>
+    <td><CopyableCode code="id" /></td>
+    <td><code>integer (int64)</code></td>
+    <td>The ID of the issue security scheme.</td>
+</tr>
+<tr>
+    <td><CopyableCode code="name" /></td>
+    <td><code>string</code></td>
+    <td>The name of the issue security scheme.</td>
+</tr>
+<tr>
+    <td><CopyableCode code="default_security_level_id" /></td>
+    <td><code>integer (int64)</code></td>
+    <td>The ID of the default security level. (wire: defaultSecurityLevelId)</td>
+</tr>
+<tr>
+    <td><CopyableCode code="description" /></td>
+    <td><code>string</code></td>
+    <td>The description of the issue security scheme.</td>
+</tr>
+<tr>
+    <td><CopyableCode code="levels" /></td>
+    <td><code>array</code></td>
+    <td></td>
+</tr>
+<tr>
+    <td><CopyableCode code="self" /></td>
+    <td><code>string</code></td>
+    <td>The URL of the issue security scheme.</td>
+</tr>
+</tbody>
+</table>
+</TabItem>
+<TabItem value="get_by_project">
 
 Returned if the request is successful.
 
@@ -156,6 +203,13 @@ The following methods are available for this resource:
     <td>Returns an issue security scheme along with its security levels.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:**&lt;br /&gt;&lt;br /&gt; *  *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).&lt;br /&gt; *  *Administer Projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for a project that uses the requested issue security scheme.</td>
 </tr>
 <tr>
+    <td><a href="#get_by_project"><CopyableCode code="get_by_project" /></a></td>
+    <td><CopyableCode code="select" /></td>
+    <td><a href="#parameter-project_key_or_id"><code>project_key_or_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td></td>
+    <td>Returns the &#91;issue security scheme&#93;(https:​//confluence.atlassian.com/x/J4lKLg) associated with the project.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg) or the *Administer Projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg).</td>
+</tr>
+<tr>
     <td><a href="#list"><CopyableCode code="list" /></a></td>
     <td><CopyableCode code="select" /></td>
     <td><a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
@@ -193,35 +247,35 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#add_levels"><CopyableCode code="add_levels" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-schemeId"><code>schemeId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-scheme_id"><code>scheme_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Adds levels and levels' members to the issue security scheme. You can add up to 100 levels per request.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#remove_level"><CopyableCode code="remove_level" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-schemeId"><code>schemeId</code></a>, <a href="#parameter-levelId"><code>levelId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-scheme_id"><code>scheme_id</code></a>, <a href="#parameter-level_id"><code>level_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td><a href="#parameter-replaceWith"><code>replaceWith</code></a></td>
     <td>Deletes an issue security level.&lt;br /&gt;&lt;br /&gt;This operation is &#91;asynchronous&#93;(#async). Follow the `location` link in the response to determine the status of the task and use &#91;Get task&#93;(#api-rest-api-3-task-taskId-get) to obtain subsequent updates.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#update_level"><CopyableCode code="update_level" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-schemeId"><code>schemeId</code></a>, <a href="#parameter-levelId"><code>levelId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-scheme_id"><code>scheme_id</code></a>, <a href="#parameter-level_id"><code>level_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Updates the issue security level.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#add_level_members"><CopyableCode code="add_level_members" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-schemeId"><code>schemeId</code></a>, <a href="#parameter-levelId"><code>levelId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-securitySchemeLevelMembers"><code>securitySchemeLevelMembers</code></a></td>
+    <td><a href="#parameter-scheme_id"><code>scheme_id</code></a>, <a href="#parameter-level_id"><code>level_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-securitySchemeLevelMembers"><code>securitySchemeLevelMembers</code></a></td>
     <td></td>
     <td>Adds members to the issue security level. You can add up to 100 members per request.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#remove_level_member"><CopyableCode code="remove_level_member" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-schemeId"><code>schemeId</code></a>, <a href="#parameter-levelId"><code>levelId</code></a>, <a href="#parameter-memberId"><code>memberId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-scheme_id"><code>scheme_id</code></a>, <a href="#parameter-level_id"><code>level_id</code></a>, <a href="#parameter-member_id"><code>member_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Removes an issue security level member from an issue security scheme.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
@@ -251,25 +305,25 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The ID of the issue security scheme.</td>
 </tr>
-<tr id="parameter-levelId">
-    <td><CopyableCode code="levelId" /></td>
+<tr id="parameter-level_id">
+    <td><CopyableCode code="level_id" /></td>
     <td><code>string</code></td>
     <td>The ID of the issue security level.</td>
 </tr>
-<tr id="parameter-memberId">
-    <td><CopyableCode code="memberId" /></td>
+<tr id="parameter-member_id">
+    <td><CopyableCode code="member_id" /></td>
     <td><code>string</code></td>
     <td>The ID of the issue security level member to be removed.</td>
 </tr>
-<tr id="parameter-schemeId">
-    <td><CopyableCode code="schemeId" /></td>
+<tr id="parameter-project_key_or_id">
+    <td><CopyableCode code="project_key_or_id" /></td>
     <td><code>string</code></td>
-    <td>The ID of the issue security scheme.</td>
+    <td>The project ID or project key (case sensitive).</td>
 </tr>
 <tr id="parameter-scheme_id">
     <td><CopyableCode code="scheme_id" /></td>
     <td><code>string</code></td>
-    <td>The ID of the issue security scheme. (wire: schemeId)</td>
+    <td>The ID of the issue security scheme.</td>
 </tr>
 <tr id="parameter-id">
     <td><CopyableCode code="id" /></td>
@@ -305,6 +359,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     defaultValue="get"
     values={[
         { label: 'get', value: 'get' },
+        { label: 'get_by_project', value: 'get_by_project' },
         { label: 'list', value: 'list' }
     ]}
 >
@@ -322,6 +377,24 @@ levels,
 self
 FROM jira.permissions.issue_security_schemes
 WHERE id = '{{ id }}' -- required
+AND cloud_id = '{{ cloud_id }}' -- required unless ATLASSIAN_CLOUD_ID is set
+;
+```
+</TabItem>
+<TabItem value="get_by_project">
+
+Returns the &#91;issue security scheme&#93;(https:​//confluence.atlassian.com/x/J4lKLg) associated with the project.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg) or the *Administer Projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg).
+
+```sql
+SELECT
+id,
+name,
+default_security_level_id,
+description,
+levels,
+self
+FROM jira.permissions.issue_security_schemes
+WHERE project_key_or_id = '{{ project_key_or_id }}' -- required
 AND cloud_id = '{{ cloud_id }}' -- required unless ATLASSIAN_CLOUD_ID is set
 ;
 ```
@@ -488,7 +561,7 @@ Adds levels and levels' members to the issue security scheme. You can add up to 
 
 ```sql
 EXEC jira.permissions.issue_security_schemes.add_levels 
-@schemeId='{{ schemeId }}' --required, 
+@scheme_id='{{ scheme_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -503,8 +576,8 @@ Deletes an issue security level.&lt;br /&gt;&lt;br /&gt;This operation is &#91;a
 
 ```sql
 EXEC jira.permissions.issue_security_schemes.remove_level 
-@schemeId='{{ schemeId }}' --required, 
-@levelId='{{ levelId }}' --required, 
+@scheme_id='{{ scheme_id }}' --required, 
+@level_id='{{ level_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set, 
 @replaceWith='{{ replaceWith }}'
 ;
@@ -516,8 +589,8 @@ Updates the issue security level.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;
 
 ```sql
 EXEC jira.permissions.issue_security_schemes.update_level 
-@schemeId='{{ schemeId }}' --required, 
-@levelId='{{ levelId }}' --required, 
+@scheme_id='{{ scheme_id }}' --required, 
+@level_id='{{ level_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -533,8 +606,8 @@ Adds members to the issue security level. You can add up to 100 members per requ
 
 ```sql
 EXEC jira.permissions.issue_security_schemes.add_level_members 
-@schemeId='{{ schemeId }}' --required, 
-@levelId='{{ levelId }}' --required, 
+@scheme_id='{{ scheme_id }}' --required, 
+@level_id='{{ level_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -549,9 +622,9 @@ Removes an issue security level member from an issue security scheme.&lt;br /&gt
 
 ```sql
 EXEC jira.permissions.issue_security_schemes.remove_level_member 
-@schemeId='{{ schemeId }}' --required, 
-@levelId='{{ levelId }}' --required, 
-@memberId='{{ memberId }}' --required, 
+@scheme_id='{{ scheme_id }}' --required, 
+@level_id='{{ level_id }}' --required, 
+@member_id='{{ member_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set
 ;
 ```

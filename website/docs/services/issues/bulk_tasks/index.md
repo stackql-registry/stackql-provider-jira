@@ -157,7 +157,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-task_id">
     <td><CopyableCode code="task_id" /></td>
     <td><code>string</code></td>
-    <td>The ID of the task. (wire: taskId)</td>
+    <td>The ID of the task.</td>
 </tr>
 </tbody>
 </table>

@@ -306,14 +306,14 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#list_all"><CopyableCode code="list_all" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectIdOrKey"><code>projectIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-project_id_or_key"><code>project_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td><a href="#parameter-expand"><code>expand</code></a></td>
     <td>Returns all versions in a project. The response is not paginated. Use &#91;Get project versions paginated&#93;(#api-rest-api-3-project-projectIdOrKey-version-get) if you want to get the versions in a project with pagination.&lt;br /&gt;&lt;br /&gt;This operation can be accessed anonymously.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Browse Projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project.</td>
 </tr>
 <tr>
     <td><a href="#merge"><CopyableCode code="merge" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-id"><code>id</code></a>, <a href="#parameter-moveIssuesTo"><code>moveIssuesTo</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-id"><code>id</code></a>, <a href="#parameter-move_issues_to"><code>move_issues_to</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Merges two project versions. The merge is completed by deleting the version specified in `id` and replacing any occurrences of its ID in `fixVersion` with the version ID specified in `moveIssuesTo`.&lt;br /&gt;&lt;br /&gt;Consider using &#91; Delete and replace version&#93;(#api-rest-api-3-version-id-removeAndSwap-post) instead. This resource supports swapping version values in `fixVersion`, `affectedVersion`, and custom fields.&lt;br /&gt;&lt;br /&gt;This operation can be accessed anonymously.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg) or *Administer Projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project that contains the version.</td>
 </tr>
@@ -357,20 +357,15 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The ID of the version.</td>
 </tr>
-<tr id="parameter-moveIssuesTo">
-    <td><CopyableCode code="moveIssuesTo" /></td>
+<tr id="parameter-move_issues_to">
+    <td><CopyableCode code="move_issues_to" /></td>
     <td><code>string</code></td>
     <td>The ID of the version to merge into.</td>
-</tr>
-<tr id="parameter-projectIdOrKey">
-    <td><CopyableCode code="projectIdOrKey" /></td>
-    <td><code>string</code></td>
-    <td>The project ID or project key (case sensitive).</td>
 </tr>
 <tr id="parameter-project_id_or_key">
     <td><CopyableCode code="project_id_or_key" /></td>
     <td><code>string</code></td>
-    <td>The project ID or project key (case sensitive). (wire: projectIdOrKey)</td>
+    <td>The project ID or project key (case sensitive).</td>
 </tr>
 <tr id="parameter-expand">
     <td><CopyableCode code="expand" /></td>
@@ -704,7 +699,7 @@ Returns all versions in a project. The response is not paginated. Use &#91;Get p
 
 ```sql
 EXEC jira.projects.versions.list_all 
-@projectIdOrKey='{{ projectIdOrKey }}' --required, 
+@project_id_or_key='{{ project_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set, 
 @expand='{{ expand }}'
 ;
@@ -717,7 +712,7 @@ Merges two project versions. The merge is completed by deleting the version spec
 ```sql
 EXEC jira.projects.versions.merge 
 @id='{{ id }}' --required, 
-@moveIssuesTo='{{ moveIssuesTo }}' --required, 
+@move_issues_to='{{ move_issues_to }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set
 ;
 ```

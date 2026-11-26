@@ -157,12 +157,12 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-issue_type_id">
     <td><CopyableCode code="issue_type_id" /></td>
     <td><code>string</code></td>
-    <td>The issuetype ID. (wire: issueTypeId)</td>
+    <td>The issuetype ID.</td>
 </tr>
 <tr id="parameter-project_id_or_key">
     <td><CopyableCode code="project_id_or_key" /></td>
     <td><code>string</code></td>
-    <td>The ID or key of the project. (wire: projectIdOrKey)</td>
+    <td>The ID or key of the project.</td>
 </tr>
 <tr id="parameter-max_results">
     <td><CopyableCode code="max_results" /></td>
