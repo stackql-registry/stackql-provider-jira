@@ -91,9 +91,9 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#update"><CopyableCode code="update" /></a></td>
     <td><CopyableCode code="update" /></td>
-    <td><a href="#parameter-field_id"><code>field_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-field_id"><code>field_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-contexts"><code>contexts</code></a></td>
     <td></td>
-    <td>Updates default values for individual issue types in custom field contexts.&lt;br /&gt;&lt;br /&gt;Only tenants enrolled in the early access program (EAP) can access this resource. See the &#91;EAP announcement&#93;(https:​//ecosystem.atlassian.net/browse/CHANGE-3082) for details.&lt;br /&gt;&lt;br /&gt;Each entry targets either one issue type through \&#123;@code issueTypeId\&#125;, or the catch-all configuration through \&#123;@code isAnyIssueType=true\&#125;. Null clears the base default. Entries not included in the request are left unchanged. Each scope may appear only once. The operation defaults to \&#123;@code set\&#125;, which requires a value. \&#123;@code operation="removeOverride"\&#125; requires issueTypeId and allows the value property to be omitted or null. The contextId belongs on the enclosing update; setting contextId inside the value object is invalid.</td>
+    <td>Updates default values for individual issue types in custom field contexts.&lt;br /&gt;&lt;br /&gt;Only tenants enrolled in the early access program (EAP) can access this resource. See the &#91;EAP announcement&#93;(https:​//ecosystem.atlassian.net/browse/CHANGE-3082) for details.&lt;br /&gt;&lt;br /&gt;Each entry targets either one issue type through \&#123;@code issueTypeId\&#125;, or the catch-all configuration through \&#123;@code isAnyIssueType=true\&#125;. Null clears the base default. Each context group requires defaultValues. In merge mode (the default), omitted defaults are preserved. In replace mode, omitted defaults are cleared and removeOverride is invalid. Each scope may appear only once. The operation defaults to \&#123;@code set\&#125;, which requires a value. \&#123;@code operation="removeOverride"\&#125; requires issueTypeId and allows the value property to be omitted or null. The contextId belongs on the context group; setting contextId inside the value object is invalid.</td>
 </tr>
 </tbody>
 </table>
@@ -183,15 +183,16 @@ AND max_results = '{{ max_results }}'
 >
 <TabItem value="update">
 
-Updates default values for individual issue types in custom field contexts.&lt;br /&gt;&lt;br /&gt;Only tenants enrolled in the early access program (EAP) can access this resource. See the &#91;EAP announcement&#93;(https:​//ecosystem.atlassian.net/browse/CHANGE-3082) for details.&lt;br /&gt;&lt;br /&gt;Each entry targets either one issue type through \&#123;@code issueTypeId\&#125;, or the catch-all configuration through \&#123;@code isAnyIssueType=true\&#125;. Null clears the base default. Entries not included in the request are left unchanged. Each scope may appear only once. The operation defaults to \&#123;@code set\&#125;, which requires a value. \&#123;@code operation="removeOverride"\&#125; requires issueTypeId and allows the value property to be omitted or null. The contextId belongs on the enclosing update; setting contextId inside the value object is invalid.
+Updates default values for individual issue types in custom field contexts.&lt;br /&gt;&lt;br /&gt;Only tenants enrolled in the early access program (EAP) can access this resource. See the &#91;EAP announcement&#93;(https:​//ecosystem.atlassian.net/browse/CHANGE-3082) for details.&lt;br /&gt;&lt;br /&gt;Each entry targets either one issue type through \&#123;@code issueTypeId\&#125;, or the catch-all configuration through \&#123;@code isAnyIssueType=true\&#125;. Null clears the base default. Each context group requires defaultValues. In merge mode (the default), omitted defaults are preserved. In replace mode, omitted defaults are cleared and removeOverride is invalid. Each scope may appear only once. The operation defaults to \&#123;@code set\&#125;, which requires a value. \&#123;@code operation="removeOverride"\&#125; requires issueTypeId and allows the value property to be omitted or null. The contextId belongs on the context group; setting contextId inside the value object is invalid.
 
 ```sql
 UPDATE jira.fields.custom_field_context_default_values
 SET 
-default_values = '{{ default_values }}'
+contexts = '{{ contexts }}'
 WHERE 
 field_id = '{{ field_id }}' --required
-AND cloud_id = '{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set;
+AND cloud_id = '{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set
+AND contexts = '{{ contexts }}' --required;
 ```
 </TabItem>
 </Tabs>

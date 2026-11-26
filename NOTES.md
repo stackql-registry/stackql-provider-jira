@@ -127,6 +127,8 @@ Post-process rule 10 renames the path parameters to snake_case (369 parameters o
 
 2026-11-25: first pin of this build (finding 2 records the difference from the July snapshot). On a refresh: `make refresh-spec`, run `spec_diff.mjs` on the old and new snapshot of each document the fetch reports as changed, record the summary here, then `make build && make test`, `make survey-pagination` (read-only, live) and review the `all_services.csv` diff.
 
+2026-11-26: platform refreshed (version `1001.0.0-SNAPSHOT-a7b4351c...` -> `-c708f3bb...`, sha256 `b303b589...` -> `05c9357d...`); software unchanged. `spec_diff.mjs`: 630 -> 630 operations, none added, removed or renamed; schemas 1000 -> 1001, `ContextDefaultValueUpdate` added, `CustomFieldContextDefaultValuesUpdate` and `IssueTypeDefaultValueUpdate` changed: the body of `PUT /rest/api/3/field/{fieldId}/context/defaultValues` (`setContextDefaultValues`, x-experimental; `fields.custom_field_context_default_values.update`) takes a required `contexts` array of `{contextId, defaultValues, mode: merge | replace}` instead of `defaultValues`, so the UPDATE column is `contexts`. No fix-class candidates; the fix counts are as before. `make build`: the dictionary kept all 646 rows (0 added, 0 removed), 217 resources; `make test` passes (25/25, 59/59, meta-route). `make survey-pagination`: host classes unchanged (gateway 17, other host 2); four reads now evidence the gateway by `nextPage` instead of `self`.
+
 ## Engine issues to file
 
 Not filed from this build (filing is outward-facing; for the maintainers to raise):
