@@ -158,12 +158,12 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-plan_id">
     <td><CopyableCode code="plan_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the plan. (wire: planId)</td>
+    <td>The ID of the plan.</td>
 </tr>
 <tr id="parameter-plan_only_team_id">
     <td><CopyableCode code="plan_only_team_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the plan-only team. (wire: planOnlyTeamId)</td>
+    <td>The ID of the plan-only team.</td>
 </tr>
 </tbody>
 </table>

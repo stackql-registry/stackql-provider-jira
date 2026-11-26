@@ -113,7 +113,7 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#list_by_ids"><CopyableCode code="list_by_ids" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-issueIdOrKey"><code>issueIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-changelogIds"><code>changelogIds</code></a></td>
+    <td><a href="#parameter-issue_id_or_key"><code>issue_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-changelogIds"><code>changelogIds</code></a></td>
     <td></td>
     <td>Returns changelogs for an issue specified by a list of changelog IDs.&lt;br /&gt;&lt;br /&gt;This operation can be accessed anonymously.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:**&lt;br /&gt;&lt;br /&gt; *  *Browse projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project that the issue is in.&lt;br /&gt; *  If &#91;issue-level security&#93;(https:​//confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.</td>
 </tr>
@@ -138,15 +138,10 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The cloud ID of the Jira Cloud site. Resolved from ATLASSIAN_CLOUD_ID when set; SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = '&lt;site&gt;' answers it. (x-stackQL-envVar: ATLASSIAN_CLOUD_ID)</td>
 </tr>
-<tr id="parameter-issueIdOrKey">
-    <td><CopyableCode code="issueIdOrKey" /></td>
-    <td><code>string</code></td>
-    <td>The ID or key of the issue.</td>
-</tr>
 <tr id="parameter-issue_id_or_key">
     <td><CopyableCode code="issue_id_or_key" /></td>
     <td><code>string</code></td>
-    <td>The ID or key of the issue. (wire: issueIdOrKey)</td>
+    <td>The ID or key of the issue.</td>
 </tr>
 <tr id="parameter-max_results">
     <td><CopyableCode code="max_results" /></td>
@@ -225,7 +220,7 @@ Returns changelogs for an issue specified by a list of changelog IDs.&lt;br /&gt
 
 ```sql
 EXEC jira.issues.changelogs.list_by_ids 
-@issueIdOrKey='{{ issueIdOrKey }}' --required, 
+@issue_id_or_key='{{ issue_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{

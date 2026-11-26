@@ -44,15 +44,14 @@ const EXPECTED_RESOURCES = {
   issues: [
     'adf_limit_reports', 'attachment_archive_entries', 'attachment_archive_raw_entries', 'attachment_settings', 'attachments',
     'bulk_editable_fields', 'bulk_tasks', 'bulk_transitions', 'changelogs', 'comment_properties', 'comments', 'create_meta_fields',
-    'create_meta_issue_types', 'deleted_worklogs', 'edit_meta', 'issue_events', 'issue_limit_reports', 'issue_link_types', 'issue_links',
-    'issue_properties', 'issues', 'labels', 'picker_suggestions', 'redaction_jobs', 'remote_links', 'transitions', 'updated_worklogs',
-    'votes', 'watchers', 'worklog_properties', 'worklogs'
+    'create_meta_issue_types', 'deleted_worklogs', 'edit_meta', 'events', 'issues', 'labels', 'limit_reports', 'link_types',
+    'links', 'picker_suggestions', 'properties', 'redaction_jobs', 'remote_links', 'transitions', 'updated_worklogs', 'votes',
+    'watchers', 'worklog_properties', 'worklogs'
   ],
   agile: [
-    'board_backlog_issue_counts', 'board_backlog_issues', 'board_configurations', 'board_epic_issues', 'board_epics', 'board_features',
-    'board_issue_counts', 'board_issues', 'board_issues_without_epic', 'board_projects', 'board_properties', 'board_quick_filters',
-    'board_reports', 'board_sprint_issues', 'board_sprints', 'board_versions', 'boards', 'epic_issues', 'epics', 'filter_boards',
-    'issue_estimations', 'issues', 'issues_without_epic', 'sprint_issues', 'sprint_properties', 'sprints'
+    'board_backlog_issue_counts', 'board_backlog_issues', 'board_configurations', 'board_features', 'board_issue_counts',
+    'board_issues_without_epic', 'board_projects', 'board_properties', 'board_quick_filters', 'board_reports', 'board_versions',
+    'boards', 'epics', 'filter_boards', 'issue_estimations', 'issues', 'sprint_properties', 'sprints'
   ],
   atlassian_tenant: ['info']
 };

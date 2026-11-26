@@ -463,49 +463,49 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#archive"><CopyableCode code="archive" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectIdOrKey"><code>projectIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-project_id_or_key"><code>project_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Archives a project. You can't delete a project if it's archived. To delete an archived project, restore the project and then delete it. To restore a project, use the Jira UI.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#set_avatar"><CopyableCode code="set_avatar" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectIdOrKey"><code>projectIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-id"><code>id</code></a></td>
+    <td><a href="#parameter-project_id_or_key"><code>project_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-id"><code>id</code></a></td>
     <td></td>
     <td>Sets the avatar displayed for a project.&lt;br /&gt;&lt;br /&gt;Use &#91;Load project avatar&#93;(#api-rest-api-3-project-projectIdOrKey-avatar2-post) to store avatars against the project, before using this operation to set the displayed avatar.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg).</td>
 </tr>
 <tr>
     <td><a href="#delete_avatar"><CopyableCode code="delete_avatar" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectIdOrKey"><code>projectIdOrKey</code></a>, <a href="#parameter-id"><code>id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-project_id_or_key"><code>project_id_or_key</code></a>, <a href="#parameter-id"><code>id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Deletes a custom avatar from a project. Note that system avatars cannot be deleted.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg).</td>
 </tr>
 <tr>
     <td><a href="#remove_default_classification_level"><CopyableCode code="remove_default_classification_level" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectIdOrKey"><code>projectIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-project_id_or_key"><code>project_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Remove the default data classification level for a project.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** any **one** of the following is sufficient.&lt;br /&gt;&lt;br /&gt; *  *Administer projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project.&lt;br /&gt; *  *Administer jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#set_default_classification_level"><CopyableCode code="set_default_classification_level" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectIdOrKey"><code>projectIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-id"><code>id</code></a></td>
+    <td><a href="#parameter-project_id_or_key"><code>project_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-id"><code>id</code></a></td>
     <td></td>
     <td>Updates the default data classification level for a project.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** any **one** of the following is sufficient.&lt;br /&gt;&lt;br /&gt; *  *Administer projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project.&lt;br /&gt; *  *Administer jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#delete_async"><CopyableCode code="delete_async" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectIdOrKey"><code>projectIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-project_id_or_key"><code>project_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Deletes a project asynchronously.&lt;br /&gt;&lt;br /&gt;This operation is:&lt;br /&gt;&lt;br /&gt; *  transactional, that is, if part of the delete fails the project is not deleted.&lt;br /&gt; *  &#91;asynchronous&#93;(#async). Follow the `location` link in the response to determine the status of the task and use &#91;Get task&#93;(#api-rest-api-3-task-taskId-get) to obtain subsequent updates.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#restore"><CopyableCode code="restore" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectIdOrKey"><code>projectIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-project_id_or_key"><code>project_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Restores a project that has been archived or placed in the Jira recycle bin.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:**&lt;br /&gt;&lt;br /&gt; *  *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg)for Company managed projects.&lt;br /&gt; *  *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg) or *Administer projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project for Team managed projects.</td>
 </tr>
@@ -535,15 +535,10 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>integer (int64)</code></td>
     <td>The ID of the avatar.</td>
 </tr>
-<tr id="parameter-projectIdOrKey">
-    <td><CopyableCode code="projectIdOrKey" /></td>
-    <td><code>string</code></td>
-    <td>The project ID or project key (case sensitive).</td>
-</tr>
 <tr id="parameter-project_id_or_key">
     <td><CopyableCode code="project_id_or_key" /></td>
     <td><code>string</code></td>
-    <td>The project ID or project key (case sensitive). (wire: projectIdOrKey)</td>
+    <td>The project ID or project key (case sensitive).</td>
 </tr>
 <tr id="parameter-action">
     <td><CopyableCode code="action" /></td>
@@ -1023,7 +1018,7 @@ Archives a project. You can't delete a project if it's archived. To delete an ar
 
 ```sql
 EXEC jira.projects.projects.archive 
-@projectIdOrKey='{{ projectIdOrKey }}' --required, 
+@project_id_or_key='{{ project_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set
 ;
 ```
@@ -1034,7 +1029,7 @@ Sets the avatar displayed for a project.&lt;br /&gt;&lt;br /&gt;Use &#91;Load pr
 
 ```sql
 EXEC jira.projects.projects.set_avatar 
-@projectIdOrKey='{{ projectIdOrKey }}' --required, 
+@project_id_or_key='{{ project_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -1049,7 +1044,7 @@ Deletes a custom avatar from a project. Note that system avatars cannot be delet
 
 ```sql
 EXEC jira.projects.projects.delete_avatar 
-@projectIdOrKey='{{ projectIdOrKey }}' --required, 
+@project_id_or_key='{{ project_id_or_key }}' --required, 
 @id='{{ id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set
 ;
@@ -1061,7 +1056,7 @@ Remove the default data classification level for a project.&lt;br /&gt;&lt;br /&
 
 ```sql
 EXEC jira.projects.projects.remove_default_classification_level 
-@projectIdOrKey='{{ projectIdOrKey }}' --required, 
+@project_id_or_key='{{ project_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set
 ;
 ```
@@ -1072,7 +1067,7 @@ Updates the default data classification level for a project.&lt;br /&gt;&lt;br /
 
 ```sql
 EXEC jira.projects.projects.set_default_classification_level 
-@projectIdOrKey='{{ projectIdOrKey }}' --required, 
+@project_id_or_key='{{ project_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -1087,7 +1082,7 @@ Deletes a project asynchronously.&lt;br /&gt;&lt;br /&gt;This operation is:&lt;b
 
 ```sql
 EXEC jira.projects.projects.delete_async 
-@projectIdOrKey='{{ projectIdOrKey }}' --required, 
+@project_id_or_key='{{ project_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set
 ;
 ```
@@ -1098,7 +1093,7 @@ Restores a project that has been archived or placed in the Jira recycle bin.&lt;
 
 ```sql
 EXEC jira.projects.projects.restore 
-@projectIdOrKey='{{ projectIdOrKey }}' --required, 
+@project_id_or_key='{{ project_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set
 ;
 ```

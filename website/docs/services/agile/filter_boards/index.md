@@ -115,7 +115,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-filter_id">
     <td><CopyableCode code="filter_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>Filters results to boards that are relevant to a filter. Not supported for next-gen boards. (wire: filterId)</td>
+    <td>Filters results to boards that are relevant to a filter. Not supported for next-gen boards.</td>
 </tr>
 <tr id="parameter-max_results">
     <td><CopyableCode code="max_results" /></td>

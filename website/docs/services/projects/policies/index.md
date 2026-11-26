@@ -109,14 +109,14 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#apply"><CopyableCode code="apply" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-policyId"><code>policyId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-policy_id"><code>policy_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Adds a policy to a set of projects. Handles partial results: each project is processed independently, and failures on individual projects do not prevent the operation from proceeding on the remaining projects.&lt;br /&gt;&lt;br /&gt;Jira Admin only. Returns 200 with the successful and failed project results if at least one project succeeds, or 409 if none do.</td>
 </tr>
 <tr>
     <td><a href="#remove"><CopyableCode code="remove" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-policyId"><code>policyId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-policy_id"><code>policy_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td></td>
     <td>Removes a policy from a set of projects. Handles partial results: each project is processed independently, and failures on individual projects do not prevent the operation from proceeding on the remaining projects.&lt;br /&gt;&lt;br /&gt;Jira Admin only. Returns 200 with the successful and failed project results if at least one project succeeds, or 409 if none do.</td>
 </tr>
@@ -141,8 +141,8 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The cloud ID of the Jira Cloud site. Resolved from ATLASSIAN_CLOUD_ID when set; SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = '&lt;site&gt;' answers it. (x-stackQL-envVar: ATLASSIAN_CLOUD_ID)</td>
 </tr>
-<tr id="parameter-policyId">
-    <td><CopyableCode code="policyId" /></td>
+<tr id="parameter-policy_id">
+    <td><CopyableCode code="policy_id" /></td>
     <td><code>string</code></td>
     <td>the policy ID to remove</td>
 </tr>
@@ -212,7 +212,7 @@ Adds a policy to a set of projects. Handles partial results: each project is pro
 
 ```sql
 EXEC jira.projects.policies.apply 
-@policyId='{{ policyId }}' --required, 
+@policy_id='{{ policy_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -227,7 +227,7 @@ Removes a policy from a set of projects. Handles partial results: each project i
 
 ```sql
 EXEC jira.projects.policies.remove 
-@policyId='{{ policyId }}' --required, 
+@policy_id='{{ policy_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{

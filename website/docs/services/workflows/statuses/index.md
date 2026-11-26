@@ -317,7 +317,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-id_or_name">
     <td><CopyableCode code="id_or_name" /></td>
     <td><code>string</code></td>
-    <td>The ID or name of the status. (wire: idOrName)</td>
+    <td>The ID or name of the status.</td>
 </tr>
 <tr id="parameter-name">
     <td><CopyableCode code="name" /></td>

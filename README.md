@@ -2,7 +2,7 @@
 
 This repository builds and tests the `jira` provider for StackQL from the OpenAPI documents Atlassian publishes for Jira Cloud, and builds its documentation site, [jira-provider.stackql.io](https://jira-provider.stackql.io).
 
-The provider maps the Jira Cloud platform REST API v3 and the Jira Software REST API to SQL: 17 services, 227 resources and 611 methods. Issues are searched with JQL inside a `WHERE` clause:
+The provider maps the Jira Cloud platform REST API v3 and the Jira Software REST API to SQL: 17 services, 217 resources and 611 methods. Issues are searched with JQL inside a `WHERE` clause:
 
 ```sql
 SELECT key,
@@ -121,14 +121,14 @@ make pre-normalize normalize
 make generate
 ```
 
-`provider-utils generate` with `provider_config.json` (`auth.type: oauth2`, client credentials, `snake_case_aliases: true`) and `--naive-req-body-translate`, then `post_process.mjs`: `request.nativeCasing: camel` on all 611 methods; naive DELETE bodies; scalar reads as a `value` row and the label page as `label` rows; the permission maps as one row per permission; the JQL search as the POST form with `request.base` `{"fields": ["*navigable"]}` and its token in the body; `nextPageToken` pagination (10 reads); offset pagination through a response transform that adds the next `startAt` (71 reads); `LIMIT` -> `maxResults` (90 reads), `OFFSET` -> `startAt` (70) and `ORDER BY` -> `orderBy` in Jira's prefix syntax (17) pushdown; entity property values sent as the raw body. Then the GraphQL merge (no operations).
+`provider-utils generate` with `provider_config.json` (`auth.type: oauth2`, client credentials, `snake_case_aliases: true`) and `--naive-req-body-translate`, then `post_process.mjs`: `request.nativeCasing: camel` on all 611 methods; naive DELETE bodies; scalar reads as a `value` row and the label page as `label` rows; the permission maps as one row per permission; the JQL search as the POST form with `request.base` `{"fields": ["*navigable"]}` and its token in the body; `nextPageToken` pagination (10 reads); offset pagination through a response transform that adds the next `startAt` (71 reads); `LIMIT` -> `maxResults` (90 reads), `OFFSET` -> `startAt` (70) and `ORDER BY` -> `orderBy` in Jira's prefix syntax (17) pushdown; entity property values sent as the raw body; path parameters renamed to snake_case (rule 10, last). Then the GraphQL merge (no operations).
 
 ## 5. Test
 
 ```bash
 make test-offline        # SHOW / DESCRIBE against the local file registry (25 checks)
 make test-integration    # the mock Jira API: rows and wire calls per archetype (59 checks)
-make test-meta           # meta-route walk: 17 services, 227 resources, 611 methods
+make test-meta           # meta-route walk: 17 services, 217 resources, 611 methods
 make smoke               # live, against the trial site (78 checks, including a Jira Software board and sprint)
 ```
 

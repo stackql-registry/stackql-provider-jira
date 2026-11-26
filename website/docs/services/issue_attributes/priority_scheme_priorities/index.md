@@ -142,7 +142,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-scheme_id">
     <td><CopyableCode code="scheme_id" /></td>
     <td><code>string</code></td>
-    <td>The priority scheme ID. (wire: schemeId)</td>
+    <td>The priority scheme ID.</td>
 </tr>
 <tr id="parameter-max_results">
     <td><CopyableCode code="max_results" /></td>

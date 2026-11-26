@@ -160,12 +160,12 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-comment_id">
     <td><CopyableCode code="comment_id" /></td>
     <td><code>string</code></td>
-    <td>The ID of the comment. (wire: commentId)</td>
+    <td>The ID of the comment.</td>
 </tr>
 <tr id="parameter-property_key">
     <td><CopyableCode code="property_key" /></td>
     <td><code>string</code></td>
-    <td>The key of the property. (wire: propertyKey)</td>
+    <td>The key of the property.</td>
 </tr>
 </tbody>
 </table>

@@ -156,14 +156,14 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#reorder"><CopyableCode code="reorder" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-fieldId"><code>fieldId</code></a>, <a href="#parameter-contextId"><code>contextId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-customFieldOptionIds"><code>customFieldOptionIds</code></a></td>
+    <td><a href="#parameter-field_id"><code>field_id</code></a>, <a href="#parameter-context_id"><code>context_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a>, <a href="#parameter-customFieldOptionIds"><code>customFieldOptionIds</code></a></td>
     <td></td>
     <td>Changes the order of custom field options or cascading options in a context.&lt;br /&gt;&lt;br /&gt;This operation works for custom field options created in Jira or the operations from this resource. **To work with issue field select list options created for Connect apps use the &#91;Issue custom field options (apps)&#93;(#api-group-issue-custom-field-options--apps-) operations.**&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
 <tr>
     <td><a href="#replace_on_issues"><CopyableCode code="replace_on_issues" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-fieldId"><code>fieldId</code></a>, <a href="#parameter-optionId"><code>optionId</code></a>, <a href="#parameter-contextId"><code>contextId</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-field_id"><code>field_id</code></a>, <a href="#parameter-option_id"><code>option_id</code></a>, <a href="#parameter-context_id"><code>context_id</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td><a href="#parameter-replaceWith"><code>replaceWith</code></a>, <a href="#parameter-jql"><code>jql</code></a></td>
     <td>Replaces the options of a custom field.&lt;br /&gt;&lt;br /&gt;Note that this operation **only works for issue field select list options created in Jira or using operations from the &#91;Issue custom field options&#93;(#api-group-Issue-custom-field-options) resource**, it cannot be used with issue field select list options created by Connect or Forge apps.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Administer Jira* &#91;global permission&#93;(https:​//confluence.atlassian.com/x/x4dKLg).</td>
 </tr>
@@ -188,40 +188,25 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The cloud ID of the Jira Cloud site. Resolved from ATLASSIAN_CLOUD_ID when set; SELECT cloud_id FROM jira.atlassian_tenant.info WHERE site = '&lt;site&gt;' answers it. (x-stackQL-envVar: ATLASSIAN_CLOUD_ID)</td>
 </tr>
-<tr id="parameter-contextId">
-    <td><CopyableCode code="contextId" /></td>
-    <td><code>integer (int64)</code></td>
-    <td>The ID of the context.</td>
-</tr>
 <tr id="parameter-context_id">
     <td><CopyableCode code="context_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the context from which an option should be deleted. (wire: contextId)</td>
-</tr>
-<tr id="parameter-fieldId">
-    <td><CopyableCode code="fieldId" /></td>
-    <td><code>string</code></td>
-    <td>The ID of the custom field.</td>
+    <td>The ID of the context.</td>
 </tr>
 <tr id="parameter-field_id">
     <td><CopyableCode code="field_id" /></td>
     <td><code>string</code></td>
-    <td>The ID of the custom field. (wire: fieldId)</td>
+    <td>The ID of the custom field.</td>
 </tr>
 <tr id="parameter-id">
     <td><CopyableCode code="id" /></td>
     <td><code>string</code></td>
     <td>The ID of the custom field option.</td>
 </tr>
-<tr id="parameter-optionId">
-    <td><CopyableCode code="optionId" /></td>
-    <td><code>integer (int64)</code></td>
-    <td>The ID of the option to be deselected.</td>
-</tr>
 <tr id="parameter-option_id">
     <td><CopyableCode code="option_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the option to delete. (wire: optionId)</td>
+    <td>The ID of the option to be deselected.</td>
 </tr>
 <tr id="parameter-jql">
     <td><CopyableCode code="jql" /></td>
@@ -434,8 +419,8 @@ Changes the order of custom field options or cascading options in a context.&lt;
 
 ```sql
 EXEC jira.fields.custom_field_options.reorder 
-@fieldId='{{ fieldId }}' --required, 
-@contextId='{{ contextId }}' --required, 
+@field_id='{{ field_id }}' --required, 
+@context_id='{{ context_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set 
 @@json=
 '{
@@ -452,9 +437,9 @@ Replaces the options of a custom field.&lt;br /&gt;&lt;br /&gt;Note that this op
 
 ```sql
 EXEC jira.fields.custom_field_options.replace_on_issues 
-@fieldId='{{ fieldId }}' --required, 
-@optionId='{{ optionId }}' --required, 
-@contextId='{{ contextId }}' --required, 
+@field_id='{{ field_id }}' --required, 
+@option_id='{{ option_id }}' --required, 
+@context_id='{{ context_id }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set, 
 @replaceWith='{{ replaceWith }}', 
 @jql='{{ jql }}'

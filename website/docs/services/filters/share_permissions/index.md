@@ -205,7 +205,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-permission_id">
     <td><CopyableCode code="permission_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the share permission. (wire: permissionId)</td>
+    <td>The ID of the share permission.</td>
 </tr>
 </tbody>
 </table>

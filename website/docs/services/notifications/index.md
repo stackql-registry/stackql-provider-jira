@@ -25,9 +25,9 @@ total resources: __2__
 ## Resources
 <div class="row">
 <div class="providerDocColumn">
-<a href="/services/notifications/notification_scheme_project_associations/">notification_scheme_project_associations</a>
+<a href="/services/notifications/scheme_project_associations/">scheme_project_associations</a>
 </div>
 <div class="providerDocColumn">
-<a href="/services/notifications/notification_schemes/">notification_schemes</a>
+<a href="/services/notifications/schemes/">schemes</a>
 </div>
 </div>

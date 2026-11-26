@@ -230,12 +230,12 @@ try {
 
   // ------------------------------------------- entity property: raw value
   mark = log.length;
-  r = await runSql(`UPDATE ${P}.projects.project_properties SET value = '{"by": "stackql", "n": 2}' WHERE project_id_or_key = 'SQLUAT' AND property_key = 'stackql-smoke-p'`);
+  r = await runSql(`UPDATE ${P}.projects.properties SET value = '{"by": "stackql", "n": 2}' WHERE project_id_or_key = 'SQLUAT' AND property_key = 'stackql-smoke-p'`);
   const propPut = apiCalls(mark, 'PUT', '/rest/api/3/project/SQLUAT/properties/stackql-smoke-p');
   check('property UPDATE sends the value as the raw body', !r.err && propPut[0]?.raw === '{"by":"stackql","n":2}', r.err || wire(mark));
-  r = await runSql(`SELECT key, value FROM ${P}.projects.project_properties WHERE project_id_or_key = 'SQLUAT' AND property_key = 'stackql-smoke-p'`);
+  r = await runSql(`SELECT key, value FROM ${P}.projects.properties WHERE project_id_or_key = 'SQLUAT' AND property_key = 'stackql-smoke-p'`);
   check('property reads back', r.rows?.length === 1 && /stackql/.test(JSON.stringify(r.rows[0].value)), r.err || JSON.stringify(r.rows));
-  r = await runSql(`DELETE FROM ${P}.projects.project_properties WHERE project_id_or_key = 'SQLUAT' AND property_key = 'stackql-smoke-p'`);
+  r = await runSql(`DELETE FROM ${P}.projects.properties WHERE project_id_or_key = 'SQLUAT' AND property_key = 'stackql-smoke-p'`);
   check('property DELETE', !r.err && !state.properties.has('SQLUAT/stackql-smoke-p'), r.err);
 
   // -------------------------------------------------- 303 redirect followed
@@ -249,7 +249,7 @@ try {
   const boardPages = apiCalls(mark, 'GET', '/rest/agile/1.0/board');
   check('agile boards: offset pagination (3 rows, 2 pages)', r.rows?.length === 3 && boardPages.length === 2 && boardPages[1].query.startAt === '2', r.err || wire(mark));
   mark = log.length;
-  r = await runSql(`SELECT key FROM ${P}.agile.board_issues WHERE board_id = '1'`);
+  r = await runSql(`SELECT key FROM ${P}.agile.issues WHERE board_id = '1'`);
   const bi = apiCalls(mark, 'GET', '/rest/software/1.0/board/1/issue');
   check('board issues: nextPageToken in the query', r.rows?.length === state.issues.size && bi.length === 2 && bi[1].query.nextPageToken === 'tok-2', r.err || wire(mark));
   mark = log.length;

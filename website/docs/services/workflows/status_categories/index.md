@@ -176,7 +176,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-id_or_key">
     <td><CopyableCode code="id_or_key" /></td>
     <td><code>string</code></td>
-    <td>The ID or key of the status category. (wire: idOrKey)</td>
+    <td>The ID or key of the status category.</td>
 </tr>
 </tbody>
 </table>

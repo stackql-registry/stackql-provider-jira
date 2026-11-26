@@ -117,7 +117,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-issue_security_scheme_id">
     <td><CopyableCode code="issue_security_scheme_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the issue security scheme. Use the &#91;Get issue security schemes&#93;(#api-rest-api-3-issuesecurityschemes-get) operation to get a list of issue security scheme IDs. (wire: issueSecuritySchemeId)</td>
+    <td>The ID of the issue security scheme. Use the &#91;Get issue security schemes&#93;(#api-rest-api-3-issuesecurityschemes-get) operation to get a list of issue security scheme IDs.</td>
 </tr>
 <tr id="parameter-expand">
     <td><CopyableCode code="expand" /></td>

@@ -155,7 +155,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-board_id">
     <td><CopyableCode code="board_id" /></td>
     <td><code>string</code></td>
-    <td>the id of the board from which the property will be removed. (wire: boardId)</td>
+    <td>the id of the board from which the property will be removed.</td>
 </tr>
 <tr id="parameter-cloud_id">
     <td><CopyableCode code="cloud_id" /></td>
@@ -165,7 +165,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-property_key">
     <td><CopyableCode code="property_key" /></td>
     <td><code>string</code></td>
-    <td>the key of the property to remove. (wire: propertyKey)</td>
+    <td>the key of the property to remove.</td>
 </tr>
 </tbody>
 </table>

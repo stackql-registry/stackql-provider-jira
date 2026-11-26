@@ -137,7 +137,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-board_id">
     <td><CopyableCode code="board_id" /></td>
     <td><code>integer (int64)</code></td>
-    <td>The ID of the board that contains the requested versions. (wire: boardId)</td>
+    <td>The ID of the board that contains the requested versions.</td>
 </tr>
 <tr id="parameter-cloud_id">
     <td><CopyableCode code="cloud_id" /></td>

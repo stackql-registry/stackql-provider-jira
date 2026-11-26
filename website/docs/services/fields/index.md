@@ -25,26 +25,26 @@ total resources: __19__
 ## Resources
 <div class="row">
 <div class="providerDocColumn">
+<a href="/services/fields/configuration_items/">configuration_items</a><br />
+<a href="/services/fields/configuration_scheme_mappings/">configuration_scheme_mappings</a><br />
+<a href="/services/fields/configuration_scheme_project_associations/">configuration_scheme_project_associations</a><br />
+<a href="/services/fields/configuration_schemes/">configuration_schemes</a><br />
+<a href="/services/fields/configurations/">configurations</a><br />
 <a href="/services/fields/custom_field_context_default_values/">custom_field_context_default_values</a><br />
 <a href="/services/fields/custom_field_context_issue_type_mappings/">custom_field_context_issue_type_mappings</a><br />
 <a href="/services/fields/custom_field_context_project_mappings/">custom_field_context_project_mappings</a><br />
 <a href="/services/fields/custom_field_contexts/">custom_field_contexts</a><br />
-<a href="/services/fields/custom_field_options/">custom_field_options</a><br />
-<a href="/services/fields/field_configuration_items/">field_configuration_items</a><br />
-<a href="/services/fields/field_configuration_scheme_mappings/">field_configuration_scheme_mappings</a><br />
-<a href="/services/fields/field_configuration_scheme_project_associations/">field_configuration_scheme_project_associations</a><br />
-<a href="/services/fields/field_configuration_schemes/">field_configuration_schemes</a><br />
-<a href="/services/fields/field_configurations/">field_configurations</a>
+<a href="/services/fields/custom_field_options/">custom_field_options</a>
 </div>
 <div class="providerDocColumn">
-<a href="/services/fields/field_project_associations/">field_project_associations</a><br />
-<a href="/services/fields/field_scheme_field_parameters/">field_scheme_field_parameters</a><br />
-<a href="/services/fields/field_scheme_fields/">field_scheme_fields</a><br />
-<a href="/services/fields/field_scheme_project_associations/">field_scheme_project_associations</a><br />
-<a href="/services/fields/field_scheme_projects/">field_scheme_projects</a><br />
-<a href="/services/fields/field_schemes/">field_schemes</a><br />
 <a href="/services/fields/fields/">fields</a><br />
+<a href="/services/fields/project_associations/">project_associations</a><br />
 <a href="/services/fields/project_fields/">project_fields</a><br />
+<a href="/services/fields/scheme_field_parameters/">scheme_field_parameters</a><br />
+<a href="/services/fields/scheme_fields/">scheme_fields</a><br />
+<a href="/services/fields/scheme_project_associations/">scheme_project_associations</a><br />
+<a href="/services/fields/scheme_projects/">scheme_projects</a><br />
+<a href="/services/fields/schemes/">schemes</a><br />
 <a href="/services/fields/trashed_fields/">trashed_fields</a>
 </div>
 </div>

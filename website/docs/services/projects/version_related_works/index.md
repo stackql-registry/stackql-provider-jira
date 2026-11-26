@@ -153,12 +153,12 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-related_work_id">
     <td><CopyableCode code="related_work_id" /></td>
     <td><code>string</code></td>
-    <td>The ID of the related work to delete. (wire: relatedWorkId)</td>
+    <td>The ID of the related work to delete.</td>
 </tr>
 <tr id="parameter-version_id">
     <td><CopyableCode code="version_id" /></td>
     <td><code>string</code></td>
-    <td>The ID of the version that the target related work belongs to. (wire: versionId)</td>
+    <td>The ID of the version that the target related work belongs to.</td>
 </tr>
 </tbody>
 </table>

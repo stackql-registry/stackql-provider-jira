@@ -238,7 +238,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-field_id">
     <td><CopyableCode code="field_id" /></td>
     <td><code>string</code></td>
-    <td>The ID of the custom field. (wire: fieldId)</td>
+    <td>The ID of the custom field.</td>
 </tr>
 <tr id="parameter-id">
     <td><CopyableCode code="id" /></td>

@@ -132,7 +132,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-project_key_or_id">
     <td><CopyableCode code="project_key_or_id" /></td>
     <td><code>string</code></td>
-    <td>The project ID or project key (case sensitive). (wire: projectKeyOrId)</td>
+    <td>The project ID or project key (case sensitive).</td>
 </tr>
 </tbody>
 </table>

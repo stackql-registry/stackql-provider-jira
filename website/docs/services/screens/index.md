@@ -18,7 +18,7 @@ screens service documentation.
 
 :::info[Service Summary]
 
-total resources: __7__  
+total resources: __6__  
 
 :::
 
@@ -26,13 +26,12 @@ total resources: __7__
 <div class="row">
 <div class="providerDocColumn">
 <a href="/services/screens/all_screen_tabs/">all_screen_tabs</a><br />
-<a href="/services/screens/field_screens/">field_screens</a><br />
-<a href="/services/screens/screen_available_fields/">screen_available_fields</a><br />
-<a href="/services/screens/screen_schemes/">screen_schemes</a>
+<a href="/services/screens/available_fields/">available_fields</a><br />
+<a href="/services/screens/schemes/">schemes</a>
 </div>
 <div class="providerDocColumn">
-<a href="/services/screens/screen_tab_fields/">screen_tab_fields</a><br />
-<a href="/services/screens/screen_tabs/">screen_tabs</a><br />
-<a href="/services/screens/screens/">screens</a>
+<a href="/services/screens/screens/">screens</a><br />
+<a href="/services/screens/tab_fields/">tab_fields</a><br />
+<a href="/services/screens/tabs/">tabs</a>
 </div>
 </div>

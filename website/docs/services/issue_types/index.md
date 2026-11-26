@@ -25,18 +25,18 @@ total resources: __11__
 ## Resources
 <div class="row">
 <div class="providerDocColumn">
-<a href="/services/issue_types/issue_type_alternatives/">issue_type_alternatives</a><br />
-<a href="/services/issue_types/issue_type_properties/">issue_type_properties</a><br />
-<a href="/services/issue_types/issue_type_scheme_mappings/">issue_type_scheme_mappings</a><br />
-<a href="/services/issue_types/issue_type_scheme_project_associations/">issue_type_scheme_project_associations</a><br />
-<a href="/services/issue_types/issue_type_schemes/">issue_type_schemes</a><br />
-<a href="/services/issue_types/issue_type_screen_scheme_mappings/">issue_type_screen_scheme_mappings</a>
+<a href="/services/issue_types/alternatives/">alternatives</a><br />
+<a href="/services/issue_types/issue_types/">issue_types</a><br />
+<a href="/services/issue_types/project_issue_types/">project_issue_types</a><br />
+<a href="/services/issue_types/properties/">properties</a><br />
+<a href="/services/issue_types/scheme_mappings/">scheme_mappings</a><br />
+<a href="/services/issue_types/scheme_project_associations/">scheme_project_associations</a>
 </div>
 <div class="providerDocColumn">
-<a href="/services/issue_types/issue_type_screen_scheme_project_associations/">issue_type_screen_scheme_project_associations</a><br />
-<a href="/services/issue_types/issue_type_screen_scheme_projects/">issue_type_screen_scheme_projects</a><br />
-<a href="/services/issue_types/issue_type_screen_schemes/">issue_type_screen_schemes</a><br />
-<a href="/services/issue_types/issue_types/">issue_types</a><br />
-<a href="/services/issue_types/project_issue_types/">project_issue_types</a>
+<a href="/services/issue_types/schemes/">schemes</a><br />
+<a href="/services/issue_types/screen_scheme_mappings/">screen_scheme_mappings</a><br />
+<a href="/services/issue_types/screen_scheme_project_associations/">screen_scheme_project_associations</a><br />
+<a href="/services/issue_types/screen_scheme_projects/">screen_scheme_projects</a><br />
+<a href="/services/issue_types/screen_schemes/">screen_schemes</a>
 </div>
 </div>

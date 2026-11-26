@@ -18,26 +18,25 @@ permissions service documentation.
 
 :::info[Service Summary]
 
-total resources: __12__  
+total resources: __11__  
 
 :::
 
 ## Resources
 <div class="row">
 <div class="providerDocColumn">
+<a href="/services/permissions/grants/">grants</a><br />
 <a href="/services/permissions/issue_security_level_members/">issue_security_level_members</a><br />
 <a href="/services/permissions/issue_security_levels/">issue_security_levels</a><br />
 <a href="/services/permissions/issue_security_scheme_members/">issue_security_scheme_members</a><br />
 <a href="/services/permissions/issue_security_scheme_project_associations/">issue_security_scheme_project_associations</a><br />
-<a href="/services/permissions/issue_security_schemes/">issue_security_schemes</a><br />
-<a href="/services/permissions/my_permissions/">my_permissions</a>
+<a href="/services/permissions/issue_security_schemes/">issue_security_schemes</a>
 </div>
 <div class="providerDocColumn">
-<a href="/services/permissions/permission_grants/">permission_grants</a><br />
-<a href="/services/permissions/permission_schemes/">permission_schemes</a><br />
+<a href="/services/permissions/my_permissions/">my_permissions</a><br />
 <a href="/services/permissions/permissions/">permissions</a><br />
-<a href="/services/permissions/project_issue_security_schemes/">project_issue_security_schemes</a><br />
 <a href="/services/permissions/project_permission_schemes/">project_permission_schemes</a><br />
-<a href="/services/permissions/project_security_levels/">project_security_levels</a>
+<a href="/services/permissions/project_security_levels/">project_security_levels</a><br />
+<a href="/services/permissions/schemes/">schemes</a>
 </div>
 </div>

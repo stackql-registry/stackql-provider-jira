@@ -112,7 +112,7 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
 <tr id="parameter-status_id">
     <td><CopyableCode code="status_id" /></td>
     <td><code>string</code></td>
-    <td>The statusId to fetch project usages for (wire: statusId)</td>
+    <td>The statusId to fetch project usages for</td>
 </tr>
 <tr id="parameter-max_results">
     <td><CopyableCode code="max_results" /></td>

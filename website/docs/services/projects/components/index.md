@@ -325,7 +325,7 @@ The following methods are available for this resource:
 <tr>
     <td><a href="#list_all_by_project"><CopyableCode code="list_all_by_project" /></a></td>
     <td><CopyableCode code="exec" /></td>
-    <td><a href="#parameter-projectIdOrKey"><code>projectIdOrKey</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
+    <td><a href="#parameter-project_id_or_key"><code>project_id_or_key</code></a>, <a href="#parameter-cloud_id"><code>cloud_id</code></a></td>
     <td><a href="#parameter-componentSource"><code>componentSource</code></a></td>
     <td>Returns all components in a project. See the &#91;Get project components paginated&#93;(#api-rest-api-3-project-projectIdOrKey-component-get) resource if you want to get a full list of components with pagination.&lt;br /&gt;&lt;br /&gt;If your project uses Compass components, this API will return a paginated list of Compass components that are linked to issues in that project.&lt;br /&gt;&lt;br /&gt;This operation can be accessed anonymously.&lt;br /&gt;&lt;br /&gt;**&#91;Permissions&#93;(#permissions) required:** *Browse Projects* &#91;project permission&#93;(https:​//confluence.atlassian.com/x/yodKLg) for the project.</td>
 </tr>
@@ -355,15 +355,10 @@ Parameters can be passed in the `WHERE` clause of a query. Check the [Methods](#
     <td><code>string</code></td>
     <td>The ID of the component.</td>
 </tr>
-<tr id="parameter-projectIdOrKey">
-    <td><CopyableCode code="projectIdOrKey" /></td>
-    <td><code>string</code></td>
-    <td>The project ID or project key (case sensitive).</td>
-</tr>
 <tr id="parameter-project_id_or_key">
     <td><CopyableCode code="project_id_or_key" /></td>
     <td><code>string</code></td>
-    <td>The project ID or project key (case sensitive). (wire: projectIdOrKey)</td>
+    <td>The project ID or project key (case sensitive).</td>
 </tr>
 <tr id="parameter-componentSource">
     <td><CopyableCode code="componentSource" /></td>
@@ -682,7 +677,7 @@ Returns all components in a project. See the &#91;Get project components paginat
 
 ```sql
 EXEC jira.projects.components.list_all_by_project 
-@projectIdOrKey='{{ projectIdOrKey }}' --required, 
+@project_id_or_key='{{ project_id_or_key }}' --required, 
 @cloud_id='{{ cloud_id }}' --required unless ATLASSIAN_CLOUD_ID is set, 
 @componentSource='{{ componentSource }}'
 ;
